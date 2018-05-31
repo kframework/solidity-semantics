@@ -1,0 +1,10 @@
+
+int n;
+int sum;
+n = 100;
+sum = 0;
+while (n<=110) 
+{
+  sum = sum + n;
+  ++n;
+}

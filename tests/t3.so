@@ -1,0 +1,19 @@
+
+contract demo{
+         int8 s;
+         s = 100;
+
+         address minter;
+
+         mapping (address => uint) balances;
+
+	 function X (int8 a) { a + 1; }
+	 function Y (int8 a,int8 b) { a + b; }
+	 function main(){
+	     int a1 , b1;
+	     b1 = 1;
+	     a1 = b1 + 1;
+	     X(1);
+	   }
+	 }
+
