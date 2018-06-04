@@ -249,29 +249,39 @@ rule
 
 //ModifierDefinition
 
-         rule <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {require(C:Expression); _;}) => . ... </k>
-              <Contract>
-              (.Bag => 
-                 <Modifier>
-                    <mname> X </mname>
-                    <mparameters> Ps </mparameters>
-                    <condition> C </condition>
-                 </Modifier>
-               )
-              ...
-              </Contract> 
+// {require(C:Expression); _;} is only one of the simplest forms of modifier. 
+// The construct is actually more general, and it has a few tricky cases, too. 
+// It also affects the semantics of the return statement. Unfortunately none of this 
+// is explained in the Solidity documentation. 
+// The way we found out about those cases was by running at the tests here: 
+// https://github.com/ethereum/solidity/blob/develop/test/libsolidity/SolidityEndToEndTest.cpp
+// For example, do a text search for "modifier" to see some test cases.
 
-         rule <k> pcsContractPart(CN:Id, modifier X:Id {require(C:Expression); _;}) => . ... </k>
-              <Contract>
-              (.Bag => 
-                 <Modifier>
-                    <mname> X </mname>
-                    <mparameters> .K </mparameters>
-                    <condition> C </condition>
-                 </Modifier>
-               )
-              ...
-              </Contract> 
+rule [modifier-def]:
+  <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {require(C:Expression); _;}) => . ... </k>
+  <Contract> // ----> ^^ why don't we make use of CN? 
+  (.Bag => 
+    <Modifier>
+      <mname> X </mname>
+      <mparameters> Ps </mparameters>
+      <condition> C </condition>
+    </Modifier>)
+    ...
+  </Contract> 
+  // ^ What contract is actually picked here? To which contract are we adding the modifier? 
+  // Looks like we do not check the contract name, so it can pick anything (or probably the 1st?)!
+
+rule [modifier-def-no-params]:
+  <k> pcsContractPart(CN:Id, modifier X:Id {require(C:Expression); _;}) => . ... </k>
+  <Contract>
+    (.Bag => 
+      <Modifier>
+        <mname> X </mname>
+        <mparameters> .K </mparameters>
+        <condition> C </condition>
+      </Modifier>)
+    ...
+  </Contract> 
 
 
 //Functioncall
