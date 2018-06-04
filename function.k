@@ -11,101 +11,96 @@ imports CONFIGURATION
 /*****************************@
        FunctionDefinition
 *******************************/
+ 
+rule [constructor]: // if we want it, we can also give names to the rules!
+  <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
+  <Contract>
+    <cname> C </cname>
+    <cfunction> (.Map => C |-> CF) ... </cfunction> 
+    <constructor> _=>1 </constructor> // What if more then one constructor?
+    ...
+  </Contract>
+  <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+  (.Bag =>
+    <Function>
+      <fId> CF </fId>
+      <inputparameters> Ps1 </inputparameters>
+      <outputparameters> Ps2 </outputparameters>
+      <body> B </body>
+      <FunQuantifiers> FQ </FunQuantifiers>
+      <FunCon> true </FunCon>
+      <Return> 0 </Return>
+    </Function>)
+  requires Id2String(C) =/=String "main"
 
-rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
-            <Contract>
-	       <cname> C </cname>
-	       <cfunction> (.Map => C |-> CF) ... </cfunction>
-               <constructor> _=>1 </constructor>
-               ...
-            </Contract>
-               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
-               
-               (.Bag =>
-	          <Function>
-                     <fId> CF </fId>
-		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> Ps2 </outputparameters>
-	  	     <body> B </body>
-                     <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> true </FunCon>
-                     <Return> 0 </Return>
-                  </Function>
-	       )
-               
-              
-                requires Id2String(C) =/=String "main"
+rule [user-function]:
+  <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns (Ps2:FParameters){B}) => . ... </k>
+  // In the other two related rules, the following 3 cells are wrapped inside 
+  // 
+  //      <Contract>
+  //        ...
+  //      </Contract>
+  //
+  // but not here. Is there any special reason for that?
+  <cname> C </cname>
+  <cfunction> (.Map => F |-> CF) ... </cfunction> // Are you using this Map as a List (or Set)?
+  <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+  (.Bag =>
+    <Function>
+      <fId> CF </fId>
+      <inputparameters> Ps1 </inputparameters>
+      <outputparameters> Ps2 </outputparameters>
+      <body> B </body>
+      <FunQuantifiers> FQ </FunQuantifiers>
+      <FunCon> true </FunCon>
+      <Return> 0 </Return>
+    </Function>)
+  requires (Id2String(F) =/=String "main") andBool 
+           (Id2String(F) =/=String Id2String(C))
+  // I think we need C != F as a side condition here, otherewise the rule doesn't know that. 
+  // It currently works only because previous rule (with C = F) comes first.
+  // If the two rules are swapped, it will behave incorrectly.
 
-       rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
-       
-	       <cname> C </cname>
-	      
-               <cfunction> (.Map => F |-> CF) ... </cfunction>
-               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
-               
-               (.Bag =>
-	          <Function>
-                     <fId> CF </fId>
-		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> Ps2 </outputparameters>
-	  	     <body> B </body>
-                     <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> true </FunCon>
-                     <Return> 0 </Return>
-                  </Function>
-	       )
-               
-                requires Id2String(F) =/=String "main" 
-
-     
-
-        rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
-             <Contract>
-	       <cname> C </cname>
-	      
-               <cfunction> (.Map => C |-> CF) ... </cfunction>
-               <constructor> _=>1 </constructor>
-               ...
-              </Contract>
-               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
-               (.Bag =>
-	          <Function>
-                     <fId> CF </fId>
-		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
-	  	     <body> B </body>
-                     <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> true </FunCon>
-                     <Return> 0 </Return>                     
-	          </Function>
-	       )
+rule [constructor-no-return-params]:
+  <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
+  <Contract>
+    <cname> C </cname>
+    <cfunction> (.Map => C |-> CF) ... </cfunction>
+    <constructor> _=>1 </constructor>
+    ...
+  </Contract>
+  <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+  (.Bag =>
+    <Function>
+      <fId> CF </fId>
+      <inputparameters> Ps1 </inputparameters>
+      <outputparameters> .FParameters </outputparameters>
+      <body> B </body>
+      <FunQuantifiers> FQ </FunQuantifiers>
+      <FunCon> true </FunCon>
+      <Return> 0 </Return>                     
+	   </Function>)
+  requires Id2String(C) =/=String "main"     
                 
-          
-                requires Id2String(C) =/=String "main"     
-                
-      
-       
+rule [user-function-no-return-params]:
+  <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
+  <cname> C </cname>	      
+  <cfunction> (.Map => F |-> CF) ... </cfunction>
+  <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+  (.Bag =>
+    <Function>
+      <fId> CF </fId>
+      <inputparameters> Ps1 </inputparameters>
+      <outputparameters> .FParameters </outputparameters>
+      <body> B </body>
+      <FunQuantifiers> FQ </FunQuantifiers>
+      <FunCon> true </FunCon>
+      <Return> 0 </Return>                     
+    </Function>)
+  requires Id2String(F) =/=String "main" 
+  // Similarly to [user-function], this should also need to state that C =/= F
 
-       rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
-       
-	       <cname> C </cname>	      
-               <cfunction> (.Map => F |-> CF) ... </cfunction>
-               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
-               (.Bag =>
-	          <Function>
-                     <fId> CF </fId>
-		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
-	  	     <body> B </body>
-                     <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> true </FunCon>
-                     <Return> 0 </Return>                     
-	          </Function>
-	       )
-
-                requires Id2String(F) =/=String "main" 
-                 
-
+// Quite a few very similar cases here. May be worth thinking of a way to refactor them at some point?
               
 /*
        rule <k> pcsContractPart(C:Id, function .Ids (Ps1:FParameters) FQ:FunQuantifiers   {B}) => . ... </k>
@@ -148,44 +143,35 @@ rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers
 
 */
                      
-    
-        rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) .FunQuantifiers   {B}) => B ... </k>
-       
-	       <cname> C </cname>
-	      
-               <cfunction> (.Map => F |-> CF) ... </cfunction>
-               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
-               
-               (.Bag =>
-	          <Function>
-                     <fId> CF </fId>
-		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
-                     <body> B </body>
-		     ...                    
-	          </Function>
-	       )
-  
-               requires Id2String(F) ==String "main"
-               
+rule 
+  <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) .FunQuantifiers   {B}) => B ... </k>
+  <cname> C </cname>
+  <cfunction> (.Map => F |-> CF) ... </cfunction>
+  <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+  (.Bag =>
+    <Function>
+      <fId> CF </fId>
+      <inputparameters> Ps1 </inputparameters>
+      <outputparameters> .FParameters </outputparameters>
+      <body> B </body>
+    ...                    
+    </Function>)
+  requires Id2String(F) ==String "main"
 
-rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
-     	 		       returns (Ps2:FParameters) {B}) => B ... </k>
-       
-	       <cname> C </cname>
-               <cfunction> (.Map => F |-> CF) ... </cfunction>
-               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
-
-               (.Bag =>
-	          <Function>
-                     <fId> CF </fId>
-		     <inputparameters> P1 </inputparameters>
-                     <outputparameters> Ps2 </outputparameters>
-                     <body> B </body>
-                     ...
-	          </Function>)
-
-               requires Id2String(F) ==String "main"
+rule 
+  <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers returns (Ps2:FParameters) {B}) => B ... </k>
+  <cname> C </cname>
+  <cfunction> (.Map => F |-> CF) ... </cfunction>
+  <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+  (.Bag =>
+    <Function>
+      <fId> CF </fId>
+      <inputparameters> P1 </inputparameters>
+      <outputparameters> Ps2 </outputparameters>
+      <body> B </body>
+      ...
+    </Function>)
+  requires Id2String(F) ==String "main"
 
      
 //BindParam
