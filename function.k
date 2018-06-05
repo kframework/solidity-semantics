@@ -191,61 +191,46 @@ rule
               </contractInstance>
 
 //FunQuantifiers
-       
-       rule FunQs(FQ:FunQuantifier FQs:FunQuantifiers,F:Param) => FunQ(FQ,F) ~> FunQs(FQs,F)
-       rule FunQs(.FunQuantifiers,F:Param) => .
+rule FunQs(FQ:FunQuantifier FQs:FunQuantifiers,F:Param) => FunQ(FQ,F) ~> FunQs(FQs,F)
+rule FunQs(.FunQuantifiers,F:Param) => .
       
-       //Specifier
-       rule FunQ(FQ:Specifier,F:Param) => .
+//Specifier
+rule FunQ(FQ:Specifier,F:Param) => .
+ 
+//ModifierInvocation
+rule 
+  <k> FunQ(X:Id, F:Param) => . ... </k>
+  <Contract>
+    ...
+    <mname> X </mname>
+    <condition> Con:Expression </condition>
+    <cfunction> ... (F |-> CF:Int) ... </cfunction>
+  </Contract>            
+  <fId> CF </fId>
+  <inputparameters> Ps1 </inputparameters> // This is not used, so it could be avoided
+  <outputparameters> Ps2 </outputparameters> // This is not used, so it could be avoided
+  <body> B:K </body> // This is not used, so it could be avoided
+  <FunQuantifiers> FQ </FunQuantifiers> // This is not used, so it could be avoided
+  <FunCon> FC:Expression => (FC && Con) </FunCon> // As I mentioned, this is only for a small subset of cases; modifiers can do much more. 
+  // General note: those names (CF, FC, FQ etc.) can become confusing :) 
+  // ... especially since there's no documentation (will post something on Slack about that)  
       
-       //ModifierInvocation
-       rule <k> FunQ(X:Id, F:Param) => . ... </k>
-          
-           
-         
-	          <Contract>
-                    ...
        
-	             <mname> X </mname>
-                  
-                     <condition> Con:Expression </condition>
-
-                     <cfunction> ... (F |-> CF:Int) ... </cfunction>
-	           </Contract>            
-
-                
-                     <fId> CF </fId>
-                     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> Ps2 </outputparameters>
-                     <body> B:K </body>
-                     <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> FC:Expression => (FC && Con) </FunCon>
-                   
-        
-       
-        rule <k> FunQ(X:Id (MIPs:Values), F:Param) => BindParam(Ps,MIPs) ... </k>
-              
-           
-	          <Contract>
-                    ...
-       
-	             <mname> X </mname>
-                     <mparameters> Ps:FParameters </mparameters>
-                     <condition> Con:Expression </condition>
-
-                     <cfunction> ... (F |-> CF:Int) ... </cfunction>
-	           </Contract>            
-
-                
-                     <fId> CF </fId>
-                     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> Ps2 </outputparameters>
-                     <body> B:K </body>
-                     <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> (FC:Expression => (FC && Con)) </FunCon>
-                  
-          
-            
+rule 
+  <k> FunQ(X:Id (MIPs:Values), F:Param) => BindParam(Ps,MIPs) ... </k>
+  <Contract>
+    ...
+    <mname> X </mname>
+    <mparameters> Ps:FParameters </mparameters>
+    <condition> Con:Expression </condition>
+    <cfunction> ... (F |-> CF:Int) ... </cfunction>
+  </Contract>            
+  <fId> CF </fId>
+  <inputparameters> Ps1 </inputparameters> // This is not used, so it could be avoided
+  <outputparameters> Ps2 </outputparameters> // This is not used, so it could be avoided
+  <body> B:K </body> // This is not used, so it could be avoided
+  <FunQuantifiers> FQ </FunQuantifiers>
+  <FunCon> (FC:Expression => (FC && Con)) </FunCon>
 
 //ModifierDefinition
 
@@ -286,60 +271,56 @@ rule [modifier-def-no-params]:
 
 //Functioncall
 
-     rule [function-call]:
-        <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
-        <contractStack> ListItem(CI:Int) ... </contractStack>
-    
-        <contractInstance>
-     	  <ctId> CI </ctId>
-          <ctname> Cn:Id </ctname>
+rule [function-call]:
+  <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
+  <contractStack> ListItem(CI:Int) ... </contractStack>
+  <contractInstance>
+    <ctId> CI </ctId>
+    <ctname> Cn:Id </ctname>
 	  ...
-        </contractInstance>
-        <contracts>
-           <Contract>
-	     <cname> Cn </cname>
-     	     <cfunction> ... (F |-> CT:Int) ...  </cfunction>
+  </contractInstance>
+  <contracts>
+    <Contract>
+      <cname> Cn </cname>
+      <cfunction> ... (F |-> CT:Int) ...  </cfunction>
 	    ...
-           </Contract>
-         ...
-        </contracts>
-        <Function>
-	   <fId> CT </fId>
-     	   <inputparameters> Ps:FParameters </inputparameters>
-     	   <body> B:Statements </body>
-           <FunQuantifiers> FQ </FunQuantifiers>
-           <FunCon> Con </FunCon>
-	   ...
-        </Function>
-
-      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> if(Con){B}  ... </k>
-           <contractStack> ListItem(CI:Int) ... </contractStack>
-           <contractInstance>
-     	       <ctId> CI </ctId>
-               <ctname> Cn:Id </ctname>
-	       ...
-           </contractInstance>
-           <contracts>
-               <Contract>
-	         <cname> Cn </cname>
-     	         <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-	         ...
-               </Contract>
-           ...
-           </contracts>
-           <Function>
-	       <fId> CT </fId>
-     	       <inputparameters> Ps:FParameters </inputparameters>
-     	       <body> B:Statements </body>
-               <FunQuantifiers> FQ </FunQuantifiers>
-               <FunCon> Con </FunCon>
-	       ...
-           </Function>
-
-
-     
-
-
+    </Contract>
+    ...
+  </contracts>
+  <Function>
+    <fId> CT </fId>
+    <inputparameters> Ps:FParameters </inputparameters>
+    <body> B:Statements </body>
+    <FunQuantifiers> FQ </FunQuantifiers>
+    <FunCon> Con </FunCon>
+    ...
+  </Function>
+  
+rule 
+  // as mentioned elsewhere, if(Con){B} isn't enough to handle modifiers
+  <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> if(Con){B}  ... </k>
+  <contractStack> ListItem(CI:Int) ... </contractStack>
+  <contractInstance>
+    <ctId> CI </ctId>
+    <ctname> Cn:Id </ctname>
+    ...
+  </contractInstance>
+  <contracts>
+    <Contract>
+      <cname> Cn </cname>
+      <cfunction> ... (F |-> CT:Int) ...  </cfunction>
+      ...
+    </Contract>
+    ...
+  </contracts>
+  <Function>
+    <fId> CT </fId>
+    <inputparameters> Ps:FParameters </inputparameters>
+    <body> B:Statements </body>
+    <FunQuantifiers> FQ </FunQuantifiers> // This is not needed, can remove
+    <FunCon> Con </FunCon>
+    ...
+  </Function>
  
     
       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) =>  functionCall(C:Int ; F:Id ; Es:Values ; M:Msg)... </k>
