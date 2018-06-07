@@ -1,0 +1,1 @@
+    for(i=startArray[1]; i < addresses.length; i++){
