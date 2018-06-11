@@ -1,0 +1,11 @@
+BOOST_AUTO_TEST_CASE(gasleft_shadow_resolution)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function gasleft() returns(uint) { return 0; }
+			function f() returns(uint) { return gasleft(); }
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(0));
+}

@@ -1,0 +1,18 @@
+BOOST_AUTO_TEST_CASE(shift_negative_rvalue_assignment)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f(int a, int b) returns (int) {
+				a <<= b;
+				return a;
+			}
+			function g(int a, int b) returns (int) {
+				a >>= b;
+				return a;
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("f(int,int)", u256(1), bigint(-1)), encodeArgs());
+	ABI_CHECK(callContractFunction("g(int,int)", u256(1), bigint(-1)), encodeArgs());
+}

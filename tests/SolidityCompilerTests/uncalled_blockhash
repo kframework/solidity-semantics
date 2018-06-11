@@ -1,0 +1,13 @@
+char const* code = R"(
+		contract C {
+			function f() public view returns (bytes32)
+			{
+				var x = block.blockhash;
+				return x(block.number - 1);
+			}
+		}
+	)";
+	compileAndRun(code, 0, "C");
+	vector<bytes> result = callContractFunction("f()");
+	BOOST_CHECK((result[0].size() == 32 && result[0][0] < 0x80) || (result[0].size() == 33 && result[0][0] == 0 && result[0][1] >= 0x80));
+	BOOST_CHECK(result[0][1] != 0 || result[0][2] != 0 || result[0][3] != 0);

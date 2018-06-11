@@ -1,0 +1,17 @@
+char const* sourceCode = R"(
+	contract Base {
+		function Base(uint i)
+		{
+			m_i = i;
+		}
+		uint public m_i;
+	}
+	contract Derived is Base {
+		function Derived(uint i) Base(i)
+		{}
+	}
+	contract Final is Derived(4) {
+	}
+	)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("m_i()"), encodeArgs(4));

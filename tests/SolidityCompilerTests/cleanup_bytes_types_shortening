@@ -1,0 +1,14 @@
+char const* sourceCode = R"(
+    contract C {
+        function f() pure returns (bytes32 r) {
+            bytes4 x = 0xffffffff;
+            bytes2 y = bytes2(x);
+            r = y;
+            // At this point, r and y both store four bytes, but
+            // y is properly cleaned before the equality check
+            require(y == bytes2(0xffff));
+        }
+    }
+)";
+compileAndRun(sourceCode, 0, "C");
+ABI_CHECK(callContractFunction("f()"), encodeArgs(string(1, 0) + "\xff\xff" + string(30, 0)));

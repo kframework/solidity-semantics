@@ -1,0 +1,11 @@
+// 22-byte integer converted to a contract (i.e. address, 20 bytes), converted to a 32 byte
+	// integer should drop the first two bytes
+	char const* sourceCode = R"(
+		contract Test {
+			function test() returns (uint ret) { return uint(address(Test(address(0x11223344556677889900112233445566778899001122)))); }
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(callContractFunction("test()"), vector<bytes>(1, bytes({
+														   0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00, 0x11, 0x22,
+														   0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00, 0x11, 0x22})));

@@ -1,0 +1,11 @@
+char const* sourceCode = R"(
+		contract c {
+			enum Truth { False, True }
+			function test() returns (uint)
+			{
+				return uint(Truth(uint8(0x701)));
+			}
+		}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("test()"), encodeArgs(1));

@@ -1,0 +1,28 @@
+char const* sourceCode = R"(
+    contract Test {
+        bytes32 constant public b = "abcdefghijklmnopq";
+        string constant public x = "abefghijklmnopqabcdefghijklmnopqabcdefghijklmnopqabca";
+
+        function Test() {
+            var xx = x;
+            var bb = b;
+        }
+        function getB() returns (bytes32) { return b; }
+        function getX() returns (string) { return x; }
+        function getX2() returns (string r) { r = x; }
+        function unused() returns (uint) {
+            "unusedunusedunusedunusedunusedunusedunusedunusedunusedunusedunusedunused";
+            return 2;
+        }
+    }
+)";
+
+compileAndRun(sourceCode);
+string longStr = "abefghijklmnopqabcdefghijklmnopqabcdefghijklmnopqabca";
+string shortStr = "abcdefghijklmnopq" + string(15, 0);
+ABI_CHECK(callContractFunction("b()"), encodeArgs(shortStr));
+ABI_CHECK(callContractFunction("x()"), vector<bytes>(1, encodeDyn(longStr)));
+ABI_CHECK(callContractFunction("getB()"), encodeArgs(shortStr));
+ABI_CHECK(callContractFunction("getX()"), vector<bytes>(1, encodeDyn(longStr)));
+ABI_CHECK(callContractFunction("getX2()"), vector<bytes>(1, encodeDyn(longStr)));
+ABI_CHECK(callContractFunction("unused()"), encodeArgs(2));

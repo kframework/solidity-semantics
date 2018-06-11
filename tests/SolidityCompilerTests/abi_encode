@@ -1,0 +1,33 @@
+char const* sourceCode = R"(
+    contract C {
+        function f0() returns (bytes) {
+            return abi.encode();
+        }
+        function f1() returns (bytes) {
+            return abi.encode(1, 2);
+        }
+        function f2() returns (bytes) {
+            string memory x = "abc";
+            return abi.encode(1, x, 2);
+        }
+        function f3() returns (bytes r) {
+            // test that memory is properly allocated
+            string memory x = "abc";
+            r = abi.encode(1, x, 2);
+            bytes memory y = "def";
+            require(y[0] == "d");
+            y[0] = "e";
+            require(y[0] == "e");
+        }
+        function f4() returns (bytes) {
+            bytes4 x = "abcd";
+            return abi.encode(bytes2(x));
+        }
+    }
+)";
+compileAndRun(sourceCode, 0, "C");
+ABI_CHECK(callContractFunction("f0()"), encodeArgs(encodeDyn(string(""))));
+ABI_CHECK(callContractFunction("f1()"), encodeArgs(encodeRefArgs(uint64_t(2), encodeLogs(1, 2))));
+ABI_CHECK(callContractFunction("f2()"), encodeArgs(encodeRefArgs(uint64_t(2 + 3 + 8), encodeLogs(1, encodeDyn(string("abc")), 2))));
+ABI_CHECK(callContractFunction("f3()"), encodeArgs(encodeRefArgs(uint64_t(2 + 3 + 8), encodeLogs(1, encodeDyn(string("abc")), 2))));
+ABI_CHECK(callContractFunction("f4()"), encodeArgs(encodeRefArgs(uint64_t(2), encodeLogs("ab"))));

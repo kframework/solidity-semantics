@@ -1,0 +1,8 @@
+char const* sourceCode = R"(
+    contract C1 {}
+    /**
+    **/
+    contract C2 {}
+)";
+compileAndRun(sourceCode, 0, "C1");
+compileAndRun(sourceCode, 0, "C2");

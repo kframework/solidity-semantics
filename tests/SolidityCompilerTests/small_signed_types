@@ -1,0 +1,13 @@
+char const* sourceCode = R"(
+		contract test {
+			function run() returns(int y) {
+				return -int32(10) * -int64(20);
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	auto small_signed_types_cpp = []() -> bigint
+	{
+		return -int32_t(10) * -int64_t(20);
+	};
+	testContractAgainstCpp("run()", small_signed_types_cpp);

@@ -1,0 +1,23 @@
+BOOST_AUTO_TEST_CASE(memory_arrays_dynamic_index_access_write)
+{
+	char const* sourceCode = R"(
+		contract Test {
+			uint24[3][][4] data;
+			function set(uint24[3][][4] x) internal returns (uint24[3][][4]) {
+				x[1][2][2] = 1;
+				x[1][3][2] = 7;
+				return x;
+			}
+			function f() returns (uint24[3][]) {
+				data[1].length = 4;
+				return set(data)[1];
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "Test");
+
+	vector<u256> data(3 * 4);
+	data[3 * 2 + 2] = 1;
+	data[3 * 3 + 2] = 7;
+	ABI_CHECK(callContractFunction("f()"), vector<bytes>(1, encodeRefArray(data, 4, 3)));
+}

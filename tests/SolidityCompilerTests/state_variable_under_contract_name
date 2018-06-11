@@ -1,0 +1,14 @@
+BOOST_AUTO_TEST_CASE(state_variable_under_contract_name)
+{
+	char const* text = R"(
+		contract Scope {
+			uint stateVar = 42;
+
+			function getStateVar() view returns (uint stateVar) {
+				stateVar = Scope.stateVar;
+			}
+		}
+	)";
+	compileAndRun(text);
+	ABI_CHECK(callContractFunction("getStateVar()"), encodeArgs(u256(42)));
+}

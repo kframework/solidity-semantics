@@ -1,0 +1,9 @@
+BOOST_AUTO_TEST_CASE(payable_constructor)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function C() payable { }
+		}
+	)";
+	compileAndRun(sourceCode, 27, "C");
+}

@@ -1,0 +1,16 @@
+char const* sourceCode = R"(
+	contract C {
+		uint public a;
+		uint[3] public b;
+
+		function C(uint _a, uint[3] _b) {
+			a = _a;
+			b = _b;
+		}
+	}
+)";
+compileAndRun(sourceCode, 0, "C", encodeArgs(u256(1), encodeRefArgs(bigint(2), bigint(3), bigint(4))));
+ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(1)));
+ABI_CHECK(callContractFunction("b(uint)", u256(0)), encodeArgs(u256(2)));
+ABI_CHECK(callContractFunction("b(uint)", u256(1)), encodeArgs(u256(3)));
+ABI_CHECK(callContractFunction("b(uint)", u256(2)), encodeArgs(u256(4)));

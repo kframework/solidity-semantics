@@ -1,0 +1,15 @@
+BOOST_AUTO_TEST_CASE(inline_assembly_read_and_write_stack)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f() returns (uint r) {
+				for (uint x = 0; x < 10; ++x)
+					assembly { r := add(r, x) }
+			}
+		}
+	)";
+	compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+	if (false) {
+		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(45)));
+	}
+}

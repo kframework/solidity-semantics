@@ -1,0 +1,28 @@
+	// This tests a swap in storage which does not work as one
+	// might expect because we do not have temporary storage.
+	// (x, y) = (y, x) is the same as
+	// y = x;
+	// x = y;
+	char const* sourceCode = R"(
+		contract c {
+			struct S { uint a; uint b; }
+			S public x;
+			S public y;
+			function set() {
+				x.a = 1; x.b = 2;
+				y.a = 3; y.b = 4;
+			}
+			function swap() {
+				(x, y) = (y, x);
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0), u256(0)));
+	ABI_CHECK(callContractFunction("y()"), encodeArgs(u256(0), u256(0)));
+	ABI_CHECK(callContractFunction("set()"), encodeArgs());
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1), u256(2)));
+	ABI_CHECK(callContractFunction("y()"), encodeArgs(u256(3), u256(4)));
+	ABI_CHECK(callContractFunction("swap()"), encodeArgs());
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1), u256(2)));
+	ABI_CHECK(callContractFunction("y()"), encodeArgs(u256(1), u256(2)));

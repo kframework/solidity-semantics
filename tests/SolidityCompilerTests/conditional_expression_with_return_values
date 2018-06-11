@@ -1,0 +1,10 @@
+char const* sourceCode = R"(
+	contract test {
+		function f(bool cond, uint v) returns (uint a, uint b) {
+			cond ? a = v : b = v;
+		}
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("f(bool,uint)", true, u256(20)), encodeArgs(u256(20), u256(0)));
+ABI_CHECK(callContractFunction("f(bool,uint)", false, u256(20)), encodeArgs(u256(0), u256(20)));

@@ -1,0 +1,17 @@
+BOOST_AUTO_TEST_CASE(inline_array_index_access_strings)
+{
+	char const* sourceCode = R"(
+		contract C {
+			string public tester;
+			function f() returns (string) {
+				return (["abc", "def", "g"][0]);
+			}
+			function test() {
+				tester = f();
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("test()"), encodeArgs());
+	ABI_CHECK(callContractFunction("tester()"), encodeArgs(encodeDyn(string("abc"))));
+}

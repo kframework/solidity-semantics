@@ -1,0 +1,8 @@
+char const* sourceCode = R"(
+    contract Lotto{
+        uint constant public ticketPrice = 555;
+    }
+)";
+
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("ticketPrice()"), encodeArgs(u256(555)));

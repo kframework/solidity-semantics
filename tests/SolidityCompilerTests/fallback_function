@@ -1,0 +1,11 @@
+char const* sourceCode = R"(
+	contract A {
+		uint data;
+		function() { data = 1; }
+		function getData() returns (uint r) { return data; }
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("getData()"), encodeArgs(0));
+ABI_CHECK(callFallback(), encodeArgs());
+ABI_CHECK(callContractFunction("getData()"), encodeArgs(1));

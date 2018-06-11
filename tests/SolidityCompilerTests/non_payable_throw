@@ -1,0 +1,24 @@
+BOOST_AUTO_TEST_CASE(non_payable_throw)
+{
+	char const* sourceCode = R"(
+		contract C {
+			uint public a;
+			function f() returns (uint) {
+				return msg.value;
+			}
+			function() {
+				a = msg.value + 1;
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunctionWithValue("f()", 27), encodeArgs());
+	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 0);
+	ABI_CHECK(callFallback(), encodeArgs());
+	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(1)));
+	ABI_CHECK(callFallbackWithValue(27), encodeArgs());
+	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 0);
+	ABI_CHECK(callContractFunction("a()"), encodeArgs(u256(1)));
+	ABI_CHECK(callContractFunctionWithValue("a()", 27), encodeArgs());
+	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 0);
+}

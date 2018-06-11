@@ -1,0 +1,11 @@
+char const* sourceCode = R"(
+	contract ClientReceipt {
+		event Deposit() anonymous;
+		function deposit() {
+			Deposit();
+		}
+	}
+)";
+compileAndRun(sourceCode);
+callContractFunction("deposit()");
+BOOST_REQUIRE_EQUAL(m_logs[0].topics.size(), 0);

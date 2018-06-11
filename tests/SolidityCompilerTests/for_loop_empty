@@ -1,0 +1,25 @@
+char const* sourceCode = R"(
+	contract test {
+		function f() returns(uint ret) {
+			ret = 1;
+			for (;;) {
+				ret += 1;
+				if (ret >= 10) break;
+			}
+		}
+	}
+)";
+compileAndRun(sourceCode);
+
+auto for_loop_empty_cpp = []() -> u256
+{
+	u256 ret = 1;
+	for (;;)
+	{
+		ret += 1;
+		if (ret >= 10) break;
+	}
+	return ret;
+};
+
+testContractAgainstCpp("f()", for_loop_empty_cpp);

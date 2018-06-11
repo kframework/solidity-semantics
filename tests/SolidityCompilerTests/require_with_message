@@ -1,0 +1,41 @@
+BOOST_AUTO_TEST_CASE(require_with_message)
+{
+	char const* sourceCode = R"(
+		contract D {
+			bool flag = false;
+			string storageError = "abc";
+			function f(uint x) public {
+				require(x > 7, "failed");
+			}
+			function g() public {
+				// As a side-effect of internalFun, the flag will be set to true
+				// (even if the condition is true),
+				// but it will only throw in the next evaluation.
+				bool flagCopy = flag;
+				require(flagCopy == false, internalFun());
+			}
+			function internalFun() returns (string) {
+				flag = true;
+				return "only on second run";
+			}
+			function h() public {
+				require(false, storageError);
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "D");
+	ABI_CHECK(callContractFunction("f(uint)", 8), encodeArgs());
+        BOOST_CHECK_EQUAL(m_status, 0);
+	ABI_CHECK(callContractFunction("f(uint)", 5), encodeArgs());
+        bigint expected = fromBigEndian<bigint>(encodeLogs("failed"));
+        BOOST_CHECK_EQUAL(m_status, expected);
+
+	ABI_CHECK(callContractFunction("g()"), encodeArgs());
+        BOOST_CHECK_EQUAL(m_status, 0);
+	ABI_CHECK(callContractFunction("g()"), encodeArgs());
+        expected = fromBigEndian<bigint>(encodeLogs("only on second run"));
+        BOOST_CHECK_EQUAL(m_status, expected);
+	ABI_CHECK(callContractFunction("h()"), encodeArgs());
+        expected = fromBigEndian<bigint>(encodeLogs("abc"));
+        BOOST_CHECK_EQUAL(m_status, expected);
+}

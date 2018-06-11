@@ -1,0 +1,27 @@
+BOOST_AUTO_TEST_CASE(failed_create)
+{
+	char const* sourceCode = R"(
+		contract D { function D() payable {} }
+		contract C {
+			uint public x;
+			function C() payable {}
+			function f(uint amount) returns (address) {
+				x++;
+				return (new D).value(amount)();
+			}
+			function stack(uint depth) returns (address) {
+				if (depth < 1024)
+					return this.stack(depth - 1);
+				else
+					return f(0);
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 20, "C");
+	BOOST_CHECK(callContractFunction("f(uint)", 20) != encodeArgs(u256(0)));
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
+	ABI_CHECK(callContractFunction("f(uint)", 20), encodeArgs());
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
+	ABI_CHECK(callContractFunction("stack(uint)", 1023), encodeArgs());
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(1)));
+}

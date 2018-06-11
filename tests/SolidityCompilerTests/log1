@@ -1,0 +1,14 @@
+char const* sourceCode = R"(
+	contract test {
+		function a() {
+			log1(1, 2);
+		}
+	}
+)";
+compileAndRun(sourceCode);
+callContractFunction("a()");
+BOOST_REQUIRE_EQUAL(m_logs.size(), 1);
+BOOST_CHECK_EQUAL(m_logs[0].address, m_contractAddress);
+BOOST_CHECK(m_logs[0].data == encodeLogs(h256(u256(1))));
+BOOST_REQUIRE_EQUAL(m_logs[0].topics.size(), 1);
+BOOST_CHECK_EQUAL(m_logs[0].topics[0], h256(u256(2)));

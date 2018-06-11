@@ -1,0 +1,19 @@
+BOOST_AUTO_TEST_CASE(return_does_not_skip_modifier)
+{
+	char const* sourceCode = R"(
+		contract C {
+			uint public x;
+			modifier setsx {
+				_;
+				x = 9;
+			}
+			function f() setsx returns (uint) {
+				return 2;
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(0)));
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(2)));
+	ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(9)));
+}

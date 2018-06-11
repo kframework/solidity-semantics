@@ -1,0 +1,19 @@
+BOOST_AUTO_TEST_CASE(inline_array_return)
+{
+	char const* sourceCode = R"(
+		contract C {
+			uint8[] tester; 
+			function f() returns (uint8[5]) {
+				return ([1,2,3,4,5]);
+			}
+			function test() returns (uint8, uint8, uint8, uint8, uint8) {
+				tester = f(); 
+				return (tester[0], tester[1], tester[2], tester[3], tester[4]);
+			}
+			
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+    std::vector<u256> args = {1, 2, 3, 4, 5};
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(encodeRefArray(args, 1)));
+}

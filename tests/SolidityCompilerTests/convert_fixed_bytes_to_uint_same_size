@@ -1,0 +1,12 @@
+char const* sourceCode = R"(
+	contract Test {
+		function bytesToUint(bytes32 s) returns (uint h) {
+			return uint(s);
+		}
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(
+	callContractFunction("bytesToUint(bytes32)", asBytes(string("abc2")) + bytes(28, 0)),
+	encodeArgs(u256("0x6162633200000000000000000000000000000000000000000000000000000000"))
+);

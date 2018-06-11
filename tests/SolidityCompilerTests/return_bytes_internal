@@ -1,0 +1,34 @@
+BOOST_AUTO_TEST_CASE(return_bytes_internal)
+{
+	char const* sourceCode = R"(
+		contract Main {
+			bytes s1;
+			function doSet(bytes _s1) returns (bytes _r1) {
+				s1 = _s1;
+				_r1 = s1;
+			}
+			function set(bytes _s1) external returns (uint _r, bytes _r1) {
+				_r1 = doSet(_s1);
+				_r = _r1.length;
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "Main");
+	string s1("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+	vector<size_t> lengthes{31, 64, 65};
+	bytes dyn1 = encodeRefArgs(0);
+	vector<bytes> args1 = encodeArgs(dyn1);
+	ABI_CHECK(
+		callContractFunction("set(bytes)", args1),
+		encodeArgs(u256(0), dyn1)
+	);
+	for (auto l1: lengthes)
+	{
+		bytes dyn1 = encodeRefArgs(uint64_t(l1), s1.substr(0, l1));
+		vector<bytes> args1 = encodeArgs(dyn1);
+		ABI_CHECK(
+			callContractFunction("set(bytes)", args1),
+			encodeArgs(u256(l1), dyn1)
+		);
+	}
+}

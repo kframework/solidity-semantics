@@ -1,0 +1,20 @@
+char const* sourceCode = R"(
+    contract C {
+        /// Calling into non-existant account is successful (creates the account)
+        function f() external view returns (bool) {
+            return address(0x4242).call();
+        }
+        function g() external view returns (bool) {
+            return address(0x4242).callcode();
+        }
+        function h() external view returns (bool) {
+            return address(0x4242).delegatecall();
+        }
+    }
+)";
+compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+if (false) {
+    ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(1)));
+    ABI_CHECK(callContractFunction("g()"), encodeArgs(u256(1)));
+    ABI_CHECK(callContractFunction("h()"), encodeArgs(u256(1)));
+}

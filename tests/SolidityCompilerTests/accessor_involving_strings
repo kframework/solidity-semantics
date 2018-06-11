@@ -1,0 +1,25 @@
+char const* sourceCode = R"(
+    contract Main {
+        struct stringData { string a; uint b; string c; }
+        mapping(uint => stringData[]) public data;
+        function set(uint x, uint y, string a, uint b, string c) external returns (bool) {
+            data[x].length = y + 1;
+            data[x][y].a = a;
+            data[x][y].b = b;
+            data[x][y].c = c;
+            return true;
+        }
+    }
+)";
+compileAndRun(sourceCode, 0, "Main");
+string s1("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+string s2("ABCDEFGHIJKLMNOPQRSTUVXYZABCDEFGHIJKLMNOPQRSTUVXYZABCDEFGHIJKLMNOPQRSTUVXYZ");
+bytes s1Data = encodeDyn(s1);
+bytes s2Data = encodeDyn(s2);
+u256 b = 765;
+u256 x = 7;
+u256 y = 123;
+vector<bytes> args = encodeArgs(x, y, s1Data, b, s2Data);
+vector<bytes> result = encodeArgs(s1Data, b, s2Data);
+BOOST_REQUIRE(callContractFunctionNoEncoding("set(uint,uint,string,uint,string)", args) == encodeArgs(true));
+BOOST_REQUIRE(callContractFunction("data(uint,uint)", x, y) == result);

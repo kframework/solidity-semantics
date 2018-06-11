@@ -1,0 +1,22 @@
+char const* sourceCode = R"**(
+		contract receiver {
+			uint public received;
+			function receive(uint x) payable { received = x; }
+		}
+		contract sender {
+			function sender() payable {}
+			function doSend(address rec) returns (uint d)
+			{
+				bytes4 signature = bytes4(bytes32(keccak256("receive(uint)")));
+				rec.call.value(2)(signature, 23);
+				return receiver(rec).received();
+			}
+		}
+)**";
+compileAndRunWithoutCheck(sourceCode, 0, "receiver", true);
+u160 const c_receiverAddress = m_contractAddress;
+compileAndRunWithoutCheck(sourceCode, 50, "sender", true);
+if (false) {
+	BOOST_REQUIRE(callContractFunction("doSend(address)", c_receiverAddress) == encodeArgs(23));
+	BOOST_CHECK_EQUAL(balanceAt(m_contractAddress), 50 - 2);
+}

@@ -1,0 +1,7 @@
+char const* sourceCode = R"(
+	contract C {
+		function C() internal {}
+	}
+)";
+compileAndRunWithoutCheck(sourceCode, 0, "C");
+BOOST_CHECK(m_status != 0);
