@@ -268,7 +268,6 @@ rule [modifier-def-no-params]:
     ...
   </Contract> 
 
-
 //Functioncall
 
 rule [function-call]:
@@ -323,80 +322,85 @@ rule
   </Function>
  
     
-      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) =>  functionCall(C:Int ; F:Id ; Es:Values ; M:Msg)... </k>
+  // rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) =>  functionCall(C:Int ; F:Id ; Es:Values ; M:Msg)... </k>
+  // When a rule only mentions the <k> cell, it can be simplified like this:
+  rule functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) // Where is the sender gone?!
 
-      rule <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C) ... </k>
-  
-           <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
-           <Msg> M1=>M </Msg>
-           <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-           <functionStack> (.List => ListItem(F)) ... </functionStack>
+  rule 
+    <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C) ... </k>
+    <contractStack> (.List => ListItem(C)) L:List ListItem(-1) </contractStack>
+    <Msg> M1 => M </Msg>
+    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
+    <functionStack> (.List => ListItem(F)) ... </functionStack>
 
-     
-      rule <k> createTransaction(.List) => . ... </k>
-           <cnttran> I:Int => I +Int 1 </cnttran>
-           <trancomputation> (.Map => I |-> "functioncall" ) ... </trancomputation>  
-           <newStack>  .List </newStack>
+  rule 
+    <k> createTransaction(.List) => . ... </k> 
+    <cnttran> I:Int => I +Int 1 </cnttran>
+    <trancomputation> (.Map => I |-> "functioncall" ) ... </trancomputation>  
+    <newStack> .List </newStack>
 
-      rule <k> createTransaction(.List) => . ... </k> 
-           <newStack> L </newStack>
-           requires L =/=K .List
-     
+  // Not sure I understand what's going on here. 
+  // Does <k> createTransaction(.List) => . ... </k> (above), togethr with the following two rules mean 
+  // that we can call a function on another contract but this function cannot in turn call another function?
 
-      rule createTransaction(L) => .
-           requires L =/=K .List
+  rule 
+    <k> createTransaction(.List) => . ... </k> 
+    <newStack> L </newStack>
+      requires L =/=K .List
 
-      rule <k> returnContext(C:Int) => E ... </k>
-   
-           <contractStack> ListItem(C) => .List ... </contractStack>
-           <Msg> M => M1 </Msg>
-           <MsgStack> ListItem(M1) => .List ... </MsgStack>
-           <vposition> _ => 1 </vposition>
-           <functionStack> ListItem(F) => .List ... </functionStack>
-           <newStack>  L => .List </newStack>
-           <contractInstance>
-     	      <ctId> C </ctId>
-              <ctname> Cn:Id </ctname>
-	      ...
-           </contractInstance>
-           <contracts>
-              <Contract>
-	         <cname> Cn </cname>
-     	         <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-	      ...
-              </Contract>
-            ...
-           </contracts>
-           <Function>
-	      <fId> CT </fId>
-     	     <Return> E </Return>
-	     ...
-           </Function>
+  rule createTransaction(L) => .
+    requires L =/=K .List
 
-      rule <k> return E:Int; => . ...</k>
-           <functionStack> ListItem(F:Id) ... </functionStack>
-           <contractStack> ListItem(CI:Int) ... </contractStack>
-   
-           <contractInstance>
-     	      <ctId> CI </ctId>
-              <ctname> Cn:Id </ctname>
-	      ...
-           </contractInstance>
-           <contracts>
-              <Contract>
-	         <cname> Cn </cname>
-     	         <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-	       ...
-              </Contract>
-            ...
-           </contracts>
-           <Function>
-	       <fId> CT </fId>
-     	       <Return> _=> E </Return>
-	       ...
-           </Function> 
+  rule 
+    <k> returnContext(C:Int) => E ... </k>
+    <contractStack> ListItem(C) => .List ... </contractStack>
+    <Msg> M => M1 </Msg>
+    <MsgStack> ListItem(M1) => .List ... </MsgStack>
+    <vposition> _ => 1 </vposition>
+    <functionStack> ListItem(F) => .List ... </functionStack>
+    <newStack>  L => .List </newStack>
+    <contractInstance>
+      <ctId> C </ctId>
+      <ctname> Cn:Id </ctname>
+      ...
+    </contractInstance>
+    <contracts>
+      <Contract>
+        <cname> Cn </cname>
+        <cfunction> ... (F |-> CT:Int) ...  </cfunction>
+        ...
+      </Contract>
+      ...
+    </contracts>
+    <Function>
+      <fId> CT </fId>
+      <Return> E </Return>  
+      ...
+    </Function>
 
-      rule <k> return; => . ... </k>
+rule 
+  <k> return E:Int; => . ...</k> // What if return value is not an int?
+  <functionStack> ListItem(F:Id) ... </functionStack>
+  <contractStack> ListItem(CI:Int) ... </contractStack>
+  <contractInstance>
+    <ctId> CI </ctId>
+    <ctname> Cn:Id </ctname>
+    ...
+  </contractInstance>
+  <contracts>
+    <Contract>
+      <cname> Cn </cname>
+      <cfunction> ... (F |-> CT:Int) ...  </cfunction>
+      ...
+    </Contract>
+    ...
+  </contracts>
+  <Function>  
+    <fId> CT </fId>
+    <Return> _=> E </Return>
+    ...
+  </Function> 
 
+rule return; => .
 
 endmodule

@@ -1,4 +1,3 @@
-
 contract main1{
 	 function X (int8 a) {
 	 	  new Test();
@@ -13,9 +12,7 @@ contract Test{
 	 function main(){
 	   X(1);
 	 }
-
 }
-
 
 contract main{
 	 function X1 (int8 a) { a = a + 1; }
