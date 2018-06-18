@@ -1,0 +1,13 @@
+char const* sourceCode = R"(
+	contract c {
+		function set(bytes b) returns (bool) { data = b; return true; }
+		function set2(bytes b) { data = b; }
+		bytes data;
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("set(bytes)", encodeDyn(string("12345"))), encodeArgs(true));
+BOOST_CHECK(!storageEmpty(m_contractAddress));
+callContractFunction("set2(bytes)", encodeDyn(string("")));
+BOOST_CHECK(m_output == vector<bytes>());
+BOOST_CHECK(storageEmpty(m_contractAddress));

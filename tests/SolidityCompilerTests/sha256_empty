@@ -1,0 +1,9 @@
+char const* sourceCode = R"(
+	contract C {
+		function f() returns (bytes32) {
+			return sha256();
+		}
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("f()"), vector<bytes>(1, fromHex("0x00e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")));

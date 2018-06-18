@@ -1,0 +1,7 @@
+char const* sourceCode = R"(
+	contract test {
+		function f(uint a) returns(uint d) { return a ** 0; }
+	}
+)";
+compileAndRun(sourceCode);
+testContractAgainstCppOnRange("f(uint)", [](u256 const&) -> u256 { return u256(1); }, 0, 16);

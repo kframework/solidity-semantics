@@ -1,0 +1,9 @@
+char const* sourceCode = R"(
+	contract test {
+		function f(uint k) returns(uint){
+			return k;
+	}
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("f(uint)", 9), encodeArgs(9));

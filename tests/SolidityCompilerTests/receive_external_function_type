@@ -1,0 +1,17 @@
+BOOST_AUTO_TEST_CASE(receive_external_function_type)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function g() returns (uint) { return 7; }
+			function f(function() external returns (uint) g) returns (uint) {
+				return g();
+			}
+		}
+	)";
+
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction(
+		"f(function)",
+		m_contractAddress, 1
+	), encodeArgs(u256(7)));
+}

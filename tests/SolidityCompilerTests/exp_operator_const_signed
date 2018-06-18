@@ -1,0 +1,7 @@
+char const* sourceCode = R"(
+	contract test {
+		function f() returns(int d) { return (-2) ** 3; }
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("f()"), encodeArgs(bigint(-8)));

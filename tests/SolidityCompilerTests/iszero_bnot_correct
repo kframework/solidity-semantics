@@ -1,0 +1,21 @@
+BOOST_AUTO_TEST_CASE(iszero_bnot_correct)
+{
+	// A long time ago, some opcodes were renamed, which involved the opcodes
+	// "iszero" and "not".
+	char const* sourceCode = R"(
+		contract C {
+			function f() returns (bool) {
+				bytes32 x = 1;
+				assembly { x := not(x) }
+				if (x != ~bytes32(1)) return false;
+				assembly { x := iszero(x) }
+				if (x != bytes32(0)) return false;
+				return true;
+			}
+		}
+	)";
+	compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+	if (false) {
+		ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
+	}
+}

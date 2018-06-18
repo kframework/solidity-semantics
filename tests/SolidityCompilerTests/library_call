@@ -1,0 +1,14 @@
+BOOST_AUTO_TEST_CASE(library_call)
+{
+	char const* sourceCode = R"(
+		library Lib { function m(uint x, uint y) returns (uint) { return x * y; } }
+		contract Test {
+			function f(uint x) returns (uint) {
+				return Lib.m(x, 9);
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "Lib");
+	compileAndRun(sourceCode, 0, "Test", vector<bytes>(), map<string, Address>{{"Lib", m_contractAddress}});
+	ABI_CHECK(callContractFunction("f(uint)", u256(33)), encodeArgs(u256(33) * 9));
+}

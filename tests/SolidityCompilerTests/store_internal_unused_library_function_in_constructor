@@ -1,0 +1,18 @@
+BOOST_AUTO_TEST_CASE(store_internal_unused_library_function_in_constructor)
+{
+	char const* sourceCode = R"(
+		library L { function x() internal returns (uint) { return 7; } }
+		contract C {
+			function () internal returns (uint) x;
+			function C () {
+				x = L.x;
+			}
+			function t() returns (uint) {
+				return x();
+			}
+		}
+	)";
+
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("t()"), encodeArgs(u256(7)));
+}

@@ -1,0 +1,17 @@
+char const* sourceCode = R"(
+	contract c {
+		uint[4] data;
+		function set(uint index, uint value) returns (bool) { data[index] = value; return true; }
+		function get(uint index) returns (uint) { return data[index]; }
+		function length() returns (uint) { return data.length; }
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("length()"), encodeArgs(4));
+ABI_CHECK(callContractFunction("set(uint,uint)", 3, 4), encodeArgs(true));
+ABI_CHECK(callContractFunction("set(uint,uint)", 4, 5), vector<bytes>());
+ABI_CHECK(callContractFunction("set(uint,uint)", 400, 5), vector<bytes>());
+ABI_CHECK(callContractFunction("get(uint)", 3), encodeArgs(4));
+ABI_CHECK(callContractFunction("get(uint)", 4), vector<bytes>());
+ABI_CHECK(callContractFunction("get(uint)", 400), vector<bytes>());
+ABI_CHECK(callContractFunction("length()"), encodeArgs(4));

@@ -1,0 +1,16 @@
+char const* sourceCode = R"(
+    contract D {
+        function f() public {
+            revert("message");
+        }
+        function g() public {
+            this.f();
+        }
+    }
+)";
+compileAndRun(sourceCode, 0, "D");
+ABI_CHECK(callContractFunction("f()"), encodeArgs());
+    bigint expected = fromBigEndian<bigint>(encodeLogs("message"));
+    BOOST_CHECK_EQUAL(m_status, expected);
+ABI_CHECK(callContractFunction("g()"), encodeArgs());
+    BOOST_CHECK_EQUAL(m_status, expected);

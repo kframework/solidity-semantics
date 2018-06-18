@@ -1,0 +1,24 @@
+BOOST_AUTO_TEST_CASE(evm_exceptions_in_constructor_call_fail)
+{
+	char const* sourceCode = R"(
+		contract A {
+			function A()
+			{
+				this.send(0);
+			}
+                        function() payable { throw; }
+		}
+		contract B {
+			uint public test = 1;
+			function testIt()
+			{
+				A a = new A();
+				++test;
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "B");
+
+	ABI_CHECK(callContractFunction("testIt()"), encodeArgs());
+	ABI_CHECK(callContractFunction("test()"), encodeArgs(2));
+}

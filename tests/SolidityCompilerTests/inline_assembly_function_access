@@ -1,0 +1,21 @@
+BOOST_AUTO_TEST_CASE(inline_assembly_function_access)
+{
+	char const* sourceCode = R"(
+		contract C {
+			uint public x;
+			function g(uint y) { x = 2 * y; assembly { stop } }
+			function f(uint _x) {
+				assembly {
+					_x
+					jump(g)
+					pop
+				}
+			}
+		}
+	)";
+	compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+	if (false) {
+		ABI_CHECK(callContractFunction("f(uint)", u256(5)), encodeArgs());
+		ABI_CHECK(callContractFunction("x()"), encodeArgs(u256(10)));
+	}
+}

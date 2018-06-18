@@ -1,0 +1,42 @@
+char const* sourceCode = R"(
+    contract Main {
+        string public s1;
+        string public s2;
+        function set(string _s1, uint x, string _s2) returns (uint) {
+            s1 = _s1;
+            s2 = _s2;
+            return x;
+        }
+        function setIndirectFromMemory(string _s1, uint x, string _s2) returns (uint) {
+            return this.set(_s1, x, _s2);
+        }
+        function setIndirectFromCalldata(string _s1, uint x, string _s2) external returns (uint) {
+            return this.set(_s1, x, _s2);
+        }
+    }
+)";
+compileAndRun(sourceCode, 0, "Main");
+string s1("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+string s2("ABCDEFGHIJKLMNOPQRSTUVXYZABCDEFGHIJKLMNOPQRSTUVXYZABCDEFGHIJKLMNOPQRSTUVXYZ");
+vector<size_t> lengthes{0, 31, 64, 65};
+for (auto l1: lengthes)
+    for (auto l2: lengthes)
+    {
+        bytes dyn1 = encodeDyn(s1.substr(0, l1));
+        bytes dyn2 = encodeDyn(s2.substr(0, l2));
+        vector<bytes> args1 = encodeArgs(dyn1, u256(l1), dyn2);
+        BOOST_REQUIRE(
+            callContractFunctionNoEncoding("setIndirectFromMemory(string,uint,string)", args1) ==
+            encodeArgs(u256(l1))
+        );
+        ABI_CHECK(callContractFunction("s1()"), encodeArgs(dyn1));
+        ABI_CHECK(callContractFunction("s2()"), encodeArgs(dyn2));
+        // swapped
+        vector<bytes> args2 = encodeArgs(dyn2, u256(l1), dyn1);
+        BOOST_REQUIRE(
+            callContractFunctionNoEncoding("setIndirectFromCalldata(string,uint,string)", args2) ==
+            encodeArgs(u256(l1))
+        );
+        ABI_CHECK(callContractFunction("s1()"), encodeArgs(dyn2));
+        ABI_CHECK(callContractFunction("s2()"), encodeArgs(dyn1));
+    }

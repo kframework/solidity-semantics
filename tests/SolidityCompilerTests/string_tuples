@@ -1,0 +1,19 @@
+BOOST_AUTO_TEST_CASE(string_tuples)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f() returns (string, uint) {
+				return ("abc", 8);
+			}
+			function g() returns (string, string) {
+				return (h(), "def");
+			}
+			function h() returns (string) {
+				return ("abc",);
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(encodeDyn(string("abc")), u256(8)));
+	ABI_CHECK(callContractFunction("g()"), encodeArgs(encodeDyn(string("abc")), encodeDyn(string("def"))));
+}

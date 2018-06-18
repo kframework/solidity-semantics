@@ -1,0 +1,14 @@
+char const* sourceCode = R"(
+		contract test {
+			function fixedBytes() returns(bytes32 ret) {
+				return "abc\x00\xff__";
+			}
+			function pipeThrough(bytes2 small, bool one) returns(bytes16 large, bool oneRet) {
+				oneRet = one;
+				large = small;
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(callContractFunction("fixedBytes()"), encodeArgs(string("abc\0\xff__", 7) + string(25, 0)));
+	ABI_CHECK(callContractFunction("pipeThrough(bytes2,bool)", string("\0\x02", 2), true), encodeArgs(string("\x2", 1) + string(14, 0), true));

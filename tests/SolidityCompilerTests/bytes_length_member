@@ -1,0 +1,11 @@
+char const* sourceCode = R"(
+	contract c {
+		function set(bytes b) returns (bool) { data = b; return true; }
+		function getLength() returns (uint) { return data.length; }
+		bytes data;
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("getLength()"), encodeArgs(0));
+ABI_CHECK(callContractFunction("set(bytes)", encodeDyn(string("12"))), encodeArgs(true));
+ABI_CHECK(callContractFunction("getLength()"), encodeArgs(2));

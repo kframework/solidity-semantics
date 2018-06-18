@@ -1,0 +1,5 @@
+char const* sourceCode = R"(
+    contract test { }
+)";
+compileAndRun(sourceCode);
+BOOST_CHECK(callContractFunction("i_am_not_there()", vector<bytes>()).empty());

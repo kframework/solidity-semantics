@@ -1,0 +1,20 @@
+BOOST_AUTO_TEST_CASE(same_function_in_construction_and_runtime_equality_check)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function (uint) internal returns (uint) x;
+			function C() {
+				x = double;
+			}
+			function test() returns (bool) {
+				return x == double;
+			}
+			function double(uint _arg) returns (uint _ret) {
+				_ret = _arg * 2;
+			}
+		}
+	)";
+
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("test()"), encodeArgs(true));
+}

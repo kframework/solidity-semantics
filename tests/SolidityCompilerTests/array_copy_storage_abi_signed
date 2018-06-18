@@ -1,0 +1,31 @@
+// NOTE: This does not really test copying from storage to ABI directly,
+// because it will always copy to memory first.
+char const* sourceCode = R"(
+	contract c {
+		int16[] x;
+		function test() returns (int16[]) {
+			x.push(int16(-1));
+			x.push(int16(-1));
+			x.push(int16(8));
+			x.push(int16(-16));
+			x.push(int16(-2));
+			x.push(int16(6));
+			x.push(int16(8));
+			x.push(int16(-1));
+			return x;
+		}
+	}
+)";
+compileAndRun(sourceCode);
+bytes valueSequence;
+ABI_CHECK(callContractFunction("test()"), vector<bytes>(1, encodeRefArgs(
+			1, 8,
+	int16_t(-1),
+	int16_t(-1),
+	int16_t(8),
+	int16_t(-16),
+	int16_t(-2),
+	int16_t(6),
+	int16_t(8),
+	int8_t(-1)
+)));

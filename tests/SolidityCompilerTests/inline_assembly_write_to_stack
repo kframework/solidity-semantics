@@ -1,0 +1,14 @@
+BOOST_AUTO_TEST_CASE(inline_assembly_write_to_stack)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f() returns (uint r, bytes32 r2) {
+				assembly { r := 7 r2 := "abcdef" }
+			}
+		}
+	)";
+	compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+	if (false) {
+		ABI_CHECK(callContractFunction("f()"), encodeArgs(u256(7), string("abcdef")));
+	}
+}

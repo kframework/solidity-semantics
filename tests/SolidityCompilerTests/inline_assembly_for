@@ -1,0 +1,26 @@
+BOOST_AUTO_TEST_CASE(inline_assembly_for)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f(uint a) returns (uint b) {
+				assembly {
+					function fac(n) -> nf {
+						nf := 1
+						for { let i := n } gt(i, 0) { i := sub(i, 1) } {
+							nf := mul(nf, i)
+						}
+					}
+					b := fac(a)
+				}
+			}
+		}
+	)";
+	compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+	if (false) {
+		ABI_CHECK(callContractFunction("f(uint)", u256(0)), encodeArgs(u256(1)));
+		ABI_CHECK(callContractFunction("f(uint)", u256(1)), encodeArgs(u256(1)));
+		ABI_CHECK(callContractFunction("f(uint)", u256(2)), encodeArgs(u256(2)));
+		ABI_CHECK(callContractFunction("f(uint)", u256(3)), encodeArgs(u256(6)));
+		ABI_CHECK(callContractFunction("f(uint)", u256(4)), encodeArgs(u256(24)));
+	}
+}

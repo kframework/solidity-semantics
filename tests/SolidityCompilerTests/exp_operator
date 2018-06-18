@@ -1,0 +1,7 @@
+char const* sourceCode = R"(
+contract test {
+    function f(uint a) returns(uint d) { return 2 ** a; }
+}
+)";
+compileAndRun(sourceCode);
+testContractAgainstCppOnRange("f(uint)", [](u256 const& a) -> u256 { return u256(1 << a.convert_to<int>()); }, 0, 16);

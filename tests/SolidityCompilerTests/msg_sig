@@ -1,0 +1,11 @@
+char const* sourceCode = R"(
+	contract test {
+		function foo(uint a) returns (bytes4 value) {
+			return msg.sig;
+		}
+	}
+)";
+compileAndRunWithoutCheck(sourceCode, 0, "test", true);
+if (false) {
+	ABI_CHECK(callContractFunction("foo(uint)", 0), encodeArgs(asString(FixedHash<4>(dev::keccak256("foo(uint)")).asBytes())));
+}

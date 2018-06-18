@@ -1,0 +1,57 @@
+char const* sourceCode = R"T(
+    pragma experimental ABIEncoderV2;
+    contract C {
+        function f0() public pure returns (bytes) {
+            return abi.encodeWithSignature("f(uint256)");
+        }
+        function f1() public pure returns (bytes) {
+            string memory x = "f(uint256)";
+            return abi.encodeWithSignature(x, "abc");
+        }
+        string xstor;
+        function f1s() public returns (bytes) {
+            xstor = "f(uint256)";
+            return abi.encodeWithSignature(xstor, "abc");
+        }
+        function f2() public pure returns (bytes r, uint[] ar) {
+            string memory x = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+            uint[] memory y = new uint[](4);
+            y[0] = uint(-1);
+            y[1] = uint(-2);
+            y[2] = uint(-3);
+            y[3] = uint(-4);
+            r = abi.encodeWithSignature(x, y);
+            // The hash uses temporary memory. This allocation re-uses the memory
+            // and should initialize it properly.
+            ar = new uint[](2);
+        }
+        struct S { uint a; string b; uint16 c; }
+        function f4() public pure returns (bytes) {
+            bytes4 x = 0x12345678;
+            S memory s;
+            s.a = 0x1234567;
+            s.b = "Lorem ipsum dolor sit ethereum........";
+            s.c = 0x1234;
+            return abi.encodeWithSignature(s.b, uint(-1), s, uint(3));
+        }
+    }
+)T";
+compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+if (false) {
+    ABI_CHECK(callContractFunction("f0()"), encodeArgs(0x20, 4, "\xb3\xde\x64\x8b"));
+    vector<bytes> expectation;
+    expectation = encodeArgs(0x20, 4 + 0x60) + vector<bytes>{{0xb3, 0xde, 0x64, 0x8b}} + encodeArgs(0x20, 3, "abc") + vector<bytes>(1, bytes(0x20 - 4));
+    ABI_CHECK(callContractFunction("f1()"), expectation);
+    ABI_CHECK(callContractFunction("f1s()"), expectation);
+    expectation =
+        encodeArgs(0x40, 0x140, 4 + 0xc0) +
+        (vector<bytes>{{0xe9, 0xc9, 0x21, 0xcd}} + encodeArgs(0x20, 4, u256(-1), u256(-2), u256(-3), u256(-4)) + vector<bytes>(1, bytes(0x20 - 4))) +
+        encodeArgs(2, 0, 0);
+    ABI_CHECK(callContractFunction("f2()"), expectation);
+    expectation =
+        encodeArgs(0x20, 4 + 0x120) +
+        vector<bytes>{{0x7c, 0x79, 0x30, 0x02}} +
+        encodeArgs(u256(-1), 0x60, u256(3), 0x1234567, 0x60, 0x1234, 38, "Lorem ipsum dolor sit ethereum........") +
+        vector<bytes>(1, bytes(0x20 - 4));
+    ABI_CHECK(callContractFunction("f4()"), expectation);
+}

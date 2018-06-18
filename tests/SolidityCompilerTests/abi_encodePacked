@@ -1,0 +1,28 @@
+char const* sourceCode = R"(
+    contract C {
+        function f0() public pure returns (bytes) {
+            return abi.encodePacked();
+        }
+        function f1() public pure returns (bytes) {
+            return abi.encodePacked(uint8(1), uint8(2));
+        }
+        function f2() public pure returns (bytes) {
+            string memory x = "abc";
+            return abi.encodePacked(uint8(1), x, uint8(2));
+        }
+        function f3() public pure returns (bytes r) {
+            // test that memory is properly allocated
+            string memory x = "abc";
+            r = abi.encodePacked(uint8(1), x, uint8(2));
+            bytes memory y = "def";
+            require(y[0] == "d");
+            y[0] = "e";
+            require(y[0] == "e");
+        }
+    }
+)";
+compileAndRun(sourceCode, 0, "C");
+ABI_CHECK(callContractFunction("f0()"), encodeArgs(encodeDyn(string(""))));
+ABI_CHECK(callContractFunction("f1()"), encodeArgs(encodeDyn(string("\x01\x02"))));
+ABI_CHECK(callContractFunction("f2()"), encodeArgs(encodeDyn(string("\x01" "abc" "\x02"))));
+ABI_CHECK(callContractFunction("f3()"), encodeArgs(encodeDyn(string("\x01" "abc" "\x02"))));

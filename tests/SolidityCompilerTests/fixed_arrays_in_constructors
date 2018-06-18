@@ -1,0 +1,16 @@
+BOOST_AUTO_TEST_CASE(fixed_arrays_in_constructors)
+{
+	char const* sourceCode = R"(
+		contract Creator {
+			uint public r;
+			address public ch;
+			function Creator(address[3] s, uint x) {
+				r = x;
+				ch = s[2];
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "Creator", encodeArgs(encodeRefArgs(u160(1), u160(2), u160(3)), 4));
+	BOOST_REQUIRE(callContractFunction("r()") == encodeArgs(u256(4)));
+	BOOST_REQUIRE(callContractFunction("ch()") == encodeArgs(u256(3)));
+}

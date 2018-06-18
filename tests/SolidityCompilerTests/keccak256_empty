@@ -1,0 +1,9 @@
+char const* sourceCode = R"(
+	contract C {
+		function f() returns (bytes32) {
+			return keccak256();
+		}
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("f()"), vector<bytes>(1, fromHex("0x00c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470")));

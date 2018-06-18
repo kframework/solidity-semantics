@@ -1,0 +1,11 @@
+char const* sourceCode = R"(
+	contract test {
+		function delLocal() returns (uint res){
+			uint v = 5;
+			delete v;
+			res = v;
+		}
+	}
+)";
+compileAndRun(sourceCode);
+ABI_CHECK(callContractFunction("delLocal()"), encodeArgs(0));

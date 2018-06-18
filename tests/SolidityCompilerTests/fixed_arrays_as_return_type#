@@ -1,0 +1,28 @@
+BOOST_AUTO_TEST_CASE(fixed_arrays_as_return_type)
+{
+	char const* sourceCode = R"(
+		contract A {
+			function f(uint16 input) pure returns (uint16[5] arr)
+			{
+				arr[0] = input;
+				arr[1] = ++input;
+				arr[2] = ++input;
+				arr[3] = ++input;
+				arr[4] = ++input;
+			}
+		}
+		contract B {
+			function f() returns (uint16[5] res, uint16[5] res2)
+			{
+				var a = new A();
+				res = a.f(2);
+				res2 = a.f(1000);
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "B");
+	ABI_CHECK(callContractFunction("f()"), encodeArgs(
+		encodeRefArgs(int16_t(2), int16_t(3), int16_t(4), int16_t(5), int8_t(6)), // first return argument
+		encodeRefArgs(int16_t(1000), int16_t(1001), int16_t(1002), int16_t(1003), int16_t(1004))) // second return argument
+	);
+}

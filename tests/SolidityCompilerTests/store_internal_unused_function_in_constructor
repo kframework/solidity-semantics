@@ -1,0 +1,22 @@
+// TODO: store bound internal library functions
+
+BOOST_AUTO_TEST_CASE(store_internal_unused_function_in_constructor)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function () internal returns (uint) x;
+			function C () {
+				x = unused;
+			}
+			function unused() internal returns (uint) {
+				return 7;
+			}
+			function t() returns (uint) {
+				return x();
+			}
+		}
+	)";
+
+	compileAndRun(sourceCode, 0, "C");
+	ABI_CHECK(callContractFunction("t()"), encodeArgs(u256(7)));
+}

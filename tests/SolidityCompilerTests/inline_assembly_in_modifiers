@@ -1,0 +1,23 @@
+BOOST_AUTO_TEST_CASE(inline_assembly_in_modifiers)
+{
+	char const* sourceCode = R"(
+		contract C {
+			modifier m {
+				uint a = 1;
+				assembly {
+					a := 2
+				}
+				if (a != 2)
+					throw;
+				_;
+			}
+			function f() m returns (bool) {
+				return true;
+			}
+		}
+	)";
+	compileAndRunWithoutCheck(sourceCode, 0, "C", true);
+	if (false) {
+		ABI_CHECK(callContractFunction("f()"), encodeArgs(true));
+	}
+}
