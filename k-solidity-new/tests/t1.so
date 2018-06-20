@@ -1,0 +1,12 @@
+
+contract main{
+         
+	 function X (int8 a) { a = a + 1; }
+	 function Y (int8 a,int8 b) { return a + b; }
+	 function main(){
+            new main();
+	    functionCall(-1;0;X;1;msginfo(-1,0,0,0)); //X(1);
+	 }
+
+}
+
