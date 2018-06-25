@@ -440,29 +440,35 @@ imports CONFIGURATION
     rule <k> read(X:IndexAccess) => ArrayName(X,X) ... </k>
     rule <k> ArrayName(X:IndexAccess [Y:Int],Z) => ArrayName(X,Z) ... </k>
 
-    rule <k> ArrayName(X:Id [Y:Int],Z) => IdxAccess(X,Z,1,E) ... </k>
-         <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-            
-              ...
-           </contractInstance>
+rule 
+  <k> ArrayName(X:Id [Y:Int],Z) => IdxAccess(X,Z,1,E) ... </k>
+  <contractStack> ListItem(CI:Int) ... </contractStack>
+  <contractInstance>
+    <ctId> CI </ctId>
+    <ctname> Name </ctname> // This is not used! 
+    <ibaseaddress> ... X  |-> E ... </ibaseaddress>
+    ...
+  </contractInstance>
     
-    rule <k> IdxAccess(X,A[Y:Int],N:Int,E) => IdxAccess(X,A,N +Int 1,BaseAddress(X,N,E,Y)) ... </k>
-         <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
-              <iarray>
-                <ianame> X </ianame>
-                <idnum> Num </idnum>
-              ...
-              </iarray>
-              ...
-           </contractInstance>     requires N<Int Num 
+// I think the variable names looks a bit confusing e.g. in the follosing rules, 
+// it is not immediately clear what X, A, Y, N, E are...
+// Same thing for some cells names: ianame, idnum...
+
+rule 
+  <k> IdxAccess(X,A[Y:Int],N:Int,E) => IdxAccess(X,A,N +Int 1,BaseAddress(X,N,E,Y)) ... </k>
+  <contractStack> ListItem(CI:Int) ... </contractStack>
+  <contractInstance>
+    <ctId> CI </ctId>
+    <ctname> Name </ctname> // Name is not used here! 
+    <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+    <iarray>
+      <ianame> X </ianame>
+      <idnum> Num </idnum>
+      ...
+    </iarray>
+    ...
+  </contractInstance>     
+    requires N <Int Num 
 
      rule <k> IdxAccess(X,A[Y:Int],N:Int,E) => IdxAccess(X,A,N +Int 1,BaseAddress(X,N,E,Y)) ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
