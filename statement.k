@@ -172,8 +172,8 @@ imports CONFIGURATION
 
 //Block
 
-         rule <k> {Ss:Statements} => Ss ~> Rho ...</k> <env> Rho </env>  [structural]
-         rule <k> Rho => . ...</k> <env> _ => Rho </env>    [structural]        
+         rule <k> {Ss:Statements} => Ss ~> Rho ...</k> <env> Rho </env> [structural]
+         rule <k> Rho:Map => . ... </k> <env> _ => Rho </env>           [structural]
    
 //Statements
          rule .Statements => .
