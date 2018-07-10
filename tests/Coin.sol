@@ -2,7 +2,7 @@ contract Coin {
 
     address minter;
 
-    mapping (address -> uint) balances;
+    mapping (address => uint) balances;
 
     function Coin() {
         minter = msg.sender;
@@ -11,7 +11,7 @@ contract Coin {
     function mint(address owner, uint amount) {
         if (msg.sender != minter) return;
         balances[owner] += amount;
-    }
+    } 
 
     function send(address receiver, uint amount) {
         if (balances[msg.sender] < amount) return;
