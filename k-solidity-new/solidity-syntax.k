@@ -544,7 +544,7 @@ module SOLIDITY-SYNTAX
    syntax ElementaryTypeNameExpression ::= ElementaryTypeName
 
 
-
+  syntax KResult ::= Values
    
    syntax Expression
        ::= Msg 
