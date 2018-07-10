@@ -56,11 +56,12 @@ module SOLIDITY-SYNTAX
                                | Ufixed
 
   syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName 
+                    //  | TypeName 
                       | IncDecExpression
                       | NewExpression
                       | IndexAccess    
                       | MemberAccess   
-                      | FunctionCall
+                      | FunctionCall 
                       | MemOp
                       | "(" Expression ")"	   [bracket]
                       > SimpleExpression1 
@@ -82,16 +83,24 @@ module SOLIDITY-SYNTAX
                       > Expression "||" Expression [left, strict(1)]
                       > Expression "?" Expression ":" Expression [strict]
                       > PrimaryExpression
-                       | "msg"	  		 [prefer]
-	               | "msg.sender"	         [prefer]
-	               | "msg.value"	         [prefer]
-                       | "msg.gas"               [prefer]
-                       | "msg.owner"             [prefer]
+                      | BuiltinParam
+                      // | "msg"	  		 [prefer]
+	              // | "msg.sender"	         [prefer]
+	              // | "msg.value"	         [prefer]
+                      // | "msg.gas"               [prefer]
+                     //  | "msg.owner"             [prefer]
                        | Id "." "length" [prefer]
                        | BaseAddress(Id,Int,Expression,Int)
                        | CntBaseSize(Id,Int,Expression)
-                     
+                       | SolidityItem
+                      
                        
+                     
+   syntax BuiltinParam ::= "msg"	  		 [prefer]
+	               | "msg.sender"	         [prefer]
+	               | "msg.value"	         [prefer]
+                       | "msg.gas"               [prefer]
+                       | "msg.owner"             [prefer]                  
 
 
    syntax Value
@@ -204,11 +213,13 @@ module SOLIDITY-SYNTAX
                         | EnumDefinition  
                         | SolidityItem
 
-  syntax StateVariableDeclaration ::= TypeName Specifiers Id ";" 
-                                    | TypeName Specifiers Id "=" Expression ";"
+  syntax StateVariableDeclaration ::= TypeName FunQuantifiers Id ";" 
+                                    | TypeName FunQuantifiers Id "=" Expression ";"
                                                                
 
-  syntax Specifiers ::= List{Specifier, ""} 
+ // syntax Specifiers ::= List{Specifier, ""} 
+
+
   syntax Specifier ::= "public" | "internal" | "private" | "constant"
                      | "pure" | "view" | "payable" | "external"
 
@@ -227,13 +238,15 @@ module SOLIDITY-SYNTAX
                               | "modifier" Id Block
 
   syntax ModifierInvocation ::= Id 
-                              | FunctionCall
+                              | FunctionCall 
                             
-
-  syntax MIParameters ::= ExpressionList
+  syntax ModifierInvocations ::= List{ModifierInvocation," "}
+  syntax MIParameters ::= FParameters
 
   syntax FunQuantifier ::= ModifierInvocation 
                          | Specifier
+
+
 
   syntax FunReturn
           ::= "returns" "(" FParameters ")" 
@@ -246,16 +259,17 @@ module SOLIDITY-SYNTAX
 
   syntax FunQuantifiers ::= List{FunQuantifier," "}
 
+
   syntax FunReturns  ::= List{FunReturn, " "}
 
   syntax FunctionDefinition ::= 
-             "function" Id "(" FParameters ")" FunQuantifiers
+             "function" Identifiers "(" FParameters ")" FunQuantifiers
               "returns" "(" FParameters ")"   Block  [prefer]
-            | "function" Id "(" FParameters ")" FunQuantifiers
+            | "function" Identifiers "(" FParameters ")" FunQuantifiers
                "returns" "(" FParameters ")"  ";"    [prefer]
-            |  "function" Id "(" FParameters ")" FunQuantifiers
+            |  "function" Identifiers "(" FParameters ")" FunQuantifiers
                  Block
-            | "function" Id "(" FParameters ")" FunQuantifiers
+            | "function" Identifiers "(" FParameters ")" FunQuantifiers
                 ";" 
 
   
@@ -266,13 +280,15 @@ module SOLIDITY-SYNTAX
   syntax EventInvocation ::= Id "(" Identifiers ")" ";"
                            | Id "(" Values ")" ";"
                     
-  syntax EnumValue ::= Id
-  syntax EnumDefinition ::= "enum" Id "{" Enumlist "}"
-  syntax Enumlist ::= List{EnumValue, ","}
+  //syntax EnumValue ::= Id
+  syntax EnumDefinition ::= "enum" Id "{" Identifiers "}"
+  //syntax Enumlist ::= List{EnumValue, ","}
 
   syntax EventParameters ::= List{EventParameter,""}
   syntax EventParameter ::= IndexedParameter
-                          | FParameter
+                        // | FParameter
+                           | VariableDeclaration
+                           | TypeName
 
   syntax IndexedParameterList ::= "(" IndexedParameters ")"
   syntax IndexedParameters ::= List{IndexedParameter, ","}
@@ -284,26 +300,26 @@ module SOLIDITY-SYNTAX
                     | TypeName  
 
 
-  syntax TypeNames ::= List{TypeName, ","}
+  //syntax TypeNames ::= List{TypeName, ","}
 
             
 
 
-  syntax Mapping ::= "mapping" "(" ElementaryTypeName "->" TypeName ")"
+  syntax Mapping ::= "mapping" "(" ElementaryTypeName "=>" TypeName ")"
 
 
   syntax ArrayTypeName ::= TypeName "[" "]"
                          | IndexAccess
 
 
-  syntax FunctionTypeName ::= "function" "(" FParameters ")" Specifiers
-                            | "function" "(" FParameters ")" Specifiers "returns" "(" FParameters ")"
+  syntax FunctionTypeName ::= "function" "(" FParameters ")" FunQuantifiers 
+                            | "function" "(" FParameters ")" FunQuantifiers "returns" "(" FParameters ")"
                               
 
   syntax StorageLocations ::= List{StorageLocation, " "}
   syntax StorageLocation ::= "memory" | "storage"  
 
-  syntax LocationSpec ::= StorageLocations | Specifiers
+  syntax LocationSpec ::= StorageLocations | FunQuantifiers
 
   syntax Block ::= "{" Statements "}"
   syntax Statements ::= List{Statement, ""}
@@ -326,10 +342,14 @@ module SOLIDITY-SYNTAX
                            | "require" "(" Expression ")" ";" 
 //kan                           | "_" ";"
                            | FunExe(Statements)
+                           | FunctionCall ";" [strict]
+                          
+                       
+                          
                           
                           
                                                                 
-  syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
+  //syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
 
 //  syntax FunctionDefinitions ::= List{FunctionDefinition,"" }
   
@@ -371,6 +391,14 @@ module SOLIDITY-SYNTAX
          | IdxWrite(Id,IndexAccess,Int,Expression,Expression)
          | ArrayName(IndexAccess,IndexAccess)
          | ArrayNameW(IndexAccess,IndexAccess,Expression)
+         | NewContract(Id,ExpressionList)
+      //   | CallCons(Id,Int,Int,ExpressionList)
+         | FunCall(Expression, Id, ExpressionList, Msg)
+         | WriteIndex(Int,Expression)
+        
+        
+         
+  // syntax Value ::= CallCons(Id,Int,Int,ExpressionList)
          
 
   syntax MemOp
@@ -390,8 +418,12 @@ module SOLIDITY-SYNTAX
 
   syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
+  syntax KResult ::= Value | String | Uint | Byte | Fixed | Ufixed | Msg
+  syntax SimpleStatement ::= VariableDefinition | SimpleExpression3 //| FunctionCall 
+ |IncDecExpression | NewExpression | KResult | FunctionItem | SolidityItem
 
-  syntax SimpleStatement ::= VariableDefinition | SimpleExpression3 | FunctionCall | IncDecExpression 
+  //syntax ExpStatement ::= KResult 
+  //syntax NewStatement ::= NewExpression 
 
 
   syntax ForStatement ::= "for" "(" SimpleStatements ";" ExpressionList ";" SimpleStatements  ")" Statement
@@ -472,6 +504,10 @@ module SOLIDITY-SYNTAX
 
    syntax ExpressionList
    	  ::= Values
+            | FParameters
+
+   syntax FParameters ::= Identifiers 
+            //| Enumlist
 
    syntax NameValue ::= Id ":" Expression            [strict(2)]
    syntax NameValueList ::= List{NameValue, ","}       [strict]
@@ -481,7 +517,7 @@ module SOLIDITY-SYNTAX
                                                 
 
 
-   syntax IndexAccess ::= TypeName "[" Expression "]"  [strict(2),klabel(#indexAccess)]		
+   syntax IndexAccess ::= TypeName "[" Expression "]"  [strict (2),klabel(#indexAccess)]		
 
 
    syntax Values
@@ -508,7 +544,7 @@ module SOLIDITY-SYNTAX
    syntax ElementaryTypeNameExpression ::= ElementaryTypeName
 
 
-
+  syntax KResult ::= Values
    
    syntax Expression
        ::= Msg 
@@ -516,7 +552,7 @@ module SOLIDITY-SYNTAX
    syntax Msg
       ::= msginfo(Expression,Expression,Expression,Expression)	[strict]
         | "#emptymsg"
-        | "msg"
+     //   | "msg"
 
 
  

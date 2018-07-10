@@ -197,11 +197,10 @@ imports CONFIGURATION
          
         
          //NewExpression
-      
-         rule <k>  new C (E:ExpressionList)  => CallConstructor(C,N,Cst,E) ~> N ... </k>
-     
-   	<Contract>
-		<cname> C </cname>
+
+         rule <k> new X:Id (E:ExpressionList) => CallConstructor(X,N,Cst,E) ... </k>
+              <Contract>
+		<cname> X </cname>
                 <vnum> Num </vnum>
                 <vId> V </vId>
 		<variables> Rho </variables>
@@ -216,12 +215,12 @@ imports CONFIGURATION
                 <constructor> Cst </constructor>
            
 		...
-	</Contract>
+	</Contract> 
 	<cntContracts> N:Int => N +Int 1 </cntContracts>
 	(.Bag => 
 	    <contractInstance>
 		<ctId> N </ctId>
-                <ctname> C </ctname>
+                <ctname> X </ctname>
                 <ctnum> Num </ctnum>
                 <ctvId> V </ctvId>
 		<ctContext> Rho </ctContext>
@@ -239,15 +238,83 @@ imports CONFIGURATION
 	)
 	<cnttran> K:Int => K +Int 1 </cnttran>
 	<trancomputation> (.Map => K |-> "new contract") ... </trancomputation>
-        <newStack> (.List => ListItem(C)) ... </newStack>
+        <newStack> (.List => ListItem(X)) ... </newStack>
 
        
-        rule  <k> CallConstructor(C,N,0,E) => . ... </k>
+
+
+         rule <k> _:KResult; => . ... </k>
+
+         
+       
+        rule  <k> CallConstructor(C,N,0,E) => N ... </k>
               <newStack>  ListItem(C) => .List ... </newStack>
-        rule  <k> CallConstructor(C,N,1,E) => functionCall(-1;N;C;E:ExpressionList;msginfo(-1,N,0,0)); ... </k> 
+        rule  <k> CallConstructor(C,N,1,E) =>  createTransaction(.List) ~> FunQs(FQ,C) ~> Call(C,E) ~> returnContext(N)  ~> N ... </k> 
 
+        <contractStack>  (.List => ListItem(N)) .List ListItem(-1)   </contractStack>
+         <Msg> M1=>msginfo(-1,N,0,0) </Msg>
+         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
+         <functionStack> (.List => ListItem(C)) ... </functionStack>
+      
+         
+        <contractInstance>
+     	  <ctId> N </ctId>
+          <ctname> Cn:Id </ctname>
+         
+	  ...
+        </contractInstance>
+        <contracts>
+           <Contract>
+	     <cname> Cn </cname>
+     	     <cfunction> ... (C |-> CT:Int) ...  </cfunction>
+	    ...
+           </Contract>
+         ...
+        </contracts>
+        <Function>
+	   <fId> CT </fId>
+     	   <inputparameters> Ps:FParameters </inputparameters>
+     	   <body> B:Statements </body>
+           <FunQuantifiers> FQ </FunQuantifiers>
+           <FunCon> Con </FunCon>
+	   ...
+        </Function>
+
+        rule  <k> CallConstructor(C,N,1,E) =>  createTransaction(.List) ~> FunQs(FQ,C) ~> Call(C,E) ~> returnContext(N)  ~> N ... </k> 
+
+        <contractStack>  (.List => ListItem(N)) L:List ListItem(-1)   </contractStack>
+         <Msg> M1=>msginfo(-1,N,0,0) </Msg>
+         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
+         <functionStack> (.List => ListItem(C)) ... </functionStack>
+      
+         
+        <contractInstance>
+     	  <ctId> N </ctId>
+          <ctname> Cn:Id </ctname>
+         
+	  ...
+        </contractInstance>
+        <contracts>
+           <Contract>
+	     <cname> Cn </cname>
+     	     <cfunction> ... (C |-> CT:Int) ...  </cfunction>
+	    ...
+           </Contract>
+         ...
+        </contracts>
+        <Function>
+	   <fId> CT </fId>
+     	   <inputparameters> Ps:FParameters </inputparameters>
+     	   <body> B:Statements </body>
+           <FunQuantifiers> FQ </FunQuantifiers>
+           <FunCon> Con </FunCon>
+	   ...
+        </Function>
+
+
+        
        
-        rule  <k> C:Id(I:Int,.ExpressionList)=> I ... </k>
+        rule  <k> C:Id(I:Int)=> I ... </k>
               <Contract>
                   <cname> C </cname>
                   ...
@@ -279,47 +346,15 @@ imports CONFIGURATION
             <store>... N |-> (I => I -Int 1) ...</store> 
      */
        
-      rule <k> ++X => write(X, X +Int 1) ...</k>
+      rule <k> ++X =>  X = X + 1 ...</k>
 
-          /*
-           <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctContext>... X |-> N ...</ctContext>
-              <ctstore>... N |-> (I => I +Int 1) ...</ctstore> 
-              ...
-             </contractInstance>*/
+       rule <k> X++ => X = X + 1 ...</k>
 
-       rule <k> X++ => write(X, X +Int 1) ...</k>
-          /*
-            <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctContext>... X |-> N ...</ctContext>
-              <ctstore>... N |-> (I => I +Int 1) ...</ctstore> 
-              ...
-             </contractInstance>*/
-
-       rule <k> --X => write(X, X -Int 1) ...</k> 
-       /*
-            <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctContext>... X |-> N ...</ctContext>
-              <ctstore>... N |-> (I => I -Int 1) ...</ctstore> 
-              ...
-             </contractInstance>*/
+       rule <k> --X => X = X - 1 ...</k> 
 
 
-       rule <k> X-- => write(X, X -Int 1) ...</k>
-       /*
-           <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctContext>... X |-> N ...</ctContext>
-              <ctstore>... N |-> (I => I -Int 1) ...</ctstore> 
-              ...
-             </contractInstance>*/
+       rule <k> X-- => X = X - 1 ...</k>
+      
       
 
 //SimpleExpression2
@@ -331,21 +366,26 @@ imports CONFIGURATION
 
 //SimpleExpression3
     
-       rule <k> X:Expression = I:Value => I ...</k>
+       rule <k> X:Id = I:Value => I ...</k>
             <contractStack> ListItem(-1) ... </contractStack>
             <env>... X |-> N ...</env>
-            <store>... N |-> (_ => I) ...</store>  [assignment] 
+            <store>... (N |-> V) => (N |->I) ...</store>  [assignment] 
+            
+          
 
-       rule <k> X:Expression = I:Value => write(X,I) ...</k>
-
+       rule <k> X:Id = I:Value => write(X,I) ...</k>
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+            requires CI>=Int 0
+             
+            
        rule <k> write(X,I) => I ... </k>
              
             <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctContext>... X |-> N ...</ctContext>
-              <ctstore>... N |-> (_ => I) ...</ctstore> 
-              <ctLocation> ...  X |-> L:Specifiers ...</ctLocation>
+              <ctContext>... X |-> N...</ctContext>
+              <ctstore> ... (N |-> V) => (N |->I) ...</ctstore> 
+              <ctLocation> ...  X |-> L:FunQuantifiers ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
@@ -362,7 +402,7 @@ imports CONFIGURATION
               ...
              </contractInstance>
 
-
+      
 
        rule X:Expression += Y:Expression => X=X + Y 
        rule X:Expression -= Y:Expression => X=X - Y 
@@ -379,6 +419,11 @@ imports CONFIGURATION
             <store>... N |-> I ...</store>  [lookup] 
 
        rule <k> X:Id => read(X) ...</k>
+     
+       rule <k> read(X:Id) => I ... </k>
+            <contractStack> ListItem(-1) ... </contractStack>
+            <env>... X |-> N ...</env>
+            <store>... N |-> I ...</store>  [lookup] 
 
        rule <k> read(X:Id) => I ... </k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -386,10 +431,11 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
               <ctstore>... N |-> I ...</ctstore> 
-              <ctLocation> ...  X |-> L:Specifiers ...</ctLocation>
+              <ctLocation> ...  X |-> L:FunQuantifiers ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
+            requires CI >=Int 0
 
         rule <k> read(X:Id) => I ... </k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -401,6 +447,7 @@ imports CONFIGURATION
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
+             requires CI >=Int 0
 
 
 
@@ -440,42 +487,37 @@ imports CONFIGURATION
     rule <k> read(X:IndexAccess) => ArrayName(X,X) ... </k>
     rule <k> ArrayName(X:IndexAccess [Y:Int],Z) => ArrayName(X,Z) ... </k>
 
-rule 
-  <k> ArrayName(X:Id [Y:Int],Z) => IdxAccess(X,Z,1,E) ... </k>
-  <contractStack> ListItem(CI:Int) ... </contractStack>
-  <contractInstance>
-    <ctId> CI </ctId>
-    <ctname> Name </ctname> // This is not used! 
-    <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-    ...
-  </contractInstance>
+    rule <k> ArrayName(#indexAccess(X,Y),Z) => IdxAccess(X,Z,1,E) ... </k>
+         <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctname> Name </ctname>
+              <ibaseaddress> ... X  |-> E ... </ibaseaddress>
+            
+              ...
+           </contractInstance>
     
-// I think the variable names looks a bit confusing e.g. in the follosing rules, 
-// it is not immediately clear what X, A, Y, N, E are...
-// Same thing for some cells names: ianame, idnum...
-
-rule 
-  <k> IdxAccess(X,A[Y:Int],N:Int,E) => IdxAccess(X,A,N +Int 1,BaseAddress(X,N,E,Y)) ... </k>
-  <contractStack> ListItem(CI:Int) ... </contractStack>
-  <contractInstance>
-    <ctId> CI </ctId>
-    <ctname> Name </ctname> // Name is not used here! 
-    <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
-    <iarray>
-      <ianame> X </ianame>
-      <idnum> Num </idnum>
-      ...
-    </iarray>
-    ...
-  </contractInstance>     
-    requires N <Int Num 
+    rule <k> IdxAccess(X,A[Y:Int],N:Int,E) => IdxAccess(X,A,N +Int 1,BaseAddress(X,N,E,Y)) ... </k>
+     
+         <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctname> Name </ctname>
+              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+              <iarray>
+                <ianame> X </ianame>
+                <idnum> Num </idnum>
+              ...
+              </iarray>
+              ...
+           </contractInstance>     requires N<Int Num 
 
      rule <k> IdxAccess(X,A[Y:Int],N:Int,E) => IdxAccess(X,A,N +Int 1,BaseAddress(X,N,E,Y)) ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:Specifiers ... </ctLocation>
+              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
               ...
            </contractInstance>     
            <Contract>
@@ -489,20 +531,16 @@ rule
            </Contract>
            requires N<Int Num 
 
-     rule <k> IdxAccess(X,X[Y:Int],Num,E) => I ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
+     rule <k> IdxAccess(X,#indexAccess(X,Y),Num,E) => I ... </k>
+           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctstore> ... (E +Int Y |-> I) ...   </ctstore>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
-              <iarray>
-                <ianame> X </ianame>
-                <idnum> Num </idnum>
-                ...
-              </iarray>
+              <distore> ... (E +Int Y |-> I) ...   </distore>
+  
               ...
            </contractInstance>
+
  
       rule <k> IdxAccess(X,X[Y:Int],Num,E) => I ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -510,19 +548,10 @@ rule
               <ctId> CI </ctId>
               <ctname> Name </ctname>
               <ctstore> ... (E +Int Y |-> I) ...   </ctstore>
-              <ctLocation> ... X  |-> L:Specifiers ... </ctLocation>
+            
               ...
            </contractInstance>
  
-           <Contract>
-              <cname> Name </cname>
-              <array>
-                <aname> X </aname>
-                <dnum> Num </dnum>
-              ...
-              </array>
-              ...
-           </Contract>
 
    
      rule <k> BaseAddress(X,N,E,Y) => CntBaseSize(X,N,Y) + E ... </k>
@@ -549,7 +578,7 @@ rule
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:Specifiers ... </ctLocation>
+              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
               
               ...
            </contractInstance>
@@ -585,7 +614,7 @@ rule
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:Specifiers ... </ctLocation>
+              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
               ...
            </contractInstance>
            <Contract>
@@ -600,7 +629,7 @@ rule
 
           
 
-    rule <k> X:IndexAccess = I:Value => write(X,I) ... </k>
+    rule <k> X:Id [Y:Expression] = I:Value => write(X[Y],I) ... </k>
 
     rule <k> write(X:IndexAccess,I) => ArrayNameW(X,X,I) ... </k>
     rule <k> ArrayNameW(X:IndexAccess [Y:Int],Z,I) => ArrayNameW(X,Z,I) ... </k>
@@ -615,45 +644,31 @@ rule
               ...
            </contractInstance>
     
-    rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
+    rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
          <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
               <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
-              <iarray>
-                <ianame> X </ianame>
-                <idnum> Num </idnum>
+            
               ...
-              </iarray>
-              ...
-           </contractInstance>     requires N<Int Num 
+           </contractInstance>     //requires N<Int Num 
 
-     rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
+     rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:Specifiers ... </ctLocation>
+              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
               ...
            </contractInstance>     
-           <Contract>
-              <cname> Name </cname>
-              <array>
-                <aname> X </aname>
-                <dnum> Num </dnum>
-              ...
-              </array>
-              ...
-           </Contract>
-           requires N<Int Num 
-
-
+          
+/*
      rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => 1 ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctstore> ... (E +Int Y |->(_ => I)) ...   </ctstore>
+             // <ctstore> ... (Idx |->(_ => I)) ...   </ctstore>
               <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
@@ -661,29 +676,34 @@ rule
                 ...
               </iarray>
               ...
-           </contractInstance>
+           </contractInstance>*/
     
-     rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => 1 ... </k>
+     rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
+          
+
+     // rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
+
+      rule <k> WriteIndex(A,I) => 1 ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctstore> ... (E +Int Y |-> I) ...   </ctstore>
-              <ctLocation> ... X  |-> L:Specifiers ... </ctLocation>
+              <distore> ... (A |-> V) => (A |-> I) ...   </distore>
+              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+              ... 
+           </contractInstance>
+      
+       rule <k> WriteIndex(A,I) => 1 ... </k>
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctname> Name </ctname>
+              <ctstore> ... (A |-> V) => (A |-> I) ...   </ctstore>
+              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
               ...
            </contractInstance>
+
  
-           <Contract>
-              <cname> Name </cname>
-              <array>
-                <aname> X </aname>
-                <dnum> Num </dnum>
-              ...
-              </array>
-              ...
-           </Contract>
-
-
 
    /*
    //One-dimensional array
@@ -807,7 +827,7 @@ rule
            </contractInstance>
            
       */
-        
+     rule <k> (X:Expression) => X ... </k>   
      
      rule X:Id[Y:Int] += E:Expression => X[Y]= X[Y]+ E
      rule X:Id[Y:Int] -= E:Expression => X[Y]= X[Y]- E
@@ -848,27 +868,29 @@ rule
     
     //Local dynamic array
 
-      rule <k> X:Id.length = I:Int; => ArrayUpdate(1,CI,X,I) ... </k>
+      rule <k> X:Id.length = I:Int => ArrayUpdate(1,CI,X,I) ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
-              <ctstore> ... E |-> (_=>I) ... </ctstore>
+              <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
               <ibaseaddress> ... X |-> (_=>!Num:Int) ... </ibaseaddress>
               <distore> (.Map => !Num:Int |-> 0) ... </distore>
+              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
               ...
            </contractInstance>
 
     //Global dynamic array
 
-      rule <k> X:Id.length = I:Int; => DArrayUpdate(1,CI,X,I) ... </k>
+      rule <k> X:Id.length = I:Int => DArrayUpdate(1,CI,X,I) ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
-              <ctstore> ... E |->(_=> I) ... </ctstore>
+              <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
               <ibaseaddress> (.Map => X |-> !Num:Int) ... </ibaseaddress>
               <distore> (.Map => !Num:Int |-> 0) ... </distore>
+             <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
               ...
            </contractInstance>
 
@@ -877,7 +899,7 @@ rule
       rule <k> ArrayUpdate(Ins,CI,X,I) => InstanceUpdate(Ins,CI,X,I) ~> ArrayUpdate(Ins+Int 1,CI,X,I) ... </k>
            requires Ins<Int I
 
-      rule <k> ArrayUpdate(I,CI,X,I) => . ... </k>
+      rule <k> ArrayUpdate(I,CI,X,I) => 1 ... </k>
 
 
       rule <k> InstanceUpdate(Ins,CI,X,I) => . ... </k>
@@ -891,7 +913,7 @@ rule
       rule <k> DArrayUpdate(Ins,CI,X,I) => DInstanceUpdate(Ins,CI,X,I) ~> DArrayUpdate(Ins+Int 1,CI,X,I) ... </k>
            requires Ins<Int I
 
-      rule <k> DArrayUpdate(I,CI,X,I) => . ... </k>
+      rule <k> DArrayUpdate(I,CI,X,I) => 1 ... </k>
      
 
       rule <k> DInstanceUpdate(Ins,CI,X,I) => . ... </k>
@@ -988,7 +1010,7 @@ rule
 
 
     rule .ExpressionList => .Values
-    rule .FParameters => .Values
+   
 
 
 endmodule

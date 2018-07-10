@@ -5,143 +5,162 @@ module CONFIGURATION
 
 imports SOLIDITY-SYNTAX
 
-syntax KResult ::= Value | String | Uint | Byte | Fixed | Ufixed | Msg
 
-configuration
-  <T color="yellow">
-    <threads color="orange">
-      <thread multiplicity="*" color="blue">
-          <k color="green"> $PGM:SourceUnit </k> 
-          <env color="LightSkyBlue"> .Map </env>
-          <contractStack> ListItem(-1) </contractStack>
-          <functionStack> .List </functionStack>
-          <newStack> .List </newStack>
-      </thread>
-    </threads>
+  //syntax KResult ::= Value | String | Uint | Byte | Fixed | Ufixed | Msg
 
-    <store color="red"> .Map </store>
+ configuration
+              <T color="yellow">
 
-    <vposition> 1:Int </vposition>
+                <threads color="orange">
+                  <thread multiplicity="*" color="blue">
+                      <k color="green"> $PGM:SourceUnit </k> 
+                      <env color="LightSkyBlue"> .Map </env>
+	              <contractStack> ListItem(-1) </contractStack>
+                      <functionStack> .List </functionStack>
+                      <newStack> .List </newStack>
+                  </thread>
+                </threads>
 
-    <contracts>
-      <contractnum> 0:Int </contractnum>
-      <Contract multiplicity = "*">
-        <cname> .K  </cname>
-        <cId> (-1):Int </cId>
-        <cfunction> .Map </cfunction> 
-        <vnum> 0:Int </vnum>  
-        <vId> .Map </vId> 
-        <variables> .Map </variables>
-        <typename> .Map </typename>
-        <cstore> .Map </cstore>
-        <cLocation> .Map </cLocation>
-        <dtype> .Map </dtype>
-        <dstore> .Map </dstore>
-        <Length> .Map </Length>
-        <dim> 1:Int </dim>
-        <vdim> .Map </vdim>
-        <inheritance> .K </inheritance>
-        <contractbody> .K </contractbody>
-        <events>
-          <Event multiplicity = "*">
-            <ename> .K </ename>
-            <eparameters> .K </eparameters>
-          </Event>
-        </events>
-        <modifiers>
-          <Modifier multiplicity = "*">
-            <mname> .K </mname>
-            <mparameters> .K </mparameters>
-            <condition> .K </condition>
-          </Modifier>
-        </modifiers>
-        <usingfors>
-          <usingfor multiplicity = "*">
-            <lname> .K </lname>
-            <type> .K </type>
-            <vname> .K </vname>
-          </usingfor>
-        </usingfors>
-        <structs>
-          <Struct multiplicity = "*">
-            <sname> .K </sname>
-            <vardec> .K </vardec>
-          </Struct>
-        </structs>
-        <structinstances>
-          <cntstructinstance> 0:Int </cntstructinstance>
-          <structinstance multiplicity = "*">
-            <structname> .K </structname>
-            <iname> .K </iname>
-            <iId> (-1):Int </iId>
-            <isnum> 0:Int </isnum>
-            <ivariables> .Map </ivariables>
-          </structinstance>
-        </structinstances>
-        <baseaddress> .Map </baseaddress>
-        <arrays>
-          <array multiplicity = "*">
-            <aname> .K </aname>
-            <dnum> 1:Int </dnum>
-            <dimensions>  .Map </dimensions>
-          </array>
-        </arrays>
-        <constructor> 0:Int </constructor>
-      </Contract>    
-    </contracts>
+                <store color="red"> .Map </store>
 
-    <functions>
-      <Function multiplicity = "*" color="blue"> 
-        <fId color="black"> 0:Int </fId>
-        <inputparameters> .FParameters </inputparameters>
-        <outputparameters> .FParameters </outputparameters>
-        <body color="orange"> .K </body>
-        <FunQuantifiers> .K </FunQuantifiers>
-        <Return> .K </Return>
-        <FunCon> true:Expression </FunCon>
-      </Function>
-      <cntfunction> 0:Int </cntfunction>
-    </functions>
 
-    <contractInstances>
-      <cntContracts> 0:Int </cntContracts>
-      <contractInstance multiplicity = "*">
-        <ctId> (-1):Int </ctId>
-        <ctname> .K </ctname>
-        <ctnum> 0:Int </ctnum>
-        <ctvId> .Map </ctvId>
-        <ctContext> .Map </ctContext>
-        <ctstore> .Map </ctstore>
-        <ctType> .Map </ctType>
-        <ctLocation> .Map </ctLocation>
-        <ditype> .Map </ditype>
-        <distore> .Map </distore>
-        <Memory> .Map </Memory>
-        <ilength> .Map </ilength>
-        <idim> 1:Int </idim>
-        <ivdim> .Map </ivdim>
-        <ibaseaddress> .Map </ibaseaddress>
-        <iarrays>
-          <iarray multiplicity = "*">
-            <ianame> .K </ianame>
-            <idnum> 1:Int </idnum>
-            <idimensions>  .Map </idimensions>
-          </iarray>
-        </iarrays>
-      </contractInstance>
-    </contractInstances>
+                <vposition> 1:Int </vposition>
+                
+                <contracts>
+                  <contractnum> 0:Int </contractnum>
+	             <Contract multiplicity = "*">
+	                <cname> .K  </cname>
+    
+                        <cId> (-1):Int </cId>
+                        <cfunction> .Map </cfunction> 
+                        
+	                <vnum> 0:Int </vnum>  
+                        <vId> .Map </vId> 
+                        <variables> .Map </variables>
+                        <typename> .Map </typename>
+                               
+                        <cstore> .Map </cstore>
+                        <cLocation> .Map </cLocation>
+                        <dtype> .Map </dtype>
+                        <dstore> .Map </dstore>
+                        <Length> .Map </Length>
+                        <dim> 1:Int </dim>
+                        <vdim> .Map </vdim>
+                        
+                        <inheritance> .K </inheritance>
+                        <contractbody> .K </contractbody>
+                        
+                        <events>
+                           <Event multiplicity = "*">
+                              <ename> .K </ename>
+                              <eparameters> .K </eparameters>
+                           </Event>
+                        </events>
+                     
+                        <modifiers>
+                           <Modifier multiplicity = "*">
+                              <mname> .K </mname>
+                              <mparameters> .K </mparameters>
+                              <condition> .K </condition>
+                           </Modifier>
+                        </modifiers>
+                        <usingfors>
+                           <usingfor multiplicity = "*">
+                              <lname> .K </lname>
+                              <type> .K </type>
+                              <vname> .K </vname>
+                           </usingfor>
+                        </usingfors>
+                    <structs>
+                     <Struct multiplicity = "*">
+                        <sname> .K </sname>
+                        <vardec> .K </vardec>
+                     </Struct>
+                    </structs>
+                    <structinstances>
+                       <cntstructinstance> 0:Int </cntstructinstance>
+                  
+                       <structinstance multiplicity = "*">
+                         <structname> .K </structname>
+                         <iname> .K </iname>
+                         <iId> (-1):Int </iId>
+                         <isnum> 0:Int </isnum>
+                         <ivariables> .Map </ivariables>
+                      
+                      </structinstance>
+                    </structinstances>
+                     <baseaddress> .Map </baseaddress>
 
-    <transactions>
-      <cnttran> 1:Int </cnttran>
-      // What is this for? it seems to be only used twice. 
-      // Is it supposed to indicate the purpose of a transaction? 
-      // E.g. whether the transaction is to create a new contract or invoking a function of existing contract? 
-      // Why is this needed?
-      <trancomputation> 0 |-> "Main"  </trancomputation> 
-    </transactions>
+                      <arrays>
+                      
+                         <array multiplicity = "*">
+                            <aname> .K </aname>
+                            <dnum> 1:Int </dnum>
+                            <dimensions>  .Map </dimensions>
+                          </array>
+                       </arrays>
+                       <newInstances> .List </newInstances>
+                       <constructor> 0:Int </constructor>
+                     </Contract>    
+	          </contracts>
 
-    <Msg> .K </Msg>
+                  <functions>
+                     <Function multiplicity = "*" color="blue"> 
+                        <fId color="black"> 0:Int </fId>
+                        <inputparameters> .FParameters </inputparameters>
+                        <outputparameters> .FParameters </outputparameters>
+                        <body color="orange"> .K </body>
+                        <FunQuantifiers> .K </FunQuantifiers>
+                        <Return> .K </Return>
+                        <FunCon> true:Expression </FunCon>
+                     </Function>
+                     <cntfunction> 0:Int </cntfunction>
+                  </functions>
 
-    <MsgStack> .List </MsgStack>
-  </T>
+                  <contractInstances>
+	             <cntContracts> 0:Int </cntContracts>
+	             <contractInstance multiplicity = "*">
+	                <ctId> (-1):Int </ctId>
+                        <ctname> .K </ctname>
+                        <ctnum> 0:Int </ctnum>
+                        <ctvId> .Map </ctvId>
+	                <ctContext> .Map </ctContext>
+                        <ctType> .Map </ctType>
+                        <ctstore> .Map </ctstore>
+                        <ctLocation> .Map </ctLocation>
+                        <ditype> .Map </ditype>
+                        <distore> .Map </distore>
+                        <Memory> .Map </Memory>
+                        <ilength> .Map </ilength>
+                        <idim> 1:Int </idim>
+                        <ivdim> .Map </ivdim>
+                        <ibaseaddress> .Map </ibaseaddress>
+                        <iarrays>
+                         <iarray multiplicity = "*">
+                            <ianame> .K </ianame>
+                            <idnum> 1:Int </idnum>
+                            <idimensions>  .Map </idimensions>
+                          </iarray>
+                       </iarrays>
+                         
+	             </contractInstance>
+	          </contractInstances>
+
+                  <transactions>
+                     <cnttran> 1:Int </cnttran>
+	             <trancomputation> 0 |-> "Main"  </trancomputation>
+	          </transactions>
+                  <Msg> .K </Msg>
+                  <MsgStack> .List </MsgStack>
+
+                 </T>
+
 endmodule
+
+
+
+
+
+
+
+

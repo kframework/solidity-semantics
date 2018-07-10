@@ -3,10 +3,12 @@
 requires "solidity-syntax.k"
 requires "configuration.k"
 
+
 module MCONTRACT
 
 imports SOLIDITY-SYNTAX
 imports CONFIGURATION
+
 
 
 
@@ -33,6 +35,7 @@ rule <k> contract F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                    <usingfors> .Bag </usingfors>
                    <structs> .Bag </structs>
                    //<arrays> .Bag </arrays>
+                   <newInstances> .List </newInstances>
                    <constructor> 0 </constructor>
 	                 ...
                  </Contract>
@@ -57,6 +60,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                    <usingfors> .Bag </usingfors>
                    <structs> .Bag </structs>
                    <arrays> .Bag </arrays>
+                   <newInstances> .List </newInstances>
                    <constructor> 0 </constructor>
 	           ...
                  </Contract>
@@ -71,7 +75,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
     
       //ElementaryTypeName 
 
-      rule <k> pcsContractPart(C:Id, X:NotBool Y:Specifiers Z:Id;) => allocate(C,X,Y,Z,0) ... </k>
+      rule <k> pcsContractPart(C:Id, X:NotBool Y:FunQuantifiers Z:Id;) => allocate(C,X,Y,Z,0) ... </k>
            /* <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -82,7 +86,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract>*/
 
-      rule <k> allocate(C,X:ElementaryTypeName, Y:Specifiers, Z:Id, I:Value) => . ... </k>
+      rule <k> allocate(C,X:ElementaryTypeName, Y:FunQuantifiers, Z:Id, I:Value) => . ... </k>
            <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -96,7 +100,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
    
      
-      rule <k> pcsContractPart(C:Id, X:ElementaryTypeName Y:Specifiers Z:Id = E;) => allocate(C,X,Y,Z,E) ... </k>
+      rule <k> pcsContractPart(C:Id, X:ElementaryTypeName Y:FunQuantifiers Z:Id = E;) => allocate(C,X,Y,Z,E) ... </k>
        /*
             <Contract>
               <cname> C </cname>
@@ -108,7 +112,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract> */
     
-      rule <k> pcsContractPart(C:Id, X:SBool Y:Specifiers Z:Id;) => allocate(C,X,Y,Z,false) ... </k>
+      rule <k> pcsContractPart(C:Id, X:SBool Y:FunQuantifiers Z:Id;) => allocate(C,X,Y,Z,false) ... </k>
 
 /*          <Contract>
               <cname> C </cname>
@@ -124,7 +128,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
         //One dimensional array
 
-        rule <k> allocate(C:Id, T:ElementaryTypeName[I:Int], Y:Specifiers, Z:Id, V:Value) => NewArray(C,Z,0,I,V) ~> SetSize(C,Z) ... </k>
+        rule <k> allocate(C:Id, T:ElementaryTypeName[I:Int], Y:FunQuantifiers, Z:Id, V:Value) => NewArray(C,Z,0,I,V) ~> SetSize(C,Z) ... </k>
              <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -147,7 +151,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </Contract>
              
 
-        rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:Specifiers Z:Id;) => allocate(C,T[I],Y,Z,0) ... </k>
+        rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],Y,Z,0) ... </k>
             /*<Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -201,7 +205,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
              ...
             </Contract>
 
-       rule <k> allocate(C:Id, T:ElementaryTypeName[], Y:Specifiers, Z:Id, V:Value) => . ... </k>    
+       rule <k> allocate(C:Id, T:ElementaryTypeName[ ], Y:FunQuantifiers, Z:Id, V:Value) => . ... </k>    
             <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -216,7 +220,8 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract>   
 
-       rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:Specifiers Z:Id;) => allocate(C,T[],Y,Z,0) ... </k>
+
+       rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,Y,Z,0) ... </k>
            /*  <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -230,9 +235,11 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract>*/
 
+       
+
        //Multi-dimensional array
 
-        rule <k> allocate(C:Id, T:ArrayTypeName[I:Int], Y:Specifiers, Z:Id, V:Value) => MulDArray(C,T,Z,0,I,V) ~>  SetSize(C,Z) ... </k>
+        rule <k> allocate(C:Id, T:ArrayTypeName[I:Int], Y:FunQuantifiers, Z:Id, V:Value) => MulDArray(C,T,Z,0,I,V) ~>  SetSize(C,Z) ... </k>
              <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -256,7 +263,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </Contract>
 
 
-        rule <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:Specifiers Z:Id;) => allocate(C,T[I],Y,Z,0) ... </k>
+        rule <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],Y,Z,0) ... </k>
           /*  <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -278,7 +285,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract>*/
 
-       rule <k> pcsContractPart(C:Id, T:ArrayTypeName[] Y:Specifiers Z:Id;) => pcsContractPart(C:Id, T:ArrayTypeName Y:Specifiers Z:Id;) ... </k>
+       rule <k> pcsContractPart(C:Id, T:ArrayTypeName[] Y:FunQuantifiers Z:Id;) => pcsContractPart(C:Id, T:ArrayTypeName Y:FunQuantifiers Z:Id;) ... </k>
             
 
        rule <k> MulDArray(C,T,Z,N,I,V) => ODArray(C,T,Z,N,I,V) ~> MulDArray(C,T,Z,N+Int 1,I,V)... </k>
@@ -356,27 +363,31 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
              </Contract>
     //Mapping
          
-       rule <k> pcsContractPart(C:Id, mapping(E:ElementaryTypeName -> T:TypeName) Y:Specifiers Z:Id;) => pcsContractPart(C:Id, T:TypeName[] Y:Specifiers Z:Id;) ... </k>
+       rule <k> pcsContractPart(C:Id, mapping(E:ElementaryTypeName => T:TypeName) Y:FunQuantifiers Z:Id;) => pcsContractPart(C:Id, T:TypeName[] Y:FunQuantifiers Z:Id;) ... </k>
    
     //FunctionTypeName
 
-       rule <k> pcsContractPart(C:Id, X:FunctionTypeName Y:Specifiers Z:Id;) => . ... </k>
+       rule <k> pcsContractPart(C:Id, X:FunctionTypeName Y:FunQuantifiers Z:Id;) => . ... </k>
 
     //UserDefinedTypeName
+   
 
-   rule <k> pcsContractPart(C:Id, X:Id Y:Specifiers Z:Id = X (V:Values);)
-   	    			  => new X (.ExpressionList); ... </k>
-      
 
+   rule <k> pcsContractPart(C:Id, X:Id Y:FunQuantifiers Z:Id = X (V:Values);)
+   	    			  => new X (.ExpressionList);  ... </k>
+
+   rule <k> pcsContractPart(C:Id, X:Id Y:FunQuantifiers Z:Id = new X (V:Values);)
+   	    			  => new X (V);  ... </k>
+       
                
    //For elementary type names in the main contract
      
-       rule <k> T:NotBool Y:StorageLocations X:Id; => . ...</k>
+       rule <k> T:NotBool Y:StorageLocations X:Id => 1 ...</k>
             <contractStack> ListItem(-1) ... </contractStack>
             <env> Rho => Rho[X <- !N:Int] </env>
             <store>... .Map => !N |-> 0 ...</store>
 
-       rule <k> T:SBool Y:StorageLocations X:Id; => . ...</k>
+       rule <k> T:SBool Y:StorageLocations X:Id => 1 ...</k>
             <contractStack> ListItem(-1) ... </contractStack>
             <env> Rho => Rho[X <- !N:Int] </env>
             <store>... .Map => !N |-> false ...</store>
@@ -406,6 +417,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <Memory>... .Map => !N |-> 0 ...</Memory>
             ...
             </contractInstance>*/
+            requires CI>=0
 
        rule <k> T:SBool Y:StorageLocations X:Id; =>  allocate(CI,T,Y,X,false) ...</k>
              <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -427,7 +439,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
       
       //Mapping
             
-      rule mapping(E:ElementaryTypeName -> T:TypeName) Y:StorageLocations X:Id; => T[] Y X;
+      rule mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations X:Id; => T[] Y X;
 
       //UserDefinedTypeName
       rule <k> T:UserDefinedTypeName Y:StorageLocations X:Id; => . ...</k>
@@ -738,7 +750,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                 ...
                </Contract>
 
-      rule <k> allocate(C:Id, T:ArrayTypeName, Y:StorageLocations, Z:Id, V:Value) =>   pcsContractPart(C:Id,T:ArrayTypeName .Specifiers Z:Id;)... </k>  
+      rule <k> allocate(C:Id, T:ArrayTypeName, Y:StorageLocations, Z:Id, V:Value) =>   pcsContractPart(C:Id,T:ArrayTypeName .FunQuantifiers Z:Id;)... </k>  
      
 
       rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:ArrayTypeName Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,Y,!D,0)... </k>
@@ -755,7 +767,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </Contract>
 
 
-      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, mapping(E:ElementaryTypeName -> T:TypeName) Y:StorageLocations Z:Id,IName:Id) => 
+      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations Z:Id,IName:Id) => 
           pcsStateVariableDeclaration(C:Id,X:Id, T[] Y:StorageLocations Z:Id,IName:Id)... </k>   
 
       rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:UserDefinedTypeName Y:StorageLocations Z:Id,IName:Id) => . ... </k> 
@@ -768,7 +780,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 //StructInstance
 
         
-         rule <k> allocate(C:Id,X:Id,S:Specifiers,Y:Id,V:Value) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
+         rule <k> allocate(C:Id,X:Id,S:FunQuantifiers,Y:Id,V:Value) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
                <Contract>
                   <cname> C </cname>
                   <vnum>  N:Int => N +Int 1 </vnum>
@@ -798,7 +810,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                   ...
                </Contract>    
 
-         rule  <k> pcsContractPart(C:Id, X:Id S:Specifiers Y:Id;) => allocate(C,X,S,Y,0) ... </k>
+         rule  <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => allocate(C,X,S,Y,0) ... </k>
              /*  <Contract>
                   <cname> C </cname>
                   <vnum>  N:Int => N +Int 1 </vnum>
@@ -844,7 +856,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
            </Contract>   
 
 
-      rule <k> pcsContractPart(C:Id, X:Id Y:Specifiers Z:Id;) => pcsContractPart(C:Id, address Y Z;)... </k>
+      rule <k> pcsContractPart(C:Id, X:Id Y:FunQuantifiers Z:Id;) => pcsContractPart(C:Id, address Y Z;)... </k>
 
 //StructDefinition
 
