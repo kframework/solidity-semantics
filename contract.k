@@ -1,0 +1,680 @@
+
+
+requires "solidity-syntax.k"
+requires "configuration.k"
+
+module CONTRACT
+
+imports SOLIDITY-SYNTAX
+imports CONFIGURATION
+
+
+
+/**********************************@
+	     Contract
+***********************************/
+
+
+//ContractDefinition
+
+rule <k> contract F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
+        <contractnum> N:Int => N +Int 1 </contractnum>
+              (.Bag =>
+                 <contract> 
+                   <cname> F </cname>
+                   <cId> N </cId>
+	           //<variables> .Map </variables>
+                   <typename> .Map </typename>
+                   <cstore> .Map </cstore>
+                   
+                   <dtype> .Map </dtype>
+                   <dstore> .Map </dstore>
+                   <length> .Map </length>
+                  // <contractbody> Cs </contractbody>
+                   <events> .Bag </events>
+	           <modifiers> .Bag </modifiers>
+                   <usingfors> .Bag </usingfors>
+                   <structs> .Bag </structs>
+                   //<arrays> .Bag </arrays>
+                   <constructor> 0 </constructor>
+	                 ...
+                 </contract>
+               )
+
+rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
+            <contractnum> N:Int => N +Int 1 </contractnum>
+              (.Bag =>
+                 <contract> 
+                   <cname> F </cname>
+                   <cId> N </cId>
+	           <variables> .Map </variables>
+                   <typename> .Map </typename>
+                   <cstore> .Map </cstore>
+                   
+                   <dtype> .Map </dtype>
+                   <dstore> .Map </dstore>
+                   <length> .Map </length>
+                  // <contractbody> Cs </contractbody>
+                   <events> .Bag </events>
+	           <modifiers> .Bag </modifiers>
+                   <usingfors> .Bag </usingfors>
+                   <structs> .Bag </structs>
+                   <arrays> .Bag </arrays>
+                   <constructor> 0 </constructor>
+	           ...
+                 </contract>
+               )
+             
+
+//ContractPart
+       rule pcsContractParts(F, C:ContractPart Cs:ContractParts) => pcsContractPart(F,C) ~> pcsContractParts(F,Cs)
+       rule pcsContractParts(F,.ContractParts) => .
+
+//StateVariableDeclaration for global variables 
+    
+      //ElementaryTypeName 
+
+      rule <k> pcsContractPart(C:Id, X:NotBool Y:Specifiers Z:Id;) => . ... </k>
+            <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> Z) ... </vId>
+              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
+              <typename> ( .Map => Z |-> X) ... </typename>
+              <cstore> (.Map => !Num |-> 0) ... </cstore>
+               ...
+            </contract>
+     
+      rule <k> pcsContractPart(C:Id, X:ElementaryTypeName Y:Specifiers Z:Id = E;) => . ... </k>
+            <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> Z) ... </vId>
+              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
+              <typename> ( .Map => Z |-> X) ... </typename>
+              <cstore> (.Map => !Num |-> E) ... </cstore>
+               ...
+            </contract> 
+    
+      rule <k> pcsContractPart(C:Id, X:SBool Y:Specifiers Z:Id;) => . ... </k>
+            <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> Z) ... </vId>
+              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
+              <typename> ( .Map => Z |-> X) ... </typename>
+              <cstore> (.Map => !Num |-> false) ... </cstore>
+               ...
+            </contract>
+    
+      //Array(Global)
+
+        //One dimensional array
+
+        rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:Specifiers Z:Id;) => NewArray(C,Z,0,I) ~> SetSize(C,Z) ... </k>
+            <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> Z) ... </vId>
+              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
+              <typename> ( .Map => Z |-> T) ... </typename>
+              <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
+              <length> (.Map => Z |-> I) ... </length>
+              <vdim> (.Map => Z |-> 1) ... </vdim>
+               (.Bag =>
+                 <array>
+                    <aname> Z </aname>
+                    <dimensions> 1 |-> I </dimensions>
+                  ...
+                 </array>
+               )
+              
+               ...
+            </contract>
+             
+
+       rule <k> SetSize(C,Z) => CntSize(C,Z,DNum,0) ... </k>
+            <contract>
+              <cname> C </cname>
+              <variables> ... Z |-> E ... </variables>
+              <cstore> ... E |-> (A:Int=>1) ... </cstore>
+              <baseaddress> (.Map => Z |-> A:Int) ... </baseaddress>
+
+              <array>
+                 <aname> Z </aname>
+                 <dnum> DNum </dnum>
+              ...
+              </array>
+             ...
+            </contract>
+
+       rule <k> CntSize(C,Z,DNum,N) => DSize(C,Z,N) ~> CntSize(C,Z,DNum,N +Int 1) ... </k>
+            requires N<Int DNum
+
+       rule <k> CntSize(C,Z,DNum,DNum) => . ... </k>
+
+       rule <k> DSize(C,Z,N) => . ... </k>
+             <contract>
+              <cname> C </cname>
+              <variables> ... Z |-> E ... </variables>
+              <cstore> ... E |-> (A=> A*Int I) ... </cstore>
+              <array>
+                 <aname> Z </aname>
+                 <dimensions> ... N+Int 1 |-> I ... </dimensions>
+                 
+              ...
+              </array>
+             ...
+            </contract>
+
+            
+
+       rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:Specifiers Z:Id;) => . ... </k>
+             <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> Z) ... </vId>
+              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
+              <typename> ( .Map => Z |-> T) ... </typename>
+              <dtype> (.Map => Z |-> T) ... </dtype>
+              <cstore> (.Map => !Num:Int |-> 0) ... </cstore>
+              <length> (.Map => Z |-> 0) ... </length>
+              <vdim> (.Map => Z |-> 0) ... </vdim>
+               ...
+            </contract>
+
+       //Multi-dimensional array
+
+        rule <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:Specifiers Z:Id;) => MulDArray(C,T,Z,0,I) ~>  SetSize(C,Z) ... </k>
+            <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> Z) ... </vId>
+              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
+              <typename> ( .Map => Z |-> T) ... </typename>
+              <cstore> (.Map => !Num:Int |-> !Num +Int 1) ... </cstore>
+              <length> (.Map => T Z|-> I) ... </length>
+              <dim> _=>1 </dim>
+              <vdim> (.Map => Z |-> 1) ... </vdim>
+               (.Bag =>
+                 <array>
+                    <aname> Z </aname>
+                    <dimensions>  1 |-> I </dimensions>
+                  ...
+                 </array>
+               )
+
+               ...
+            </contract>
+
+       rule <k> pcsContractPart(C:Id, T:ArrayTypeName[] Y:Specifiers Z:Id;) => pcsContractPart(C:Id, T:ArrayTypeName Y:Specifiers Z:Id;) ... </k>
+            
+
+       rule <k> MulDArray(C,T,Z,N,I) => ODArray(C,T,Z,N,I) ~> MulDArray(C,T,Z,N+Int 1,I)... </k>
+            requires N<Int I
+       rule <k> MulDArray(C,T,Z,I,I) => . ... </k>
+            
+       
+       rule <k> ODArray(C,T:ArrayTypeName[Ins],Z,N,I) => CntLength(C,Z,T,Ins)~>MulDArray(C,T,Z,0,Ins) ... </k>
+
+       rule <k> ODArray(C,T:ElementaryTypeName[Ins],Z,N,I) => cntLength(C,Z,Ins)~> NewArray(C,Z,0,Ins) ... </k>
+          
+
+       rule <k> CntLength(C,Z,T:TypeName,Ins) => . ... </k>
+             <contract>
+              <cname> C </cname>
+              <length> ... T Z|-> (_=>Ins) ... </length>
+             
+              ...
+             </contract>
+
+       rule <k> CntLength(C,Z,T:TypeName,Ins)=> . ... </k>
+             <contract>
+              <cname> C </cname>
+              <length> (.Map => T Z|-> Ins) ... </length>
+              <dim> N:Int => N +Int 1 </dim>
+              <vdim> ... Z |-> (_=>N+Int 1)... </vdim>
+              <array>
+                 <aname> Z </aname>
+                 <dnum> _=>N+Int 1 </dnum>
+                 <dimensions> (.Map => N+Int 1 |-> Ins) ... </dimensions>
+                 ...
+              </array>
+              ...
+             </contract>
+              
+
+       rule <k> cntLength(C,Z,Ins)=> . ... </k>
+             <contract>
+              <cname> C </cname>
+              <length> ...  Z|->(_=> Ins) ... </length>
+              
+              ...
+             </contract>
+
+        rule <k> cntLength(C,Z,Ins)=> . ... </k>
+             <contract>
+              <cname> C </cname>
+              <length> (.Map =>  Z |-> Ins) ... </length>
+              <dim> N:Int => N +Int 1 </dim>
+              <vdim> ... Z |-> (_=>N+Int 1)... </vdim>
+               <array>
+                 <aname> Z </aname>
+                 <dnum> _=>N+Int 1 </dnum>
+                 <dimensions> (.Map => N+Int 1 |-> Ins) ... </dimensions>
+                 ...
+              </array>
+
+              ...
+             </contract>
+             
+       rule  <k> NewArray(C:Id,Z:Id,Y:Int,N:Int) => NewIdx(C,Z,Y)~> NewArray(C,Z,(Y+Int 1),N)... </k> requires Y<Int N
+
+       rule  <k> NewArray(C,Z,Y,Y) => . ... </k>
+       
+       rule   <k> NewIdx(C,Z,Y) => . ... </k>
+           
+             <contract>
+              <cname> C </cname>
+              <vnum>  N:Int => N +Int 1 </vnum>
+              <vId> (.Map => N |-> !Num:Int) ... </vId>
+              <variables> ( .Map => !Num |-> !Num) ... </variables>
+              <typename> ( .Map => !Num |-> Z) ... </typename>
+              <cstore> (.Map => !Num |-> 0) ... </cstore>
+               ...
+            </contract>
+
+    //Mapping
+         
+       rule <k> pcsContractPart(C:Id, mapping(E:ElementaryTypeName => T:TypeName) Y:Specifiers Z:Id;) => pcsContractPart(C:Id, T:TypeName[] Y:Specifiers Z:Id;) ... </k>
+   
+    //FunctionTypeName
+
+       rule <k> pcsContractPart(C:Id, X:FunctionTypeName Y:Specifiers Z:Id;) => . ... </k>
+
+    //UserDefinedTypeName
+
+       rule <k> pcsContractPart(C:Id, X:Id Y:Specifiers Z:Id = X(V:Values);) => new X (.ExpressionList); ... </k>
+      
+
+               
+   //For elementary type names in the main contract
+     
+       rule <k> T:NotBool Y:StorageLocations X:Id; => . ...</k>
+            <contractStack> ListItem(-1) ... </contractStack>
+            <env> Rho => Rho[X <- !N:Int] </env>
+            <store>... .Map => !N |-> 0 ...</store>
+
+       rule <k> T:SBool Y:StorageLocations X:Id; => . ...</k>
+            <contractStack> ListItem(-1) ... </contractStack>
+            <env> Rho => Rho[X <- !N:Int] </env>
+            <store>... .Map => !N |-> false ...</store>
+
+    //Local variables 
+
+       //ElementaryTypeName 
+ 
+       rule <k> T:NotBool Y:StorageLocations X:Id; =>  . ...</k>
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+            <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
+              <memory>... .Map => !N |-> 0 ...</memory>
+            ...
+            </contractInstance>
+
+       rule <k> T:SBool Y:StorageLocations X:Id; =>  . ...</k>
+             <contractStack> ListItem(CI:Int) ... </contractStack>
+              <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
+              <memory>... .Map => !N |-> false ...</memory>
+            ...
+            </contractInstance>
+
+        rule <k> T:ElementaryTypeName Y:StorageLocations X:Id = E; => . ...</k>
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+            <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
+              <memory>... .Map => !N |-> E ...</memory>
+            ...
+            </contractInstance>
+      
+      //Mapping
+            
+      rule mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations X:Id; => T[] Y X;
+
+      //UserDefinedTypeName
+      rule <k> T:UserDefinedTypeName Y:StorageLocations X:Id; => . ...</k>
+
+      //FunctionTypeName
+      rule <k> X:FunctionTypeName Y:StorageLocations Z:Id; => . ... </k>
+      
+      //Local Array
+
+       //One-dimensional array
+
+      rule <k> T:ElementaryTypeName [Y:Int] S:StorageLocations X:Id; => NewArrayIndexes(CI,X,0,Y) ~> ISetSize(CI,X) ... </k>
+      
+          <contractStack> ListItem(CI:Int) ... </contractStack>
+          <vposition> Pos:Int => 1 </vposition>
+           <contractInstance>
+              <ctId> CI </ctId>
+              <ctnum>  N:Int => N +Int 1 </ctnum>
+              <ctvId> (.Map => N |-> X) ... </ctvId>
+              <ctContext> ( .Map => X |-> 1) ... </ctContext>
+              <ctType> ( .Map => X |-> T) ... </ctType>
+              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ilength> (.Map => X |-> Y) ...</ilength>
+              <memory> (.Map => X |-> 1) ... </memory>
+              
+              <ivdim> (.Map => X |-> 1) ... </ivdim>
+               (.Bag =>
+                 <iarray>
+                    <ianame> X </ianame>
+                    <idimensions>  1 |-> Y </idimensions>
+                  ...
+                 </iarray>
+               )
+               ...
+            </contractInstance> 
+
+     rule <k> T:ElementaryTypeName[] S:StorageLocations X:Id; => . ... </k>
+           <contractStack> ListItem(CI:Int) ... </contractStack>
+           <vposition> Pos=>1 </vposition>
+           <contractInstance>
+              <ctId> CI </ctId>
+              <ctnum>  N:Int => N +Int 1 </ctnum>
+              <ctvId> (.Map => N |-> X) ... </ctvId>
+              <ctContext> ( .Map => X |-> 1) ... </ctContext>
+              <ctType> ( .Map => X |-> T) ... </ctType>
+              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ilength> (.Map => X |-> 0) ...</ilength>
+              <ivdim> (.Map => X |-> 0) ... </ivdim>
+              <ibaseaddress> (.Map => X |-> 1) ... </ibaseaddress>
+               ...
+            </contractInstance>
+            
+     rule <k> ISetSize(CI,X) =>  ICntSize(CI,X,DNum,0)... </k> 
+          <contractStack> ListItem(CI:Int) ... </contractStack> 
+           <contractInstance>
+              <ctId> CI </ctId>   
+              //<ctContext> ... X |-> E ... </ctContext>   
+              <memory> ... X |-> (A=> 1) ... </memory> 
+              <ibaseaddress> (.Map => X |-> A:Int) ... </ibaseaddress>
+
+              <iarray>
+                 <ianame> Z </ianame>
+                 <idnum> DNum </idnum>
+              ...
+              </iarray>
+             ...
+            </contractInstance>
+     
+       rule <k> ICntSize(CI,X,DNum,N) => IDSize(CI,X,N) ~> ICntSize(CI,X,DNum,N +Int 1) ... </k>
+            requires N<Int DNum
+
+       rule <k> ICntSize(CI,X,DNum,DNum) => . ... </k>
+
+       rule <k> IDSize(CI,X,N) => . ... </k>
+           
+            <contractInstance>
+         
+              <ctId> CI </ctId>
+              //<ctContext> ... X |-> E ... </ctContext>
+              <memory> ... X |-> (A=> A*Int I) ... </memory>
+              <iarray>
+                 <ianame> X </ianame>
+                 <idimensions> ... N+Int 1 |-> I ... </idimensions>
+                 
+              ...
+              </iarray>
+             ...
+            </contractInstance>
+
+           
+  
+     rule <k> NewArrayIndexes(CI,X,N,Y) => NewArrayIndex(CI,X,N,Y) ~> NewArrayIndexes(CI,X,N+Int 1,Y) ... </k> requires N<Int Y
+     rule <k> NewArrayIndexes(CI,X,Y,Y) => . ... </k>
+        
+
+     rule <k> NewArrayIndex(CI,X,N,Y) => . ... </k>
+          <vposition> P:Int => P +Int 1 </vposition>
+          <contractInstance>
+              <ctId> CI </ctId>
+              <ctnum>  N1:Int => N1 +Int 1 </ctnum>
+              <ctvId> (.Map => N1 |-> !Num:Int) ... </ctvId>
+              <ctContext> (.Map => !Num:Int |-> P) ... </ctContext>
+              <ctType> ... (.Map => !Num:Int |-> X)  ... </ctType>
+              <ctstore> ... P |-> (_=> 0) ... </ctstore>
+               ...
+            </contractInstance>
+   
+     //Multi-dimensional array
+
+     rule <k> T:ArrayTypeName [Y:Int] S:StorageLocations X:Id; => NewRows(CI,X,T,0,Y) ~> ISetSize(CI,X)... </k>
+          <contractStack> ListItem(CI:Int) ... </contractStack>
+          <vposition> _=>1 </vposition>
+           <contractInstance>
+              <ctId> CI </ctId>
+              <ctname> Name </ctname>
+              <ctnum>  N:Int => N +Int 1 </ctnum>
+              <ctvId> (.Map => N |-> X) ... </ctvId>
+              <ctContext> ( .Map => X |-> 1) ... </ctContext>
+              <ctType> ( .Map => X |-> T) ... </ctType>
+              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ilength> (.Map => T X |-> Y) ...</ilength>
+              <memory> (.Map => X |-> 1) ... </memory>
+              <idim> _=>1 </idim>
+              <ivdim> (.Map => X |-> 1) ... </ivdim>
+                (.Bag =>
+                 <iarray>
+                    <ianame> X </ianame>
+                    <idimensions>  1 |-> Y </idimensions>
+                  ...
+                 </iarray>
+               )
+               ...
+            </contractInstance> 
+           
+     rule <k> NewRows(CI,X,T,N,Y) => NewRow(CI,X,T,N,Y) ~> NewRows(CI,X,T,N +Int1,Y) ... </k> requires N<Int Y
+     rule <k> NewRows(CI,X,T,Y,Y) => . ... </k>
+          
+     
+     rule <k> NewRow(CI,X,T:ElementaryTypeName [Ins],N,Y) => IcntLength(CI,X,Ins) ~> NewArrayIndexes(CI,X,0,Ins) ~> . ... </k>
+                    
+
+     rule <k> NewRow(CI,X,T:ArrayTypeName [Ins],N,Y) => ICntLength(CI,X,T,Ins) ~> NewRows(CI,X,T,0,Ins) ... </k>
+
+
+     rule <k> T:ArrayTypeName[] S:StorageLocations X:Id; => T S X; ... </k>
+
+    
+
+     rule <k> ICntLength(CI,X,T:TypeName,Ins) => . ... </k>
+          <contractInstance>
+              <ctId> CI </ctId>
+              <ilength> ... T X |-> (_=>Ins) ... </ilength>
+           ...
+          </contractInstance>
+
+     rule <k> ICntLength(CI,X,T:TypeName,Ins) => . ... </k>
+          <contractInstance>
+              <ctId> CI </ctId>
+              <ilength> (.Map=> T X |-> Ins) ... </ilength>
+              <idim> N:Int => N +Int 1 </idim>
+              <ivdim> ... X |-> (_=>N+Int 1)... </ivdim>
+              <iarray>
+                 <ianame> X </ianame>
+                 <idnum> _=>N +Int 1 </idnum>
+                 <idimensions> (.Map => N+Int 1 |-> Ins) ... </idimensions>
+                 ...
+              </iarray>
+
+           ...
+          </contractInstance>
+
+     rule <k> IcntLength(CI,X,Ins) => . ... </k>
+          <contractInstance>
+              <ctId> CI </ctId>
+              <ilength> ... X |-> (_=>Ins) ... </ilength>
+           ...
+          </contractInstance>
+
+     rule <k> IcntLength(CI,X,Ins) => . ... </k>
+          <contractInstance>
+              <ctId> CI </ctId>
+              <ilength> (.Map=> X |-> Ins) ... </ilength>
+              <idim> N:Int => N +Int 1 </idim>
+              <ivdim> ... X |-> (_=>N+Int 1)... </ivdim>
+              <iarray>
+                 <ianame> X </ianame>
+                 <idnum> _=>N +Int 1 </idnum>
+                 <idimensions> (.Map => N+Int 1 |-> Ins) ... </idimensions>
+                 ...
+              </iarray>
+           ...
+          </contractInstance>
+
+
+
+        //StructDefinition
+
+         rule <k> pcsContractPart(C:Id, struct X:Id {S:VariableDeclarations;}) => . ... </k>
+              <contract>
+               <cname> C </cname>
+             (.Bag => 
+              <struct>
+                  <sname> X </sname>
+                  <vardec> S </vardec>
+               ...
+              </struct>
+             )
+             ...
+             </contract>
+         
+
+
+         rule pcsStateVariableDeclarations(C:Id,X:Id,.VariableDeclarations,IName:Id) => .
+         rule pcsStateVariableDeclarations(C:Id,X:Id,(S:VariableDeclaration; Ss:VariableDeclarations),IName:Id) => pcsStateVariableDeclaration(C,X,S,IName) ~> pcsStateVariableDeclarations(C,X,Ss,IName)
+
+
+         rule <k> pcsStateVariableDeclaration(C:Id,X:Id,T:NotBool Y:StorageLocations Z:Id,IName:Id) => . ... </k>
+               <contract>
+                 <cname> C </cname>
+                 <vnum>  N:Int => N +Int 1 </vnum>
+                 <vId> (.Map => N |->!D:Id) ... </vId>
+                 <variables> ( .Map => !D |-> !Num:Int) ... </variables>
+                 <typename> ( .Map => !D |-> T) ... </typename>
+                 <cstore> (.Map => !Num |-> 0) ... </cstore>
+                 <structinstance>
+                      <structname> X </structname>
+                      <iname> IName </iname>
+                      <isnum> N1:Int => N1 +Int 1 </isnum>
+                      <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
+                  ...
+                 </structinstance>
+                ...
+               </contract>
+
+             
+         rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:SBool Y:StorageLocations Z:Id,IName:Id) => . ... </k>
+                <contract>
+                 <cname> C </cname>
+                 <vnum>  N:Int => N +Int 1 </vnum>
+                 <vId> (.Map => N |->!D:Id) ... </vId>
+                 <variables> ( .Map => !D |-> !Num:Int) ... </variables>
+                 <typename> ( .Map => !D |-> T) ... </typename>
+                 <cstore> (.Map => !Num |-> true) ... </cstore>
+                 <structinstance>
+                      <structname> X </structname>
+                      <iname> IName </iname>
+                      <isnum> N1:Int => N1 +Int 1 </isnum>
+                      <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
+                  ...
+                 </structinstance>
+                ...
+               </contract>
+
+            
+     
+
+      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:ArrayTypeName Y:StorageLocations Z:Id,IName:Id) => pcsContractPart(C:Id,T:ArrayTypeName .Specifiers !D:Id;)... </k>
+           <contract>
+                 <cname> C </cname>
+                 <structinstance>
+                      <structname> X </structname>
+                      <iname> IName </iname>
+                      <isnum> N1:Int => N1 +Int 1 </isnum>
+                      <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
+                  ...
+                 </structinstance>
+                ...
+            </contract>
+
+
+      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations Z:Id,IName:Id) => 
+          pcsStateVariableDeclaration(C:Id,X:Id, T[] Y:StorageLocations Z:Id,IName:Id)... </k>   
+
+      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:UserDefinedTypeName Y:StorageLocations Z:Id,IName:Id) => . ... </k> 
+      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:FunctionTypeName Y:StorageLocations Z:Id,IName:Id) => . ... </k>    
+ 
+ 
+   
+  
+
+//StructInstance
+
+       
+         rule  <k> pcsContractPart(C:Id, X:Id S:Specifiers Y:Id;) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
+               <contract>
+                  <cname> C </cname>
+                  <vnum>  N:Int => N +Int 1 </vnum>
+                  <vId> (.Map => N |-> Y )... </vId>
+                  <variables> ( .Map => Y |-> !Num:Int) ... </variables>
+                  <typename> ( .Map => Y |-> "struct") ... </typename>
+                  <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
+   
+  
+                  <struct>
+                    <sname> X </sname>
+                   
+                    <vardec> VarD </vardec>
+                   ...
+                  </struct>
+                
+                  <cntstructinstance> N1:Int => N1 +Int 1 </cntstructinstance>
+                  (.Bag =>
+                   <structinstance>
+                      <structname> X </structname>
+                      <iId> N1 </iId>
+                      <iname> Y </iname>
+                      <isnum> 0 </isnum>
+                      <ivariables> .Map </ivariables>
+                    ...
+                   </structinstance>)
+                  ...
+               </contract>    
+
+     rule  <k> SetStructSize(C:Id,X:Id,Y:Id) =>  . ... </k>
+           <contract>
+                <cname> C </cname>
+                <variables> ... Y |-> E ... </variables>
+                <cstore> ... E |-> (A:Int=> Num) ... </cstore>
+                <structinstance>
+                      <structname> X </structname>
+                      <iname> Y </iname>
+                      <isnum> Num </isnum>
+                     ...
+                 </structinstance>
+                <baseaddress> (.Map => Y |-> A) ... </baseaddress>
+                ...
+           </contract>   
+
+
+      rule <k> pcsContractPart(C:Id, X:Id Y:Specifiers Z:Id;) => pcsContractPart(C:Id, address Y Z;)... </k>
+
+endmodule
+
+

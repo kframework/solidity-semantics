@@ -1,14 +1,14 @@
 
 requires "solidity-syntax.k"
 requires "configuration.k"
-requires "mcontract.k"
+requires "contract.k"
 requires "function.k"
 requires "statement.k"
 
 module SOLIDITY
   imports SOLIDITY-SYNTAX
   imports CONFIGURATION
-  imports MCONTRACT
+  imports CONTRACT
   imports FUNCTION
   imports STATEMENT
 

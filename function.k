@@ -7,83 +7,78 @@ module FUNCTION
 imports SOLIDITY-SYNTAX
 imports CONFIGURATION
 
-
 /*****************************@
        FunctionDefinition
 *******************************/
 
-rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
-            <Contract>
+         rule <k> pcsContractPart(C:Id, function C:Id (Ps1:Parameters) FQ:FunQuantifiers returns  (Ps2:Parameters){B}) => . ... </k>
+            <contract>
 	       <cname> C </cname>
 	       <cfunction> (.Map => C |-> CF) ... </cfunction>
-               <constructor> _ => 1 </constructor>
+               <constructor> _=>1 </constructor>
                ...
-            </Contract>
+            </contract>
                <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
 		     <inputparameters> Ps1 </inputparameters>
                      <outputparameters> Ps2 </outputparameters>
 	  	     <body> B </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
                      <FunCon> true </FunCon>
-                     <Return> 0 </Return>
-                  </Function>
+                     <return> 0 </return>
+                  </function>
 	       )
                
               
                 requires Id2String(C) =/=String "main"
 
-       rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
-
-            <Contract>
+       rule <k> pcsContractPart(C:Id, function F:Id (Ps1:Parameters) FQ:FunQuantifiers returns  (Ps2:Parameters){B}) => . ... </k>
        
 	       <cname> C </cname>
 	      
                <cfunction> (.Map => F |-> CF) ... </cfunction>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                
-               ...
-            </Contract>
-            <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
 		     <inputparameters> Ps1 </inputparameters>
                      <outputparameters> Ps2 </outputparameters>
 	  	     <body> B </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
                      <FunCon> true </FunCon>
-                     <Return> 0 </Return>
-                  </Function>
+                     <return> 0 </return>
+                  </function>
 	       )
                
-                requires Id2String(F) =/=String "main" 
+                requires Id2String(F) =/=String "main" andBool
+                         Id2String(F) =/=String Id2String(C)
 
      
 
-        rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
-             <Contract>
+        rule <k> pcsContractPart(C:Id, function C:Id (Ps1:Parameters)  FQ:FunQuantifiers  {B}) => . ... </k>
+             <contract>
 	       <cname> C </cname>
 	      
                <cfunction> (.Map => C |-> CF) ... </cfunction>
-              
-             // <constructor> Cons:Int => Cons +Int 1  </constructor>
-               <constructor> _ => 1 </constructor>
+               <constructor> _=>1 </constructor>
                ...
-              </Contract>
-               <cntfunction> CF:Int => CF +Int 1 </cntfunction>
+              </contract>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
 		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
+                     <outputparameters> .Parameters </outputparameters>
 	  	     <body> B </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
                      <FunCon> true </FunCon>
-                     <Return> 0 </Return>                     
-	          </Function>
+                     <return> 0 </return>
+                     
+	          </function>
 	       )
                 
           
@@ -92,134 +87,127 @@ rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers
       
        
 
-       rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
-            <Contract>
-	       <cname> C </cname>	      
+       rule <k> pcsContractPart(C:Id, function F:Id (Ps1:Parameters)  FQ:FunQuantifiers  {B}) => . ... </k>
+       
+	       <cname> C </cname>
+	      
                <cfunction> (.Map => F |-> CF) ... </cfunction>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                
-               ...
-            </Contract>
-            <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
 		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
+                     <outputparameters> .Parameters </outputparameters>
 	  	     <body> B </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
                      <FunCon> true </FunCon>
-                     <Return> 0 </Return>                     
-	          </Function>
+                     <return> 0 </return>
+                     
+	          </function>
 	       )
 
-                requires Id2String(F) =/=String "main" 
+                requires Id2String(F) =/=String "main" andBool
+                         Id2String(F) =/=String Id2String(C)
                  
 
               
 
-       rule <k> pcsContractPart(C:Id, function .Identifiers (Ps1:FParameters) FQ:FunQuantifiers   {B}) => . ... </k>
-            <Contract>
+       rule <k> pcsContractPart(C:Id, function .Ids (Ps1:Parameters) FQ:FunQuantifiers   {B}) => . ... </k>
+       
 	       <cname> C </cname>
 	      
                <cfunction> (.Map => String2Id("fallback")  |-> CF) ... </cfunction>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                
-               ...
-            </Contract>
-            <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
 		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
+                     <outputparameters> .Parameters </outputparameters>
 	  	     <body> B </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
                      <FunCon> true </FunCon>
-                     <Return> 0 </Return>
-	          </Function>
+                     <return> 0 </return>
+	          </function>
 	       )
                
-       rule <k> pcsContractPart(C:Id, function .Identifiers (Ps1:FParameters) FQ:FunQuantifiers returns (Ps2:FParameters) {B}) => . ... </k>
-            <Contract>
+       rule <k> pcsContractPart(C:Id, function .Ids (Ps1:Parameters) FQ:FunQuantifiers returns (Ps2:Parameters) {B}) => . ... </k>
+       
 	       <cname> C </cname>
 	      
                <cfunction> (.Map => String2Id("fallback")  |-> CF) ... </cfunction>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                
-               ...
-            </Contract>
-             <cntfunction> CF:Int => CF +Int 1  </cntfunction>
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
-		     <inputparameters> Ps1 </inputparameters> 
+		     <inputparameters> Ps1 </inputparameters>
                      <outputparameters> Ps2 </outputparameters>
 	  	     <body> B </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
                      <FunCon> true </FunCon>
-                     <Return> 0 </Return>
-	          </Function>
+                     <return> 0 </return>
+	          </function>
 	       )
 
 
                      
-    
-        rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) .FunQuantifiers   {B}) => B ... </k>
-             <Contract>
+      
+        rule <k> pcsContractPart(C:Id, function F:Id (Ps1:Parameters) .FunQuantifiers   {B}) => B ... </k>
+       
 	       <cname> C </cname>
 	      
                <cfunction> (.Map => F |-> CF) ... </cfunction>
-              
-               ...
-             </Contract>
-              <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+               
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
 		     <inputparameters> Ps1 </inputparameters>
-                     <outputparameters> .FParameters </outputparameters>
+                     <outputparameters> .Parameters </outputparameters>
                      <body> B </body>
-		     ...                    
-	          </Function>
+                    
+	          </function>
 	       )
   
-               requires Id2String(F) ==String "main"
+               requires Id2String(F) ==String "main" 
                
 
-rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
-     	 		       returns (Ps2:FParameters) {B}) => B ... </k>
-             <Contract>
+         rule <k> pcsContractPart(C:Id, function F:Id (Ps1:Parameters) .FunQuantifiers returns (Ps2:Parameters) {B}) => B ... </k>
+       
 	       <cname> C </cname>
+	      
                <cfunction> (.Map => F |-> CF) ... </cfunction>
-              
-               ...
-             </Contract>
-             <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+               <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+               
                (.Bag =>
-	          <Function>
+	          <function>
                      <fId> CF </fId>
-		     <inputparameters> P1 </inputparameters>
+		     <inputparameters> Ps1 </inputparameters>
                      <outputparameters> Ps2 </outputparameters>
                      <body> B </body>
-                     ...
-	          </Function>)
-
-               requires Id2String(F) ==String "main"
+                    
+                     
+	          </function>
+	       )
+  
+               requires Id2String(F) ==String "main" 
 
      
 //BindParam
 
          syntax SolidityItem
-                  ::=BindParam(FParameters, Values)
+                  ::=BindParam(Parameters, Values)
       
-         rule BindParam(.FParameters, .Values) => .
+         rule BindParam(.Parameters, .Values) => .
 
-         rule <k> BindParam(T:TypeName .StorageLocations P:Id, Ps:FParameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
+         rule <k> BindParam(T:TypeName .StorageLocations P:Id, Ps:Parameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
               <contractStack> ListItem(CI:Int) ... </contractStack>
               <contractInstance>
                 <ctId> CI </ctId>
                 <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
                 <ctstore> .Map => (!N:Int |-> E) ... </ctstore>
-                <ctLocation> .Map =>( P |-> .FunQuantifiers) ...</ctLocation>
-                <ctType> .Map =>(P |-> T) ... </ctType>
                 ...
               </contractInstance>
 
@@ -236,15 +224,15 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
           
            
          
-	          <Contract>
+	          <contract>
                     ...
        
 	             <mname> X </mname>
                   
-                     <condition> Con:Expression </condition>
+                     <condition> Con </condition>
 
                      <cfunction> ... (F |-> CF:Int) ... </cfunction>
-	           </Contract>            
+	           </contract>            
 
                 
                      <fId> CF </fId>
@@ -252,22 +240,22 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
                      <outputparameters> Ps2 </outputparameters>
                      <body> B:K </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> FC:Expression => (FC && Con) </FunCon>
+                     <FunCon> FC => FC && Con </FunCon>
                    
         
        
         rule <k> FunQ(X:Id (MIPs:Values), F:Param) => BindParam(Ps,MIPs) ... </k>
               
            
-	          <Contract>
+	          <contract>
                     ...
        
 	             <mname> X </mname>
-                     <mparameters> Ps:FParameters </mparameters>
-                     <condition> Con:Expression </condition>
+                     <mparameters> Ps:Parameters </mparameters>
+                     <condition> Con </condition>
 
                      <cfunction> ... (F |-> CF:Int) ... </cfunction>
-	           </Contract>            
+	           </contract>            
 
                 
                      <fId> CF </fId>
@@ -275,38 +263,38 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
                      <outputparameters> Ps2 </outputparameters>
                      <body> B:K </body>
                      <FunQuantifiers> FQ </FunQuantifiers>
-                     <FunCon> (FC:Expression => (FC && Con)) </FunCon>
+                     <FunCon> FC => FC && Con </FunCon>
                   
           
             
 
 //ModifierDefinition
-/*
-         rule <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {require(C:Expression); _;}) => . ... </k>
-              <Contract>
+
+         rule <k> pcsContractPart(CN:Id, modifier X:Id (Ps:Parameters ) {require(C:Expression); _;}) => . ... </k>
+              <contract>
               (.Bag => 
-                 <Modifier>
+                 <modifier>
                     <mname> X </mname>
                     <mparameters> Ps </mparameters>
                     <condition> C </condition>
-                 </Modifier>
+                 </modifier>
                )
               ...
-              </Contract> 
+              </contract> 
 
          rule <k> pcsContractPart(CN:Id, modifier X:Id {require(C:Expression); _;}) => . ... </k>
-              <Contract>
+              <contract>
               (.Bag => 
-                 <Modifier>
+                 <modifier>
                     <mname> X </mname>
                     <mparameters> .K </mparameters>
                     <condition> C </condition>
-                 </Modifier>
+                 </modifier>
                )
               ...
-              </Contract> 
+              </contract> 
 
-*/
+
 //Functioncall
 
      rule [function-call]:
@@ -319,130 +307,124 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	  ...
         </contractInstance>
         <contracts>
-           <Contract>
+           <contract>
 	     <cname> Cn </cname>
      	     <cfunction> ... (F |-> CT:Int) ...  </cfunction>
 	    ...
-           </Contract>
+           </contract>
          ...
         </contracts>
-        <Function>
+        <function>
 	   <fId> CT </fId>
-     	   <inputparameters> Ps:FParameters </inputparameters>
+     	   <inputparameters> Ps:Parameters </inputparameters>
      	   <body> B:Statements </body>
            <FunQuantifiers> FQ </FunQuantifiers>
            <FunCon> Con </FunCon>
 	   ...
-        </Function>
+        </function>
 
-      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> if(Con){B}  ... </k>
+      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> funBody(Con,B) ~> UpdateTemp(CI) ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
      	       <ctId> CI </ctId>
                <ctname> Cn:Id </ctname>
+               <ctContext> Rho </ctContext>
+               <ctstore> S </ctstore>
+               <distore> Ds </distore>
+               <memory> M </memory>
+               <tempContext> _=> Rho </tempContext>
+               <tempStore> _=>S </tempStore>
+               <tempdistore> _=>Ds </tempdistore>
+               <tempmemory> _=>M </tempmemory>
 	       ...
            </contractInstance>
            <contracts>
-               <Contract>
+               <contract>
 	         <cname> Cn </cname>
      	         <cfunction> ... (F |-> CT:Int) ...  </cfunction>
 	         ...
-               </Contract>
+               </contract>
            ...
            </contracts>
-           <Function>
+           <function>
 	       <fId> CT </fId>
-     	       <inputparameters> Ps:FParameters </inputparameters>
+     	       <inputparameters> Ps:Parameters </inputparameters>
      	       <body> B:Statements </body>
                <FunQuantifiers> FQ </FunQuantifiers>
                <FunCon> Con </FunCon>
 	       ...
-           </Function>
+           </function>
 
+      rule <k> UpdateTemp(CI) => . ... </k>   
+           <contractStack> ListItem(CI:Int) ... </contractStack>
+           <contractInstance>
+     	       <ctId> CI </ctId>
+               <ctContext> Rho </ctContext>
+               <ctstore> S </ctstore>
+               <distore> Ds </distore>
+               <memory> M </memory>
+               <tempContext> Rho1=>Rho </tempContext>
+               <tempStore> S1=>S </tempStore>
+               <tempdistore> Ds1 => Ds </tempdistore>
+               <tempmemory> M1 => M </tempmemory>
+               ...
+           </contractInstance>  
+           <funCon> _=>true </funCon>
+           <forInit> _=>true </forInit>
 
-     
-    
-      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg); => FunCall(C:Int, F:Id, Es:Values,M:Msg) ~> . ... </k>
-        <contractStack>  (.List => ListItem(C))  ListItem(-1)   </contractStack>
-         <Msg> M1=>M </Msg>
-         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-         <functionStack> (.List => ListItem(F)) ... </functionStack>
-       
-         <contractInstance>
-     	       <ctId> C </ctId>
-               <ctname> Cn:Id </ctname>
-	       ...
-           </contractInstance> 
-       
-       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg); => FunCall(C:Int, F:Id, Es:Values,M:Msg) ~> . ... </k>
-        <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
-         <Msg> M1=>M </Msg>
-         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-         <functionStack> (.List => ListItem(F)) ... </functionStack>
-       
-         <contractInstance>
-     	       <ctId> C </ctId>
-               <ctname> Cn:Id </ctname>
-	       ...
-           </contractInstance> 
-
-  rule <k> FunCall(C:Int, F:Id, Es:Values,M:Msg) => createTransaction(L:List) ~> FunQs(FQ,F)~> Call(F,Es) ~> returnContext(C)  ... </k>
-        <contractStack>   ListItem(C) L:List ListItem(-1)   </contractStack>
-        //<contractStack> ListItem(C:Int) ... </contractStack>
-    
-        <contractInstance>
-     	  <ctId> C </ctId>
-          <ctname> Cn:Id </ctname>
-	  ...
-        </contractInstance>
-        <contracts>
-           <Contract>
-	     <cname> Cn </cname>
-     	     <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-	    ...
-           </Contract>
-         ...
-        </contracts>
-        <Function>
-	   <fId> CT </fId>
-     	   <inputparameters> Ps:FParameters </inputparameters>
-     	   <body> B:Statements </body>
-           <FunQuantifiers> FQ </FunQuantifiers>
-           <FunCon> Con </FunCon>
-	   ...
-        </Function>
-
-  rule <k> createTransaction(.List) => . ... </k>
-
+      rule <k> throw; => . ... </k>
+           <contractStack> ListItem(CI:Int) ... </contractStack>
+           <contractInstance>
+     	       <ctId> CI </ctId>
+               <ctContext> Rho => Rho1 </ctContext>
+               <ctstore> S => S1 </ctstore>
+               <distore> Ds => Ds1 </distore>
+               <memory> M => M1 </memory>
+               <tempContext> Rho1 </tempContext>
+               <tempStore> S1 </tempStore>
+               <tempdistore> Ds1 </tempdistore>
+               <tempmemory> M1 </tempmemory>
+               ...
+           </contractInstance>
+           <funCon> _ => false </funCon>
   
-       
+
+      rule <k> funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss) ... </k>
+      rule <k> funBody(Con,.Statements) => . ... </k>
+      rule <k> funStmt(S) => S ... </k>
+           <funCon> true </funCon>
+           
+      rule <k> funStmt(S) => . ... </k>
+           <funCon> false </funCon>
+         
 
 
-      
 
-      rule <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) => /* createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C)*/ 1 ... </k>
-  /*
+    
+      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) =>  functionCall(C:Int ; F:Id ; Es:Values ; M:Msg)... </k>
+
+      rule <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C) ... </k>
+  
            <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
            <Msg> M1=>M </Msg>
            <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-           <functionStack> (.List => ListItem(F)) ... </functionStack> */
+           <functionStack> (.List => ListItem(F)) ... </functionStack>
 
      
       rule <k> createTransaction(.List) => . ... </k>
            <cnttran> I:Int => I +Int 1 </cnttran>
            <trancomputation> (.Map => I |-> "functioncall" ) ... </trancomputation>  
            <newStack>  .List </newStack>
-          
 
-      //rule <k> createTransaction(.List) => . ... </k> 
-         /*  <newStack> L </newStack>
-           requires L =/=K .List*/
+      rule <k> createTransaction(.List) => . ... </k> 
+           <newStack> L </newStack>
+           requires L =/=K .List
      
 
-      rule <k> createTransaction(L) => . ... </k>
+      rule createTransaction(L) => .
            requires L =/=K .List
 
-      rule <k> returnContext(C:Int) => /*E*/ . ... </k>
+      rule <k> returnContext(C:Int) => E ... </k>
    
            <contractStack> ListItem(C) => .List ... </contractStack>
            <Msg> M => M1 </Msg>
@@ -456,18 +438,19 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	      ...
            </contractInstance>
            <contracts>
-              <Contract>
+              <contract>
 	         <cname> Cn </cname>
      	         <cfunction> ... (F |-> CT:Int) ...  </cfunction>
 	      ...
-              </Contract>
+              </contract>
             ...
            </contracts>
-           <Function>
+           <function>
 	      <fId> CT </fId>
-     	     <Return> E </Return>
+     	     <return> E </return>
 	     ...
-           </Function> 
+           </function>
+          
 
       rule <k> return E:Int; => . ...</k>
            <functionStack> ListItem(F:Id) ... </functionStack>
@@ -479,20 +462,21 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	      ...
            </contractInstance>
            <contracts>
-              <Contract>
+              <contract>
 	         <cname> Cn </cname>
      	         <cfunction> ... (F |-> CT:Int) ...  </cfunction>
 	       ...
-              </Contract>
+              </contract>
             ...
            </contracts>
-           <Function>
+           <function>
 	       <fId> CT </fId>
-     	       <Return> _=> E </Return>
+     	       <return> _=> E </return>
 	       ...
-           </Function> 
+           </function> 
+           <funCon> _=> false </funCon>
 
       rule <k> return; => . ... </k>
-
+           <funCon> _=> false </funCon>
 
 endmodule

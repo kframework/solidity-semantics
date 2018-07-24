@@ -6,11 +6,11 @@ module CONFIGURATION
 imports SOLIDITY-SYNTAX
 
 
-  //syntax KResult ::= Value | String | Uint | Byte | Fixed | Ufixed | Msg
+
+ syntax KResult ::= Int | Bool | String | Uint | Byte | Fixed | Ufixed | Msg
 
  configuration
               <T color="yellow">
-
                 <threads color="orange">
                   <thread multiplicity="*" color="blue">
                       <k color="green"> $PGM:SourceUnit </k> 
@@ -22,13 +22,17 @@ imports SOLIDITY-SYNTAX
                 </threads>
 
                 <store color="red"> .Map </store>
-
-
+                
                 <vposition> 1:Int </vposition>
+                <loopCon> true </loopCon>
+                <funCon> true </funCon>
+                <Continue> false </Continue>
+                <forInit> true </forInit>
+                
                 
                 <contracts>
                   <contractnum> 0:Int </contractnum>
-	             <Contract multiplicity = "*">
+	             <contract multiplicity = "*">
 	                <cname> .K  </cname>
     
                         <cId> (-1):Int </cId>
@@ -40,10 +44,10 @@ imports SOLIDITY-SYNTAX
                         <typename> .Map </typename>
                                
                         <cstore> .Map </cstore>
-                        <cLocation> .Map </cLocation>
+                       
                         <dtype> .Map </dtype>
                         <dstore> .Map </dstore>
-                        <Length> .Map </Length>
+                        <length> .Map </length>
                         <dim> 1:Int </dim>
                         <vdim> .Map </vdim>
                         
@@ -51,18 +55,18 @@ imports SOLIDITY-SYNTAX
                         <contractbody> .K </contractbody>
                         
                         <events>
-                           <Event multiplicity = "*">
+                           <event multiplicity = "*">
                               <ename> .K </ename>
                               <eparameters> .K </eparameters>
-                           </Event>
+                           </event>
                         </events>
                      
                         <modifiers>
-                           <Modifier multiplicity = "*">
+                           <modifier multiplicity = "*">
                               <mname> .K </mname>
                               <mparameters> .K </mparameters>
                               <condition> .K </condition>
-                           </Modifier>
+                           </modifier>
                         </modifiers>
                         <usingfors>
                            <usingfor multiplicity = "*">
@@ -72,10 +76,11 @@ imports SOLIDITY-SYNTAX
                            </usingfor>
                         </usingfors>
                     <structs>
-                     <Struct multiplicity = "*">
+                     <struct multiplicity = "*">
                         <sname> .K </sname>
                         <vardec> .K </vardec>
-                     </Struct>
+                               
+                     </struct>
                     </structs>
                     <structinstances>
                        <cntstructinstance> 0:Int </cntstructinstance>
@@ -99,21 +104,21 @@ imports SOLIDITY-SYNTAX
                             <dimensions>  .Map </dimensions>
                           </array>
                        </arrays>
-                       <newInstances> .List </newInstances>
+
                        <constructor> 0:Int </constructor>
-                     </Contract>    
+                     </contract>    
 	          </contracts>
 
                   <functions>
-                     <Function multiplicity = "*" color="blue"> 
+                     <function multiplicity = "*" color="blue"> 
                         <fId color="black"> 0:Int </fId>
-                        <inputparameters> .FParameters </inputparameters>
-                        <outputparameters> .FParameters </outputparameters>
+                        <inputparameters color="green"> .Parameters </inputparameters>
+                        <outputparameters color="green"> .Parameters </outputparameters>
                         <body color="orange"> .K </body>
                         <FunQuantifiers> .K </FunQuantifiers>
-                        <Return> .K </Return>
-                        <FunCon> true:Expression </FunCon>
-                     </Function>
+                        <return> .K </return>
+                        <FunCon> true </FunCon>
+                     </function>
                      <cntfunction> 0:Int </cntfunction>
                   </functions>
 
@@ -127,10 +132,14 @@ imports SOLIDITY-SYNTAX
 	                <ctContext> .Map </ctContext>
                         <ctType> .Map </ctType>
                         <ctstore> .Map </ctstore>
-                        <ctLocation> .Map </ctLocation>
+                        <tempContext> .Map </tempContext>
+                        <tempStore> .Map </tempStore>
+                        <tempdistore> .Map </tempdistore>
+                        <tempmemory> .Map </tempmemory>
+                        
                         <ditype> .Map </ditype>
                         <distore> .Map </distore>
-                        <Memory> .Map </Memory>
+                        <memory> .Map </memory>
                         <ilength> .Map </ilength>
                         <idim> 1:Int </idim>
                         <ivdim> .Map </ivdim>
@@ -152,8 +161,10 @@ imports SOLIDITY-SYNTAX
 	          </transactions>
                   <Msg> .K </Msg>
                   <MsgStack> .List </MsgStack>
-
+                  
                  </T>
+
+
 
 endmodule
 
