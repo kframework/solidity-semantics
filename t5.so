@@ -1,0 +1,67 @@
+
+contract Coin {
+
+    int ss;
+    int a;
+    address minter;
+    int n;
+    int sum;
+ 
+    mapping (address => uint) balances;
+
+    function Coin() {
+        minter = msg.sender;
+    }
+
+    function mint(address owner, uint amount) {
+        if (msg.sender != minter) return;
+        balances[owner] += amount;
+    }
+
+    function send(address receiver, uint amount) {
+        if (balances[msg.sender] < amount) return;
+        balances[msg.sender] -= amount;
+        balances[receiver] += amount;
+    }
+    
+    function queryBalance(address addr) returns (uint balance) {
+    
+        return balances[addr];
+     }
+    function test (){
+       /* while (n<=100) 
+       {
+           //throw;
+           ++n;
+           //sum = sum + n;
+           if(n==10){ continue;}
+           sum = sum + n;
+       }*/
+       //throw;
+       //n++;
+      for(n=0;n<=100;n++)
+      {
+          //sum = sum + n;
+          //if(n==10){ break;}
+          //throw;
+          sum = sum + n;
+        
+      }
+     /*do {
+        n++;
+        if(n==10){ break;}
+        sum = sum + n;
+     }
+     while (n<=100)*/
+
+   }
+}
+
+contract main {
+
+    function main() { 
+          new Coin(); 
+          functionCall(-1;0;test;;msginfo(-1,0,2,2));
+    }
+
+}

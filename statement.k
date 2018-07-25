@@ -172,8 +172,8 @@ imports CONFIGURATION
 
 //Block
 
-         rule <k> {Ss:Statements} => Ss ~> Rho ...</k> <env> Rho </env> [structural]
-         rule <k> Rho:Map => . ... </k> <env> _ => Rho </env>           [structural]
+         rule <k> {Ss:Statements} => Ss ~> Rho ...</k> <env> Rho </env>  [structural]
+         rule <k> Rho => . ...</k> <env> _ => Rho </env>    [structural]        
    
 //Statements
          rule .Statements => .
@@ -185,10 +185,92 @@ imports CONFIGURATION
          rule if (false) S:Statement => .
          rule if (true)  S else S1:Statement => S
          rule if (false) S1:Statement else S => S
-
+/*
          rule for (A;B;C) S => A; while (B) {S C;} [structural]
          rule do S while (B) =>  S if(B) {do S while (B)} else {.Statements}  [structural]
-         rule while (B) S => if (B) {S while (B) S} else {.Statements}  [structural]
+         rule while (B) S => if (B) {S while (B) S} else {.Statements}  [structural]*/
+
+          rule <k> for (A;B;C) {S} => InitStmts(A;) if (B) {ExeWhile(C; S) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
+              <loopCon> true </loopCon>
+              <Continue> _=>false </Continue>
+              <funCond> true </funCond>
+
+         rule <k> for (A;B;C) {S} => Reset(1) ... </k> 
+              <loopCon> false </loopCon>
+
+         rule <k> for (A;B;C) {S} => . ... </k> 
+              <funCond> false </funCond>
+
+         rule <k> EndLoop(.Statements) => . ... </k>
+              <forInit> _=>true </forInit>
+
+         rule <k> InitStmts(S:Statement Ss:Statements) => InitStmt(S) ~> InitStmts(Ss) ... </k>
+         rule <k> InitStmt(S) => S ... </k>
+              <forInit> true=>false </forInit>
+         rule <k> InitStmt(S) => . ... </k>
+              <forInit> false </forInit>
+         rule <k> InitStmts(.Statements) => . ... </k>
+     
+              
+            
+
+         rule <k> do {S} while (B) =>  ExeWhile(S) if(B) {do {S} while (B)} else {.Statements} ... </k> 
+              <loopCon> true </loopCon>
+              <Continue> _=>false </Continue>
+              <funCond> true </funCond>
+
+        rule <k> do {S} while (B) => Reset(1) ... </k> 
+             <loopCon> false </loopCon>
+
+        rule <k> do {S} while (B) => . ... </k> 
+             <funCond> false </funCond>
+
+         
+
+               
+         rule <k> while (B) {S} => if (B) {ExeWhile(S) while (B) {S}} else {.Statements} ... </k> 
+              <loopCon> true </loopCon>
+              <Continue> _=>false </Continue>
+              <funCond> true </funCond>
+             
+
+
+         rule <k> ExeWhile(S:Statement Ss:Statements) => ExeWhileStmt(S) ~>  ExeWhile(Ss) ... </k>
+         rule <k> ExeWhile(.Statements) => . ... </k>
+
+         rule <k> ExeWhileStmt(S) => S ... </k>
+              <funCond> true </funCond>
+              <Continue> false </Continue>
+              <loopCon> true </loopCon>
+
+         rule <k> ExeWhileStmt(S) => . ... </k>
+              <funCond> false </funCond>
+
+         rule <k> ExeWhileStmt(S) => . ... </k>
+             <Continue> true </Continue>
+
+         rule <k> ExeWhileStmt(S) => . ... </k>
+             <loopCon> false </loopCon>
+              
+
+         rule <k> while (B) S => . ... </k>
+              <funCond> false </funCond>
+
+         rule <k> while (B) S => Reset(1) ... </k> 
+              <loopCon> false </loopCon>
+    
+         rule <k> Reset(1) => . ... </k>
+              <loopCon> _=>true </loopCon>
+              <forInit> _=> true </forInit>
+               
+         rule <k> break; => . ... </k>
+              <loopCon> _=>false </loopCon>
+
+         rule <k> continue; => . ... </k> 
+              <Continue> _=> true </Continue>
+          
+      
+
 
        
         
@@ -249,8 +331,8 @@ imports CONFIGURATION
        
         rule  <k> CallConstructor(C,N,0,E) => N ... </k>
               <newStack>  ListItem(C) => .List ... </newStack>
-        rule  <k> CallConstructor(C,N,1,E) =>  createTransaction(.List) ~> FunQs(FQ,C) ~> Call(C,E) ~> returnContext(N)  ~> N ... </k> 
-
+        rule  <k> CallConstructor(C,N,1,E) =>  /*createTransaction(.List)  ~> functionCall(C;E) ~> returnContext(N)*/functionCall(-1;N;C;E;msginfo(-1,N,0,0))  ... </k> 
+/*
         <contractStack>  (.List => ListItem(N)) .List ListItem(-1)   </contractStack>
          <Msg> M1=>msginfo(-1,N,0,0) </Msg>
          <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
@@ -278,9 +360,9 @@ imports CONFIGURATION
            <FunQuantifiers> FQ </FunQuantifiers>
            <FunCon> Con </FunCon>
 	   ...
-        </Function>
-
-        rule  <k> CallConstructor(C,N,1,E) =>  createTransaction(.List) ~> FunQs(FQ,C) ~> Call(C,E) ~> returnContext(N)  ~> N ... </k> 
+        </Function> */
+/*
+        rule  <k> CallConstructor(C,N,1,E) =>  createTransaction(.List) ~> FunQs(FQ,C) ~> Call(C,E) ~> returnContext(N) </k> 
 
         <contractStack>  (.List => ListItem(N)) L:List ListItem(-1)   </contractStack>
          <Msg> M1=>msginfo(-1,N,0,0) </Msg>
@@ -311,7 +393,7 @@ imports CONFIGURATION
 	   ...
         </Function>
 
-
+*/
         
        
         rule  <k> C:Id(I:Int)=> I ... </k>
@@ -1009,7 +1091,12 @@ imports CONFIGURATION
            requires N>Int 0
 
 
-    rule .ExpressionList => .Values
+    //rule .ExpressionList => .Values
+
+    //rule <k> using X:Id for * ; => . ... </k>
+    //rule <k> using X:Id for Y:Typename ; => . ... </k>
+
+    
    
 
 

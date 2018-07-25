@@ -15,6 +15,7 @@ imports CONFIGURATION
 /**********************************@
 	     Contract
 ***********************************/
+rule <k> contract F:Id is I:Identifiers { Cs:ContractParts } => contract F:Id { Cs:ContractParts } ... </k>
 
 rule <k> contract F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
         <contractnum> N:Int => N +Int 1 </contractnum>
@@ -86,7 +87,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract>*/
 
-      rule <k> allocate(C,X:ElementaryTypeName, Y:FunQuantifiers, Z:Id, I:Value) => . ... </k>
+      rule <k> allocate(C,X:ElementaryTypeName, Y:FunQuantifiers, Z:Id, I:Expression) => . ... </k>
            <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -378,7 +379,8 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
    rule <k> pcsContractPart(C:Id, X:Id Y:FunQuantifiers Z:Id = new X (V:Values);)
    	    			  => new X (V);  ... </k>
-       
+     
+   rule <k> pcsContractPart(C:Id,X:UsingForDeclaration) => . ... </k>  
                
    //For elementary type names in the main contract
      

@@ -59,7 +59,9 @@ rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers
                   </Function>
 	       )
                
-                requires Id2String(F) =/=String "main" 
+                requires Id2String(F) =/=String "main" andBool
+                         Id2String(F) =/=String Id2String(C)
+
 
      
 
@@ -112,7 +114,9 @@ rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers
 	          </Function>
 	       )
 
-                requires Id2String(F) =/=String "main" 
+                requires Id2String(F) =/=String "main" andBool
+                         Id2String(F) =/=String Id2String(C)
+
                  
 
               
@@ -181,7 +185,8 @@ rule <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers
 	          </Function>
 	       )
   
-               requires Id2String(F) ==String "main"
+               requires Id2String(F) ==String "main" 
+
                
 
 rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
@@ -202,8 +207,11 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
                      ...
 	          </Function>)
 
-               requires Id2String(F) ==String "main"
+               requires Id2String(F) ==String "main" 
 
+
+        rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters);) => . ... </k>
+        rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers;) => . ... </k>
      
 //BindParam
 
@@ -281,9 +289,10 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
             
 
 //ModifierDefinition
-/*
+
          rule <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {require(C:Expression); _;}) => . ... </k>
               <Contract>
+                <cname> CN </cname>
               (.Bag => 
                  <Modifier>
                     <mname> X </mname>
@@ -296,6 +305,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 
          rule <k> pcsContractPart(CN:Id, modifier X:Id {require(C:Expression); _;}) => . ... </k>
               <Contract>
+                <cname> CN </cname>
               (.Bag => 
                  <Modifier>
                     <mname> X </mname>
@@ -306,7 +316,34 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
               ...
               </Contract> 
 
-*/
+         rule <k> pcsContractPart(CN:Id, modifier X:Id {if(Con:Expression) {throw;} _;}) => . ... </k>
+              <Contract>
+                <cname> CN </cname>
+              (.Bag => 
+                 <Modifier>
+                    <mname> X </mname>
+                    <mparameters> .K </mparameters>
+                    <condition> ! Con </condition>
+                 </Modifier>
+               )
+              ...
+              </Contract> 
+
+          rule <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {if(Con:Expression) {throw;} _;}) => . ... </k>
+              <Contract>
+                <cname> CN </cname>
+              (.Bag => 
+                 <Modifier>
+                    <mname> X </mname>
+                    <mparameters> .K </mparameters>
+                    <condition> ! Con </condition>
+                 </Modifier>
+               )
+              ...
+              </Contract> 
+
+
+
 //Functioncall
 
      rule [function-call]:
@@ -335,11 +372,19 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	   ...
         </Function>
 
-      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> if(Con){B}  ... </k>
+      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> /*if(Con){B}*/ funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
      	       <ctId> CI </ctId>
                <ctname> Cn:Id </ctname>
+               <ctContext> Rho </ctContext>
+               <ctstore> S </ctstore>
+               <distore> Ds </distore>
+               <Memory> M </Memory>
+               <tempContext> _=> Rho </tempContext>
+               <tempStore> _=>S </tempStore>
+               <tempdistore> _=>Ds </tempdistore>
+               <tempmemory> _=>M </tempmemory>
 	       ...
            </contractInstance>
            <contracts>
@@ -359,10 +404,51 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	       ...
            </Function>
 
+      rule <k> UpdateTemp(CI) => . ... </k>   
+           <contractStack> ListItem(CI:Int) ... </contractStack>
+           <contractInstance>
+     	       <ctId> CI </ctId>
+               <ctContext> Rho </ctContext>
+               <ctstore> S </ctstore>
+               <distore> Ds </distore>
+               <Memory> M </Memory>
+               <tempContext> Rho1=>Rho </tempContext>
+               <tempStore> S1=>S </tempStore>
+               <tempdistore> Ds1 => Ds </tempdistore>
+               <tempmemory> M1 => M </tempmemory>
+               ...
+           </contractInstance>  
+           <funCond> _=>true </funCond>
+           <forInit> _=>true </forInit>
 
-     
-    
-      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg); => FunCall(C:Int, F:Id, Es:Values,M:Msg) ~> . ... </k>
+      rule <k> throw; => . ... </k>
+           <contractStack> ListItem(CI:Int) ... </contractStack>
+           <contractInstance>
+     	       <ctId> CI </ctId>
+               <ctContext> Rho => Rho1 </ctContext>
+               <ctstore> S => S1 </ctstore>
+               <distore> Ds => Ds1 </distore>
+               <Memory> M => M1 </Memory>
+               <tempContext> Rho1 </tempContext>
+               <tempStore> S1 </tempStore>
+               <tempdistore> Ds1 </tempdistore>
+               <tempmemory> M1 </tempmemory>
+               ...
+           </contractInstance>
+           <funCond> _ => false </funCond>
+  
+
+      rule <k> funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss) ... </k>
+      rule <k> funBody(Con,.Statements) => . ... </k>
+      rule <k> funStmt(S) => S ... </k>
+           <funCond> true </funCond>
+           
+      rule <k> funStmt(S) => . ... </k>
+           <funCond> false </funCond>
+         
+
+/*
+      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => FunCall(C:Int, F:Id, Es:Values,M:Msg) ~> 1 ... </k>
         <contractStack>  (.List => ListItem(C))  ListItem(-1)   </contractStack>
          <Msg> M1=>M </Msg>
          <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
@@ -373,18 +459,27 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
                <ctname> Cn:Id </ctname>
 	       ...
            </contractInstance> 
-       
-       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg); => FunCall(C:Int, F:Id, Es:Values,M:Msg) ~> . ... </k>
-        <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
+
+  */   
+    
+      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => createTransaction(.List) ~> functionCall(F;Es) ~> returnContext(C) ... </k>
+        <contractStack>  (.List => ListItem(C))  ListItem(-1)   </contractStack>
          <Msg> M1=>M </Msg>
          <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
          <functionStack> (.List => ListItem(F)) ... </functionStack>
        
+       
+       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => /*FunCall(C:Int, F:Id, Es:Values,M:Msg)*/ createTransaction(L:List) ~> functionCall(F;Es) ~> returnContext(C)  ... </k>
+        <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
+         <Msg> M1=>M </Msg>
+         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
+         <functionStack> (.List => ListItem(F)) ... </functionStack>
+       /*
          <contractInstance>
      	       <ctId> C </ctId>
                <ctname> Cn:Id </ctname>
 	       ...
-           </contractInstance> 
+           </contractInstance> */
 
   rule <k> FunCall(C:Int, F:Id, Es:Values,M:Msg) => createTransaction(L:List) ~> FunQs(FQ,F)~> Call(F,Es) ~> returnContext(C)  ... </k>
         <contractStack>   ListItem(C) L:List ListItem(-1)   </contractStack>
@@ -412,7 +507,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	   ...
         </Function>
 
-  rule <k> createTransaction(.List) => . ... </k>
+  //rule <k> createTransaction(.List) => . ... </k>
 
   
        
@@ -420,8 +515,8 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 
       
 
-      rule <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) => /* createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C)*/ 1 ... </k>
-  /*
+    /*  rule <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C) 1 ... </k>
+  
            <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
            <Msg> M1=>M </Msg>
            <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
@@ -434,15 +529,15 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <newStack>  .List </newStack>
           
 
-      //rule <k> createTransaction(.List) => . ... </k> 
-         /*  <newStack> L </newStack>
-           requires L =/=K .List*/
+      rule <k> createTransaction(.List) => . ... </k> 
+           <newStack> L </newStack>
+           requires L =/=K .List
      
 
       rule <k> createTransaction(L) => . ... </k>
            requires L =/=K .List
 
-      rule <k> returnContext(C:Int) => /*E*/ . ... </k>
+      rule <k> returnContext(C:Int) => E ... </k>
    
            <contractStack> ListItem(C) => .List ... </contractStack>
            <Msg> M => M1 </Msg>
@@ -491,8 +586,10 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
      	       <Return> _=> E </Return>
 	       ...
            </Function> 
+           <funCond> _=>false </funCond>
 
       rule <k> return; => . ... </k>
+           <funCond> _=>false </funCond>
 
 
 endmodule

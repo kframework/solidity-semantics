@@ -48,6 +48,7 @@ module SOLIDITY-SYNTAX
                               
      syntax NotBool ::=        "address"
                                | String
+                               | "string"
                                | "var"
                                | SInt
                                | Uint
@@ -89,7 +90,7 @@ module SOLIDITY-SYNTAX
 	              // | "msg.value"	         [prefer]
                       // | "msg.gas"               [prefer]
                      //  | "msg.owner"             [prefer]
-                       | Id "." "length" [prefer]
+                       | Expression "." "length" [prefer]
                        | BaseAddress(Id,Int,Expression,Int)
                        | CntBaseSize(Id,Int,Expression)
                        | SolidityItem
@@ -100,7 +101,8 @@ module SOLIDITY-SYNTAX
 	               | "msg.sender"	         [prefer]
 	               | "msg.value"	         [prefer]
                        | "msg.gas"               [prefer]
-                       | "msg.owner"             [prefer]                  
+                       | "msg.owner"             [prefer]   
+                       | "msg.data"              [prefer]               
 
 
    syntax Value
@@ -240,7 +242,7 @@ module SOLIDITY-SYNTAX
   syntax ModifierInvocation ::= Id 
                               | FunctionCall 
                             
-  syntax ModifierInvocations ::= List{ModifierInvocation," "}
+  //syntax ModifierInvocations ::= List{ModifierInvocation," "}
   syntax MIParameters ::= FParameters
 
   syntax FunQuantifier ::= ModifierInvocation 
@@ -340,9 +342,12 @@ module SOLIDITY-SYNTAX
                            | "throw" ";"
                            | SimpleStatement ";" [strict]
                            | "require" "(" Expression ")" ";" 
-//kan                           | "_" ";"
+                           | "_;"
                            | FunExe(Statements)
                            | FunctionCall ";" [strict]
+                           | ExeWhile(Statements)
+                           | InitStmts(Statements)
+                           | EndLoop(Statements)
                           
                        
                           
@@ -395,6 +400,12 @@ module SOLIDITY-SYNTAX
       //   | CallCons(Id,Int,Int,ExpressionList)
          | FunCall(Expression, Id, ExpressionList, Msg)
          | WriteIndex(Int,Expression)
+         | UpdateTemp(Int)
+         | Reset(Int)
+         | funBody(Bool,Statements)
+         | funStmt(Statement)
+         | ExeWhileStmt(Statement)
+         | InitStmt(Statement)
         
         
          
@@ -418,7 +429,7 @@ module SOLIDITY-SYNTAX
 
   syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
-  syntax KResult ::= Value | String | Uint | Byte | Fixed | Ufixed | Msg
+  syntax KResult ::=  String | Uint | Byte | Fixed | Ufixed | Msg |Values |Value
   syntax SimpleStatement ::= VariableDefinition | SimpleExpression3 //| FunctionCall 
  |IncDecExpression | NewExpression | KResult | FunctionItem | SolidityItem
 
@@ -544,7 +555,7 @@ module SOLIDITY-SYNTAX
    syntax ElementaryTypeNameExpression ::= ElementaryTypeName
 
 
-  syntax KResult ::= Values
+
    
    syntax Expression
        ::= Msg 
