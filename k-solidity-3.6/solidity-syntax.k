@@ -2,7 +2,7 @@
 
 module SOLIDITY-SYNTAX
  
-   syntax SourceUnit ::=  PragmaDirectives ContractDefinitions
+  syntax SourceUnit ::=  PragmaDirectives ContractDefinitions
                       
   syntax PragmaDirectives ::= List{PragmaDirective, ""}
 
@@ -168,6 +168,8 @@ syntax FunctionDefinition ::=
                            | ExeWhile(Statements)
                            | InitStmts(Statements)
                            | EndLoop(Statements)
+                           | "revert" "(" ExpressionList ")" ";"
+                           | ExeCounters(Statements)
                            
                           
                           
@@ -214,6 +216,7 @@ syntax FunctionDefinition ::=
          | funStmt(Statement)
          | ExeWhileStmt(Statement)
          | InitStmt(Statement)
+         | ExeCounter(Statement)
                          
         
  
@@ -236,7 +239,7 @@ syntax FunctionDefinition ::=
  
   syntax SimpleStatements ::= List{SimpleStatement,""}
 
-  syntax DoWhileStatement ::= "do" Statement "while" "(" Expression ")"
+  syntax DoWhileStatement ::= "do" Statement "while" "(" Expression ")" ";"
 
   syntax Continue ::= "continue"
   syntax Break ::= "break"
@@ -322,7 +325,7 @@ syntax FunctionDefinition ::=
    syntax IncDecExpression ::= Expression "++"  [strict]
                     | Expression "--"  [strict]
                     | "++" Expression  [strict]
-                    | "--" Expression  [strict] 
+                    | "--" Expression  [strict]
 
    syntax PrimaryExpression ::= BooleanLiteral
                               | NumberLiteral
@@ -508,6 +511,8 @@ syntax FunctionDefinition ::=
    syntax List
 
    syntax Id ::= "returns" [reject]
+
+
 
 
 

@@ -44,7 +44,7 @@ imports SOLIDITY-SYNTAX
                         <typename> .Map </typename>
                                
                         <cstore> .Map </cstore>
-                       
+                        <cLocation> .Map </cLocation>
                         <dtype> .Map </dtype>
                         <dstore> .Map </dstore>
                         <length> .Map </length>
@@ -132,6 +132,7 @@ imports SOLIDITY-SYNTAX
 	                <ctContext> .Map </ctContext>
                         <ctType> .Map </ctType>
                         <ctstore> .Map </ctstore>
+                        <ctLocation> .Map </ctLocation>
                         <tempContext> .Map </tempContext>
                         <tempStore> .Map </tempStore>
                         <tempdistore> .Map </tempdistore>
