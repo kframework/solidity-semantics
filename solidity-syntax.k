@@ -436,8 +436,8 @@ module SOLIDITY-SYNTAX
   //syntax ExpStatement ::= KResult 
   //syntax NewStatement ::= NewExpression 
 
-
-  syntax ForStatement ::= "for" "(" SimpleStatements ";" ExpressionList ";" SimpleStatements  ")" Statement
+  // TODO: args can be "empty", e.g. for (;;) {}
+  syntax ForStatement ::= "for" "(" SimpleStatement ";" Expression ";" SimpleStatement  ")" Statement
  
   syntax SimpleStatements ::= List{SimpleStatement,""}
 
