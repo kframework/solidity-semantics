@@ -76,7 +76,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
     
       //ElementaryTypeName 
 
-      rule <k> pcsContractPart(C:Id, X:NotBool Y:FunQuantifiers Z:Id;) => allocate(C,X,Y,Z,0) ... </k>
+      rule <k> pcsContractPart(C:Id, X:NotBool Y:FunQuantifiers Z:Id;) => allocate(C,X,String2Id("Global"),Z,0) ... </k>
            /* <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -87,7 +87,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract>*/
 
-      rule <k> allocate(C,X:ElementaryTypeName, Y:FunQuantifiers, Z:Id, I:Expression) => . ... </k>
+      rule <k> allocate(C,X:ElementaryTypeName, Y:Id, Z:Id, I:Expression) => . ... </k>
            <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -101,7 +101,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
    
      
-      rule <k> pcsContractPart(C:Id, X:ElementaryTypeName Y:FunQuantifiers Z:Id = E;) => allocate(C,X,Y,Z,E) ... </k>
+      rule <k> pcsContractPart(C:Id, X:ElementaryTypeName Y:FunQuantifiers Z:Id = E;) => allocate(C,X,String2Id("Global"),Z,E) ... </k>
        /*
             <Contract>
               <cname> C </cname>
@@ -113,7 +113,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </Contract> */
     
-      rule <k> pcsContractPart(C:Id, X:SBool Y:FunQuantifiers Z:Id;) => allocate(C,X,Y,Z,false) ... </k>
+      rule <k> pcsContractPart(C:Id, X:SBool Y:FunQuantifiers Z:Id;) => allocate(C,X,String2Id("Global"),Z,false) ... </k>
 
 /*          <Contract>
               <cname> C </cname>
@@ -129,7 +129,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
         //One dimensional array
 
-        rule <k> allocate(C:Id, T:ElementaryTypeName[I:Int], Y:FunQuantifiers, Z:Id, V:Value) => NewArray(C,Z,0,I,V) ~> SetSize(C,Z) ... </k>
+        rule <k> allocate(C:Id, T:ElementaryTypeName[I:Int], Y:Id, Z:Id, V:Value) => NewArray(C,Z,0,I,V) ~> SetSize(C,Z) ... </k>
              <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -152,7 +152,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </Contract>
              
 
-        rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],Y,Z,0) ... </k>
+        rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>
             /*<Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -206,7 +206,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
              ...
             </Contract>
 
-       rule <k> allocate(C:Id, T:ElementaryTypeName[ ], Y:FunQuantifiers, Z:Id, V:Value) => . ... </k>    
+       rule <k> allocate(C:Id, T:ElementaryTypeName[ ], Y:Id, Z:Id, V:Value) => . ... </k>    
             <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -222,7 +222,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </Contract>   
 
 
-       rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,Y,Z,0) ... </k>
+       rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ... </k>
            /*  <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -240,7 +240,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
        //Multi-dimensional array
 
-        rule <k> allocate(C:Id, T:ArrayTypeName[I:Int], Y:FunQuantifiers, Z:Id, V:Value) => MulDArray(C,T,Z,0,I,V) ~>  SetSize(C,Z) ... </k>
+        rule <k> allocate(C:Id, T:ArrayTypeName[I:Int], Y:Id, Z:Id, V:Value) => MulDArray(C,T,Z,0,I,V) ~>  SetSize(C,Z) ... </k>
              <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -264,7 +264,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </Contract>
 
 
-        rule <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],Y,Z,0) ... </k>
+        rule <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>
           /*  <Contract>
               <cname> C </cname>
               <vnum>  N:Int => N +Int 1 </vnum>
@@ -398,7 +398,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
        //ElementaryTypeName 
 
-       rule <k> allocate(CI,T:ElementaryTypeName,Y:StorageLocations,X:Id,E:Value) => . ... </k>
+       rule <k> allocate(CI,T:ElementaryTypeName,Y:Id,X:Id,E:Value) => . ... </k>
             //<contractStack> ListItem(CI:Int) ... </contractStack>
             <contractInstance>
               <ctId> CI </ctId>
@@ -411,7 +411,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
  
  
-       rule <k> T:NotBool Y:StorageLocations X:Id; =>  allocate(CI,T,Y,X,0) ...</k>
+       rule <k> T:NotBool Y:StorageLocations X:Id; =>  allocate(CI,T,String2Id("Local"),X,0) ...</k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
             /*<contractInstance>
               <ctId> CI </ctId>
@@ -421,7 +421,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </contractInstance>*/
             requires CI>=0
 
-       rule <k> T:SBool Y:StorageLocations X:Id; =>  allocate(CI,T,Y,X,false) ...</k>
+       rule <k> T:SBool Y:StorageLocations X:Id; =>  allocate(CI,T,String2Id("Local"),X,false) ...</k>
              <contractStack> ListItem(CI:Int) ... </contractStack>
              /* <contractInstance>
               <ctId> CI </ctId>
@@ -430,7 +430,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             ...
             </contractInstance>*/
 
-        rule <k> T:ElementaryTypeName Y:StorageLocations X:Id = E; => allocate(CI,T,Y,X,E) ...</k>
+        rule <k> T:ElementaryTypeName Y:StorageLocations X:Id = E; => allocate(CI,T,String2Id("Local"),X,E) ...</k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
             /*<contractInstance>
               <ctId> CI </ctId>
@@ -453,7 +453,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
        //One-dimensional array
 
-      rule <k> allocate(CI:Int, T:ElementaryTypeName [Y:Int], S:StorageLocations, X:Id, V:Value) =>  NewArrayIndexes(CI,X,0,Y,V) ~> ISetSize(CI,X) ... </k>
+      rule <k> allocate(CI:Int, T:ElementaryTypeName [Y:Int], S:Id, X:Id, V:Value) =>  NewArrayIndexes(CI,X,0,Y,V) ~> ISetSize(CI,X) ... </k>
 
             <vposition> Pos:Int => 1 </vposition>
            <contractInstance>
@@ -481,7 +481,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
       
 
 
-      rule <k> T:ElementaryTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],S,X,0) ... </k>
+      rule <k> T:ElementaryTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],String2Id("Local"),X,0) ... </k>
       
           <contractStack> ListItem(CI:Int) ... </contractStack>
          /* <vposition> Pos:Int => 1 </vposition>
@@ -507,7 +507,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                ...
             </contractInstance> */
 
-     rule <k> allocate(CI:Int, T:ElementaryTypeName[], S:StorageLocations, X:Id, V:Value) => . ...</k>
+     rule <k> allocate(CI:Int, T:ElementaryTypeName[], S:Id, X:Id, V:Value) => . ...</k>
 
           <vposition> Pos=>1 </vposition>
            <contractInstance>
@@ -525,7 +525,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </contractInstance>
         
 
-     rule <k> T:ElementaryTypeName[] S:StorageLocations X:Id; => allocate(CI,T[],S,X,0) ... </k>
+     rule <k> T:ElementaryTypeName[] S:StorageLocations X:Id; => allocate(CI,T[],String2Id("Local"),X,0) ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
           /* <vposition> Pos=>1 </vposition>
            <contractInstance>
@@ -599,7 +599,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
    
      //Multi-dimensional array
 
-     rule <k> allocate(CI:Int, T:ArrayTypeName [Y:Int], S:StorageLocations, X:Id, V:Value) => NewRows(CI,X,T,0,Y,V) ~> ISetSize(CI,X)... </k>
+     rule <k> allocate(CI:Int, T:ArrayTypeName [Y:Int], S:Id, X:Id, V:Value) => NewRows(CI,X,T,0,Y,V) ~> ISetSize(CI,X)... </k>
           <vposition> _=>1 </vposition>
            <contractInstance>
               <ctId> CI </ctId>
@@ -625,7 +625,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             </contractInstance> 
          
 
-     rule <k> T:ArrayTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],S,X,0)... </k>
+     rule <k> T:ArrayTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],String2Id("Local"),X,0)... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
          /* <vposition> _=>1 </vposition>
            <contractInstance>
@@ -725,7 +725,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                </Contract>*/
 
 
-         rule <k> pcsStateVariableDeclaration(C:Id,X:Id,T:NotBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,Y,!D,0) ... </k>
+         rule <k> pcsStateVariableDeclaration(C:Id,X:Id,T:NotBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,0) ... </k>
                <Contract>
                  <cname> C </cname>
                   <structinstance>
@@ -739,7 +739,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                </Contract>
 
              
-         rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:SBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,Y,!D,false) ... </k>
+         rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:SBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,false) ... </k>
                 <Contract>
                  <cname> C </cname>
                   <structinstance>
@@ -752,10 +752,10 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                 ...
                </Contract>
 
-      rule <k> allocate(C:Id, T:ArrayTypeName, Y:StorageLocations, Z:Id, V:Value) =>   pcsContractPart(C:Id,T:ArrayTypeName .FunQuantifiers Z:Id;)... </k>  
+      rule <k> allocate(C:Id, T:ArrayTypeName, Y:Id, Z:Id, V:Value) =>   pcsContractPart(C:Id,T:ArrayTypeName .FunQuantifiers Z:Id;)... </k>  
      
 
-      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:ArrayTypeName Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,Y,!D,0)... </k>
+      rule <k> pcsStateVariableDeclaration(C:Id,X:Id, T:ArrayTypeName Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,0)... </k>
            <Contract>
                  <cname> C </cname>
                  <structinstance>
@@ -782,7 +782,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 //StructInstance
 
         
-         rule <k> allocate(C:Id,X:Id,S:FunQuantifiers,Y:Id,V:Value) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
+         rule <k> allocate(C:Id,X:Id,S:Id,Y:Id,V:Value) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
                <Contract>
                   <cname> C </cname>
                   <vnum>  N:Int => N +Int 1 </vnum>
@@ -812,7 +812,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                   ...
                </Contract>    
 
-         rule  <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => allocate(C,X,S,Y,0) ... </k>
+         rule  <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => allocate(C,X,String2Id("Global"),Y,0) ... </k>
              /*  <Contract>
                   <cname> C </cname>
                   <vnum>  N:Int => N +Int 1 </vnum>

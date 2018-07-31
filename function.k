@@ -218,7 +218,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
          syntax SolidityItem
                   ::=BindParam(FParameters, Values)
       
-         rule BindParam(.FParameters, .Values) => .
+         rule BindParam(.FParameters, Values) => .
 
          rule <k> BindParam(T:TypeName .StorageLocations P:Id, Ps:FParameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
               <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -226,7 +226,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
                 <ctId> CI </ctId>
                 <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
                 <ctstore> .Map => (!N:Int |-> E) ... </ctstore>
-                <ctLocation> .Map =>( P |-> .FunQuantifiers) ...</ctLocation>
+                <ctLocation> .Map =>( P |-> String2Id("Global")) ...</ctLocation>
                 <ctType> .Map =>(P |-> T) ... </ctType>
                 ...
               </contractInstance>
@@ -372,7 +372,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	   ...
         </Function>
 
-      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> /*if(Con){B}*/ funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
+      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~>/*if(Con){B}*/ funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
      	       <ctId> CI </ctId>
@@ -398,6 +398,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <Function>
 	       <fId> CT </fId>
      	       <inputparameters> Ps:FParameters </inputparameters>
+               <outputparameters> OPs:FParameters </outputparameters>
      	       <body> B:Statements </body>
                <FunQuantifiers> FQ </FunQuantifiers>
                <FunCon> Con </FunCon>

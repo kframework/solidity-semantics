@@ -348,6 +348,9 @@ module SOLIDITY-SYNTAX
                            | ExeWhile(Statements)
                            | InitStmts(Statements)
                            | EndLoop(Statements)
+                           | "revert" "(" ExpressionList ")" ";"
+                           | ExeCounters(Statements)
+                          
                           
                        
                           
@@ -406,6 +409,8 @@ module SOLIDITY-SYNTAX
          | funStmt(Statement)
          | ExeWhileStmt(Statement)
          | InitStmt(Statement)
+         | ExeCounter(Statement)
+         | GetInt(Int)
         
         
          
@@ -413,7 +418,7 @@ module SOLIDITY-SYNTAX
          
 
   syntax MemOp
-         ::= allocate(Expression,TypeName,LocationSpec,Expression,Expression)
+         ::= allocate(Expression,TypeName,Id,Expression,Expression)
          | read(Expression)
          | write(Expression,Expression)
 
@@ -441,7 +446,7 @@ module SOLIDITY-SYNTAX
  
   syntax SimpleStatements ::= List{SimpleStatement,""}
 
-  syntax DoWhileStatement ::= "do" Statement "while" "(" Expression ")"
+  syntax DoWhileStatement ::= "do" Statement "while" "(" Expression ")" ";"
 
   syntax Continue ::= "continue"
   syntax Break ::= "break"

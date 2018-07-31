@@ -185,12 +185,9 @@ imports CONFIGURATION
          rule if (false) S:Statement => .
          rule if (true)  S else S1:Statement => S
          rule if (false) S1:Statement else S => S
-/*
-         rule for (A;B;C) S => A; while (B) {S C;} [structural]
-         rule do S while (B) =>  S if(B) {do S while (B)} else {.Statements}  [structural]
-         rule while (B) S => if (B) {S while (B) S} else {.Statements}  [structural]*/
 
-          rule <k> for (A;B;C) {S} => InitStmts(A;) if (B) {ExeWhile(C; S) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
+
+ rule <k> for (A;B;C) {S} => InitStmts(A;) if (B) {ExeWhile(S) ExeCounters(C;) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCond> true </funCond>
@@ -214,24 +211,35 @@ imports CONFIGURATION
               
             
 
-         rule <k> do {S} while (B) =>  ExeWhile(S) if(B) {do {S} while (B)} else {.Statements} ... </k> 
+         rule <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCond> true </funCond>
 
-        rule <k> do {S} while (B) => Reset(1) ... </k> 
+        rule <k> do {S} while (B); => Reset(1) ... </k> 
              <loopCon> false </loopCon>
 
-        rule <k> do {S} while (B) => . ... </k> 
+        rule <k> do {S} while (B); => . ... </k> 
              <funCond> false </funCond>
 
-         
+         /*rule <k> while (B) S => if (B) {S while (B) S} else {.Statements} ... </k> 
+              <loopCon> true </loopCon>
+              <Continue> false </Continue>
+              <funCon> true </funCon>*/
 
                
          rule <k> while (B) {S} => if (B) {ExeWhile(S) while (B) {S}} else {.Statements} ... </k> 
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCond> true </funCond>
+
+  
+         rule <k> while (B) S:OtherStatements => if (B) {S while (B) S} else {.Statements} ... </k> 
+         rule <k> for (A;B;C) S:OtherStatements => A; while (B) {S C;} ... </k> 
+         //rule <k> for (;;) S =>  while (true) S ... </k> 
+         
+              
+               
              
 
 
@@ -252,6 +260,14 @@ imports CONFIGURATION
          rule <k> ExeWhileStmt(S) => . ... </k>
              <loopCon> false </loopCon>
               
+         rule <k> ExeCounters(S:Statement Ss:Statements) => ExeCounter(S) ~> ExeCounters(Ss) ... </k>
+         rule <k> ExeCounters(.Statements) => . ... </k>
+         rule <k> ExeCounter(S) => S ... </k>
+              <loopCon> true </loopCon>
+
+         rule <k> ExeCounter(S) => . ... </k>
+              <loopCon> false </loopCon>
+
 
          rule <k> while (B) S => . ... </k>
               <funCond> false </funCond>
@@ -268,7 +284,8 @@ imports CONFIGURATION
 
          rule <k> continue; => . ... </k> 
               <Continue> _=> true </Continue>
-          
+
+         rule <k> revert(.ExpressionList); => throw; ... </k>
       
 
 
@@ -428,14 +445,15 @@ imports CONFIGURATION
     //         <store>... N |-> (I => I -Int 1) ...</store> 
      
        
-      rule <k> ++X =>  X = X + 1 ...</k>
-
-       rule <k> X++ => X = X + 1 ...</k>
-
-       rule <k> --X => X = X - 1 ...</k> 
-
-       rule <k> X-- => X = X - 1 ...</k>
+      rule <k> ++X => X = X + 1; ~>X ... </k>
+      rule <k> X++ => X = X + 1; ~> X - 1 ... </k>
+           
+      rule <k> --X => X = X - 1; ~> X ... </k>
+      rule <k> X-- => X = X - 1; ~> X + 1 ... </k>
       
+
+      
+
       
 
 //SimpleExpression2
@@ -466,7 +484,7 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N...</ctContext>
               <ctstore> ... (N |-> V) => (N |->I) ...</ctstore> 
-              <ctLocation> ...  X |-> L:FunQuantifiers ...</ctLocation>
+              <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
@@ -478,7 +496,7 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
               <Memory>... N |-> (_ => I) ...</Memory> 
-              <ctLocation> ...  X |-> L:StorageLocations ...</ctLocation>
+              <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
@@ -506,7 +524,7 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
               <ctstore>... N |-> I ...</ctstore> 
-              <ctLocation> ...  X |-> L:FunQuantifiers ...</ctLocation>
+              <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
@@ -518,7 +536,7 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
               <Memory>... N |-> I ...</Memory> 
-              <ctLocation> ...  X |-> L:StorageLocations ...</ctLocation>
+              <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
              </contractInstance>
@@ -578,7 +596,7 @@ imports CONFIGURATION
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
                 <idnum> Num </idnum>
@@ -592,7 +610,7 @@ imports CONFIGURATION
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>     
            <Contract>
@@ -637,7 +655,7 @@ imports CONFIGURATION
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
                 <idnum> Num </idnum>
@@ -653,7 +671,7 @@ imports CONFIGURATION
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               
               ...
            </contractInstance>
@@ -675,7 +693,7 @@ imports CONFIGURATION
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
                 <idnum> Num </idnum>
@@ -689,7 +707,7 @@ imports CONFIGURATION
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
            <Contract>
@@ -719,21 +737,21 @@ imports CONFIGURATION
               ...
            </contractInstance>
     
-    rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
+   /* rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
          <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
             
               ...
-           </contractInstance>     //requires N<Int Num 
+           </contractInstance>     //requires N<Int Num */
 
      rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+             // <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>     
           
@@ -764,7 +782,7 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctname> Name </ctname>
               <distore> ... (A |-> V) => (A |-> I) ...   </distore>
-              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ... 
            </contractInstance>
       
@@ -774,7 +792,7 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctname> Name </ctname>
               <ctstore> ... (A |-> V) => (A |-> I) ...   </ctstore>
-              <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+              <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
 
@@ -951,7 +969,7 @@ imports CONFIGURATION
               <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
               <ibaseaddress> ... X |-> (_=>!Num:Int) ... </ibaseaddress>
               <distore> (.Map => !Num:Int |-> 0) ... </distore>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
+              <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               ...
            </contractInstance>
 
@@ -965,7 +983,7 @@ imports CONFIGURATION
               <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
               <ibaseaddress> (.Map => X |-> !Num:Int) ... </ibaseaddress>
               <distore> (.Map => !Num:Int |-> 0) ... </distore>
-             <ctLocation> ... X  |-> L:FunQuantifiers ... </ctLocation>
+             <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
 
