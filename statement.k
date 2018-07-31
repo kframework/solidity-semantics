@@ -410,30 +410,29 @@ imports CONFIGURATION
        rule + I => (-1) * I requires I<Int 0
        rule - I => (-1) * I requires I>=Int 0
        rule - I => I requires I<Int 0
-     /*
-       rule <k> ++X => I +Int 1 ...</k>
-            <env>... X |-> N ...</env>
-            <store>... N |-> (I => I +Int 1) ...</store> 
+     
+    //    rule <k> ++X => I +Int 1 ...</k>
+    //         <env>... X |-> N ...</env>
+    //         <store>... N |-> (I => I +Int 1) ...</store> 
 
-       rule <k> X++ => I +Int 1 ...</k>
-            <env>... X |-> N ...</env>
-            <store>... N |-> (I => I +Int 1) ...</store> 
+    //    rule <k> X++ => I +Int 1 ...</k>
+    //         <env>... X |-> N ...</env>
+    //         <store>... N |-> (I => I +Int 1) ...</store> 
 
-       rule <k> --X => I -Int 1 ...</k>
-            <env>... X |-> N ...</env>
-            <store>... N |-> (I => I -Int 1) ...</store> 
+    //    rule <k> --X => I -Int 1 ...</k>
+    //         <env>... X |-> N ...</env>
+    //         <store>... N |-> (I => I -Int 1) ...</store> 
 
-       rule <k> X-- => I -Int 1 ...</k>
-            <env>... X |-> N ...</env>
-            <store>... N |-> (I => I -Int 1) ...</store> 
-     */
+    //    rule <k> X-- => I -Int 1 ...</k>
+    //         <env>... X |-> N ...</env>
+    //         <store>... N |-> (I => I -Int 1) ...</store> 
+     
        
       rule <k> ++X =>  X = X + 1 ...</k>
 
        rule <k> X++ => X = X + 1 ...</k>
 
        rule <k> --X => X = X - 1 ...</k> 
-
 
        rule <k> X-- => X = X - 1 ...</k>
       
@@ -493,12 +492,6 @@ imports CONFIGURATION
        rule X:Expression %= Y:Expression => X=X % Y
        rule X <<= Y => X= X *2^Int Y
        rule X >>= Y => X= X /2^Int Y
-
-      
-       rule <k> X:Id => I ...</k>
-            <contractStack> ListItem(-1) ... </contractStack>
-            <env>... X |-> N ...</env>
-            <store>... N |-> I ...</store>  [lookup] 
 
        rule <k> X:Id => read(X) ...</k>
      

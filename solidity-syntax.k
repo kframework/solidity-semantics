@@ -491,11 +491,10 @@ module SOLIDITY-SYNTAX
                               | Id "[" Expression "]" "%=" Expression  [strict(2,3),prefer]
                               | Id "." "push" "(" Int ")" [prefer]
                              
-
-   syntax IncDecExpression ::= Expression "++"  [strict]
-                    | Expression "--"  [strict]
-                    | "++" Expression  [strict]
-                    | "--" Expression  [strict] 
+   syntax IncDecExpression ::= Expression "++"
+                             | Expression "--"
+                             | "++" Expression
+                             | "--" Expression 
 
    syntax PrimaryExpression ::= BooleanLiteral
                               | NumberLiteral
