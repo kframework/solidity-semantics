@@ -429,15 +429,28 @@ module SOLIDITY-SYNTAX
 
   syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
-  syntax KResult ::=  String | Uint | Byte | Fixed | Ufixed | Msg |Values |Value
-  syntax SimpleStatement ::= VariableDefinition | SimpleExpression3 //| FunctionCall 
- |IncDecExpression | NewExpression | KResult | FunctionItem | SolidityItem
+  // TODO: why not adding this to Values? Any reason not to?
+  syntax Value1 ::= String | Uint | Byte | Fixed | Ufixed | Msg
+
+syntax AllValues ::= Value | Value1
+
+
+  // NB: KResult should only be on the left-hand-side, and used as a predicate!
+  syntax KResult ::=  Values | AllValues
+  
+  syntax SimpleStatement ::= VariableDefinition 
+                           | SimpleExpression3 
+                         //| FunctionCall 
+                           | IncDecExpression 
+                           | NewExpression 
+                           | AllValues
+                           | FunctionItem 
+                           | SolidityItem
 
   //syntax ExpStatement ::= KResult 
   //syntax NewStatement ::= NewExpression 
 
-  // TODO: args can be "empty", e.g. for (;;) {}
-  syntax ForStatement ::= "for" "(" SimpleStatement ";" Expression ";" SimpleStatement  ")" Statement
+  syntax ForStatement ::= "for" "(" SimpleStatements ";" ExpressionList ";" SimpleStatements  ")" Statement
  
   syntax SimpleStatements ::= List{SimpleStatement,""}
 

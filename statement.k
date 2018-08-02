@@ -322,12 +322,7 @@ imports CONFIGURATION
 	<trancomputation> (.Map => K |-> "new contract") ... </trancomputation>
         <newStack> (.List => ListItem(X)) ... </newStack>
 
-       
-
-
-         rule <k> _:KResult; => . ... </k>
-
-         
+rule <k> _:AllValues; => . ... </k>
        
         rule  <k> CallConstructor(C,N,0,E) => N ... </k>
               <newStack>  ListItem(C) => .List ... </newStack>
