@@ -346,10 +346,10 @@ module SOLIDITY-SYNTAX
                            | FunExe(Statements)
                            | FunctionCall ";" [strict]
                            | ExeWhile(Statements)
-                           | InitStmts(Statements)
+                           | InitStmts(SimpleStatements) 
                            | EndLoop(Statements)
                            | "revert" "(" ExpressionList ")" ";"
-                           | ExeCounters(Statements)
+                           | ExeCounters(SimpleStatements)
                           
                           
                        
@@ -408,8 +408,8 @@ module SOLIDITY-SYNTAX
          | funBody(Bool,Statements)
          | funStmt(Statement)
          | ExeWhileStmt(Statement)
-         | InitStmt(Statement)
-         | ExeCounter(Statement)
+         | InitStmt(SimpleStatement)
+         | ExeCounter(SimpleStatement)
          | GetInt(Int)
         
         

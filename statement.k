@@ -185,9 +185,15 @@ imports CONFIGURATION
          rule if (false) S:Statement => .
          rule if (true)  S else S1:Statement => S
          rule if (false) S1:Statement else S => S
+         
 
 
- rule <k> for (A;B;C) {S} => InitStmts(A;) if (B) {ExeWhile(S) ExeCounters(C;) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
+         rule <k> for (A;B:Expression;C) {S} => InitStmts(A) if (B) {ExeWhile(S) ExeCounters(C) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
+              <loopCon> true </loopCon>
+              <Continue> _=>false </Continue>
+              <funCond> true </funCond>
+         
+         rule <k> for (A;.ExpressionList;C) {S} => InitStmts(A) ExeWhile(S) ExeCounters(C) for (A;.ExpressionList;C) {S} ... </k>
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCond> true </funCond>
@@ -201,12 +207,12 @@ imports CONFIGURATION
          rule <k> EndLoop(.Statements) => . ... </k>
               <forInit> _=>true </forInit>
 
-         rule <k> InitStmts(S:Statement Ss:Statements) => InitStmt(S) ~> InitStmts(Ss) ... </k>
-         rule <k> InitStmt(S) => S ... </k>
+         rule <k> InitStmts(S:SimpleStatement Ss:SimpleStatements) => InitStmt(S) ~> InitStmts(Ss) ... </k>
+         rule <k> InitStmt(S) => S; ... </k>
               <forInit> true=>false </forInit>
          rule <k> InitStmt(S) => . ... </k>
               <forInit> false </forInit>
-         rule <k> InitStmts(.Statements) => . ... </k>
+         rule <k> InitStmts(.SimpleStatements) => . ... </k>
      
               
             
@@ -236,13 +242,10 @@ imports CONFIGURATION
   
          rule <k> while (B) S:OtherStatements => if (B) {S while (B) S} else {.Statements} ... </k> 
          rule <k> for (A;B;C) S:OtherStatements => A; while (B) {S C;} ... </k> 
-         //rule <k> for (;;) S =>  while (true) S ... </k> 
-         
+         rule <k> for (A;.ExpressionList;C) S:OtherStatements => A; while (true) {S C;} ... </k>
+        
               
                
-             
-
-
          rule <k> ExeWhile(S:Statement Ss:Statements) => ExeWhileStmt(S) ~>  ExeWhile(Ss) ... </k>
          rule <k> ExeWhile(.Statements) => . ... </k>
 
@@ -260,9 +263,9 @@ imports CONFIGURATION
          rule <k> ExeWhileStmt(S) => . ... </k>
              <loopCon> false </loopCon>
               
-         rule <k> ExeCounters(S:Statement Ss:Statements) => ExeCounter(S) ~> ExeCounters(Ss) ... </k>
-         rule <k> ExeCounters(.Statements) => . ... </k>
-         rule <k> ExeCounter(S) => S ... </k>
+         rule <k> ExeCounters(S:SimpleStatement Ss:SimpleStatements) => ExeCounter(S) ~> ExeCounters(Ss) ... </k>
+         rule <k> ExeCounters(.SimpleStatements) => . ... </k>
+         rule <k> ExeCounter(S) => S; ... </k>
               <loopCon> true </loopCon>
 
          rule <k> ExeCounter(S) => . ... </k>
