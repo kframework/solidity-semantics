@@ -14,7 +14,7 @@ contract main {
 
     function main() { 
           new Test(); 
-          functionCall(-1;0;f;;msginfo(-1,0,2,2));
+          functionCall(-1;0;f;;msginfo(-1,0,2,2)); //expected result: ret=10
     }
 
 }
