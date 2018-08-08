@@ -493,7 +493,7 @@ rule <k> _:AllValues; => . ... </k>
              <contractInstance>
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
-              <Memory>... N |-> (_ => I) ...</Memory> 
+              <Memory>... (N |-> _) => (N |-> I) ...</Memory> 
               <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...

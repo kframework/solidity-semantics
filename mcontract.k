@@ -398,7 +398,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
        //ElementaryTypeName 
 
-       rule <k> allocate(CI,T:ElementaryTypeName,Y:Id,X:Id,E:Value) => . ... </k>
+       rule <k> allocate(CI,T:ElementaryTypeName,Y:Id,X:Id,E:Value) => 1 ... </k>
             //<contractStack> ListItem(CI:Int) ... </contractStack>
             <contractInstance>
               <ctId> CI </ctId>
@@ -411,7 +411,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
  
  
-       rule <k> T:NotBool Y:StorageLocations X:Id; =>  allocate(CI,T,String2Id("Local"),X,0) ...</k>
+       rule <k> T:NotBool Y:StorageLocations X:Id =>  allocate(CI,T,String2Id("Local"),X,0) ...</k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
             /*<contractInstance>
               <ctId> CI </ctId>
@@ -419,9 +419,9 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <Memory>... .Map => !N |-> 0 ...</Memory>
             ...
             </contractInstance>*/
-            requires CI>=0
+            requires CI>=Int 0
 
-       rule <k> T:SBool Y:StorageLocations X:Id; =>  allocate(CI,T,String2Id("Local"),X,false) ...</k>
+       rule <k> T:SBool Y:StorageLocations X:Id =>  allocate(CI,T,String2Id("Local"),X,false) ...</k>
              <contractStack> ListItem(CI:Int) ... </contractStack>
              /* <contractInstance>
               <ctId> CI </ctId>
@@ -429,8 +429,9 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <Memory>... .Map => !N |-> false ...</Memory>
             ...
             </contractInstance>*/
+            requires CI>=Int 0
 
-        rule <k> T:ElementaryTypeName Y:StorageLocations X:Id = E; => allocate(CI,T,String2Id("Local"),X,E) ...</k>
+        rule <k> T:ElementaryTypeName Y:StorageLocations X:Id = E => allocate(CI,T,String2Id("Local"),X,E) ...</k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
             /*<contractInstance>
               <ctId> CI </ctId>
@@ -438,6 +439,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <Memory>... .Map => !N |-> E ...</Memory>
             ...
             </contractInstance>*/
+            requires CI>=Int 0
       
       //Mapping
             

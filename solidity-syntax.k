@@ -78,8 +78,8 @@ module SOLIDITY-SYNTAX
                       > Expression "^" Expression
                       > Expression "|" Expression
                       > SimpleExpression2
-                      > Expression "==" Expression [seqstrict]
-                      | Expression "!=" Expression [seqstrict]
+                      > Expression "==" Expression [seqstrict,prefer]
+                      | Expression "!=" Expression [seqstrict,prefer]
                       > Expression "&&" Expression [left, strict(1)]
                       > Expression "||" Expression [left, strict(1)]
                       > Expression "?" Expression ":" Expression [strict]
@@ -471,7 +471,7 @@ syntax AllValues ::= Value | Value1
 
   syntax VariableDefinition ::= "var" Id
                               | VariableDeclaration
-                              | "var" Id "=" Expression
+                              //| "var" Id "=" Expression
                               | VariableDeclaration "=" Expression
 
 
