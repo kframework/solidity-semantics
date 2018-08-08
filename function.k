@@ -372,7 +372,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
 	   ...
         </Function>
 
-      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~>/*if(Con){B}*/ funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
+      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
      	       <ctId> CI </ctId>
@@ -448,21 +448,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <funCond> false </funCond>
          
 
-/*
-      rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => FunCall(C:Int, F:Id, Es:Values,M:Msg) ~> 1 ... </k>
-        <contractStack>  (.List => ListItem(C))  ListItem(-1)   </contractStack>
-         <Msg> M1=>M </Msg>
-         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-         <functionStack> (.List => ListItem(F)) ... </functionStack>
-       
-         <contractInstance>
-     	       <ctId> C </ctId>
-               <ctname> Cn:Id </ctname>
-	       ...
-           </contractInstance> 
 
-  */   
-    
       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => createTransaction(.List) ~> functionCall(F;Es) ~> returnContext(C) ... </k>
         <contractStack>  (.List => ListItem(C))  ListItem(-1)   </contractStack>
          <Msg> M1=>M </Msg>
@@ -470,21 +456,15 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
          <functionStack> (.List => ListItem(F)) ... </functionStack>
        
        
-       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => /*FunCall(C:Int, F:Id, Es:Values,M:Msg)*/ createTransaction(L:List) ~> functionCall(F;Es) ~> returnContext(C)  ... </k>
+       rule <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L:List) ~> functionCall(F;Es) ~> returnContext(C)  ... </k>
         <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
          <Msg> M1=>M </Msg>
          <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
          <functionStack> (.List => ListItem(F)) ... </functionStack>
-       /*
-         <contractInstance>
-     	       <ctId> C </ctId>
-               <ctname> Cn:Id </ctname>
-	       ...
-           </contractInstance> */
+         requires L =/=K .List
 
-  rule <k> FunCall(C:Int, F:Id, Es:Values,M:Msg) => createTransaction(L:List) ~> FunQs(FQ,F)~> Call(F,Es) ~> returnContext(C)  ... </k>
+  /*rule <k> FunCall(C:Int, F:Id, Es:Values,M:Msg) => createTransaction(L:List) ~> FunQs(FQ,F)~> Call(F,Es) ~> returnContext(C)  ... </k>
         <contractStack>   ListItem(C) L:List ListItem(-1)   </contractStack>
-        //<contractStack> ListItem(C:Int) ... </contractStack>
     
         <contractInstance>
      	  <ctId> C </ctId>
@@ -506,22 +486,8 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <FunQuantifiers> FQ </FunQuantifiers>
            <FunCon> Con </FunCon>
 	   ...
-        </Function>
+        </Function>*/
 
-  //rule <k> createTransaction(.List) => . ... </k>
-
-  
-       
-
-
-      
-
-    /*  rule <k> functionCall(C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L) ~> functionCall(F ; Es) ~> returnContext(C) 1 ... </k>
-  
-           <contractStack>  (.List => ListItem(C)) L:List ListItem(-1)   </contractStack>
-           <Msg> M1=>M </Msg>
-           <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-           <functionStack> (.List => ListItem(F)) ... </functionStack> */
 
      
       rule <k> createTransaction(.List) => . ... </k>

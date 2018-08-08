@@ -77,15 +77,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
       //ElementaryTypeName 
 
       rule <k> pcsContractPart(C:Id, X:NotBool Y:FunQuantifiers Z:Id;) => allocate(C,X,String2Id("Global"),Z,0) ... </k>
-           /* <Contract>
-              <cname> C </cname>
-              <vnum>  N:Int => N +Int 1 </vnum>
-              <vId> (.Map => N |-> Z) ... </vId>
-              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-              <typename> ( .Map => Z |-> X) ... </typename>
-              <cstore> (.Map => !Num |-> 0) ... </cstore>
-               ...
-            </Contract>*/
+           
 
       rule <k> allocate(C,X:ElementaryTypeName, Y:Id, Z:Id, I:Expression) => . ... </k>
            <Contract>
@@ -102,28 +94,11 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
    
      
       rule <k> pcsContractPart(C:Id, X:ElementaryTypeName Y:FunQuantifiers Z:Id = E;) => allocate(C,X,String2Id("Global"),Z,E) ... </k>
-       /*
-            <Contract>
-              <cname> C </cname>
-              <vnum>  N:Int => N +Int 1 </vnum>
-              <vId> (.Map => N |-> Z) ... </vId>
-              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-              <typename> ( .Map => Z |-> X) ... </typename>
-              <cstore> (.Map => !Num |-> E) ... </cstore>
-               ...
-            </Contract> */
+    
     
       rule <k> pcsContractPart(C:Id, X:SBool Y:FunQuantifiers Z:Id;) => allocate(C,X,String2Id("Global"),Z,false) ... </k>
 
-/*          <Contract>
-              <cname> C </cname>
-              <vnum>  N:Int => N +Int 1 </vnum>
-              <vId> (.Map => N |-> Z) ... </vId>
-              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-              <typename> ( .Map => Z |-> X) ... </typename>
-              <cstore> (.Map => !Num |-> false) ... </cstore>
-               ...
-            </Contract>*/
+
     
       //Array(Global)
 
@@ -153,25 +128,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
              
 
         rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>
-            /*<Contract>
-              <cname> C </cname>
-              <vnum>  N:Int => N +Int 1 </vnum>
-              <vId> (.Map => N |-> Z) ... </vId>
-              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-              <typename> ( .Map => Z |-> T) ... </typename>
-              <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
-              <Length> (.Map => Z |-> I) ... </Length>
-              <vdim> (.Map => Z |-> 1) ... </vdim>
-               (.Bag =>
-                 <array>
-                    <aname> Z </aname>
-                    <dimensions> 1 |-> I </dimensions>
-                  ...
-                 </array>
-               )
-              
-               ...
-            </Contract>*/
+           
        rule <k> SetSize(C,Z) => CntSize(C,Z,DNum,0) ... </k>
             <Contract>
               <cname> C </cname>
@@ -223,18 +180,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
 
        rule <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ... </k>
-           /*  <Contract>
-              <cname> C </cname>
-              <vnum>  N:Int => N +Int 1 </vnum>
-              <vId> (.Map => N |-> Z) ... </vId>
-              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-              <typename> ( .Map => Z |-> T) ... </typename>
-              <dtype> (.Map => Z |-> T) ... </dtype>
-              <cstore> (.Map => !Num:Int |-> 0) ... </cstore>
-              <Length> (.Map => Z |-> 0) ... </Length>
-              <vdim> (.Map => Z |-> 0) ... </vdim>
-               ...
-            </Contract>*/
+          
 
        
 
@@ -265,26 +211,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
 
         rule <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>
-          /*  <Contract>
-              <cname> C </cname>
-              <vnum>  N:Int => N +Int 1 </vnum>
-              <vId> (.Map => N |-> Z) ... </vId>
-              <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-              <typename> ( .Map => Z |-> T) ... </typename>
-              <cstore> (.Map => !Num:Int |-> !Num +Int 1) ... </cstore>
-              <Length> (.Map => T Z|-> I) ... </Length>
-              <dim> _=>1 </dim>
-              <vdim> (.Map => Z |-> 1) ... </vdim>
-               (.Bag =>
-                 <array>
-                    <aname> Z </aname>
-                    <dimensions>  1 |-> I </dimensions>
-                  ...
-                 </array>
-               )
-
-               ...
-            </Contract>*/
+         
 
        rule <k> pcsContractPart(C:Id, T:ArrayTypeName[] Y:FunQuantifiers Z:Id;) => pcsContractPart(C:Id, T:ArrayTypeName Y:FunQuantifiers Z:Id;) ... </k>
             
@@ -399,7 +326,6 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
        //ElementaryTypeName 
 
        rule <k> allocate(CI,T:ElementaryTypeName,Y:Id,X:Id,E:Value) => 1 ... </k>
-            //<contractStack> ListItem(CI:Int) ... </contractStack>
             <contractInstance>
               <ctId> CI </ctId>
               <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
@@ -413,32 +339,14 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
  
        rule <k> T:NotBool Y:StorageLocations X:Id =>  allocate(CI,T,String2Id("Local"),X,0) ...</k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
-            /*<contractInstance>
-              <ctId> CI </ctId>
-              <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
-              <Memory>... .Map => !N |-> 0 ...</Memory>
-            ...
-            </contractInstance>*/
             requires CI>=Int 0
 
        rule <k> T:SBool Y:StorageLocations X:Id =>  allocate(CI,T,String2Id("Local"),X,false) ...</k>
              <contractStack> ListItem(CI:Int) ... </contractStack>
-             /* <contractInstance>
-              <ctId> CI </ctId>
-              <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
-              <Memory>... .Map => !N |-> false ...</Memory>
-            ...
-            </contractInstance>*/
             requires CI>=Int 0
 
         rule <k> T:ElementaryTypeName Y:StorageLocations X:Id = E => allocate(CI,T,String2Id("Local"),X,E) ...</k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
-            /*<contractInstance>
-              <ctId> CI </ctId>
-              <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
-              <Memory>... .Map => !N |-> E ...</Memory>
-            ...
-            </contractInstance>*/
             requires CI>=Int 0
       
       //Mapping
@@ -486,28 +394,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
       rule <k> T:ElementaryTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],String2Id("Local"),X,0) ... </k>
       
           <contractStack> ListItem(CI:Int) ... </contractStack>
-         /* <vposition> Pos:Int => 1 </vposition>
-           <contractInstance>
-              <ctId> CI </ctId>
-              <ctnum>  N:Int => N +Int 1 </ctnum>
-              <ctvId> (.Map => N |-> X) ... </ctvId>
-              <ctContext> ( .Map => X |-> 1) ... </ctContext>
-              <ctType> ( .Map => X |-> T) ... </ctType>
-              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
-              <ctLocation> ( .Map => X |-> S) ... </ctLocation>
-              <ilength> (.Map => X |-> Y) ...</ilength>
-              <Memory> (.Map => X |-> 1) ... </Memory>
-              
-              <ivdim> (.Map => X |-> 1) ... </ivdim>
-               (.Bag =>
-                 <iarray>
-                    <ianame> X </ianame>
-                    <idimensions>  1 |-> Y </idimensions>
-                  ...
-                 </iarray>
-               )
-               ...
-            </contractInstance> */
+         
 
      rule <k> allocate(CI:Int, T:ElementaryTypeName[], S:Id, X:Id, V:Value) => . ...</k>
 
@@ -529,20 +416,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
      rule <k> T:ElementaryTypeName[] S:StorageLocations X:Id; => allocate(CI,T[],String2Id("Local"),X,0) ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
-          /* <vposition> Pos=>1 </vposition>
-           <contractInstance>
-              <ctId> CI </ctId>
-              <ctnum>  N:Int => N +Int 1 </ctnum>
-              <ctvId> (.Map => N |-> X) ... </ctvId>
-              <ctContext> ( .Map => X |-> 1) ... </ctContext>
-              <ctType> ( .Map => X |-> T) ... </ctType>
-              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
-              <ctLocation> ( .Map => X |-> S) ... </ctLocation>
-              <ilength> (.Map => X |-> 0) ...</ilength>
-              <ivdim> (.Map => X |-> 0) ... </ivdim>
-              <ibaseaddress> (.Map => X |-> 1) ... </ibaseaddress>
-               ...
-            </contractInstance>*/
+         
             
      rule <k> ISetSize(CI,X) =>  ICntSize(CI,X,DNum,0)... </k> 
           <contractStack> ListItem(CI:Int) ... </contractStack> 
@@ -629,29 +503,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 
      rule <k> T:ArrayTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],String2Id("Local"),X,0)... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
-         /* <vposition> _=>1 </vposition>
-           <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ctnum>  N:Int => N +Int 1 </ctnum>
-              <ctvId> (.Map => N |-> X) ... </ctvId>
-              <ctContext> ( .Map => X |-> 1) ... </ctContext>
-              <ctType> ( .Map => X |-> T) ... </ctType>
-              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
-              <ctLocation> ( .Map => X |-> S) ... </ctLocation>
-              <ilength> (.Map => T X |-> Y) ...</ilength>
-              <Memory> (.Map => X |-> 1) ... </Memory>
-              <idim> _=>1 </idim>
-              <ivdim> (.Map => X |-> 1) ... </ivdim>
-                (.Bag =>
-                 <iarray>
-                    <ianame> X </ianame>
-                    <idimensions>  1 |-> Y </idimensions>
-                  ...
-                 </iarray>
-               )
-               ...
-            </contractInstance> */
+        
            
      rule <k> NewRows(CI,X,T,N,Y,V) => NewRow(CI,X,T,N,Y,V) ~> NewRows(CI,X,T,N +Int1,Y,V) ... </k> requires N<Int Y
      rule <k> NewRows(CI,X,T,Y,Y,V) => . ... </k>
@@ -715,16 +567,6 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
          rule pcsStateVariableDeclarations(C:Id,X:Id,.VariableDeclarations,IName:Id) => .
          rule pcsStateVariableDeclarations(C:Id,X:Id,(S:VariableDeclaration; Ss:VariableDeclarations),IName:Id) => pcsStateVariableDeclaration(C,X,S,IName) ~> pcsStateVariableDeclarations(C,X,Ss,IName)
 
-        /* rule <k> allocate(C:Id,X:Id,Y:StorageLocations,Z:Id,V:Value) => . ... </k>
-              <Contract>
-                 <cname> C </cname>
-                 <vnum>  N:Int => N +Int 1 </vnum>
-                 <vId> (.Map => N |->Z:Id) ... </vId>
-                 <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-                 <typename> ( .Map => Z |-> X) ... </typename>
-                 <cstore> (.Map => !Num |-> V) ... </cstore>
-                  ...
-               </Contract>*/
 
 
          rule <k> pcsStateVariableDeclaration(C:Id,X:Id,T:NotBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,0) ... </k>
@@ -815,34 +657,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
                </Contract>    
 
          rule  <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => allocate(C,X,String2Id("Global"),Y,0) ... </k>
-             /*  <Contract>
-                  <cname> C </cname>
-                  <vnum>  N:Int => N +Int 1 </vnum>
-                  <vId> (.Map => N |-> Y )... </vId>
-                  <variables> ( .Map => Y |-> !Num:Int) ... </variables>
-                  <typename> ( .Map => Y |-> "struct") ... </typename>
-                  <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
-   
-  
-                  <Struct>
-                    <sname> X </sname>
-                   
-                    <vardec> VarD </vardec>
-                   ...
-                  </Struct>
-                
-                  <cntstructinstance> N1:Int => N1 +Int 1 </cntstructinstance>
-                  (.Bag =>
-                   <structinstance>
-                      <structname> X </structname>
-                      <iId> N1 </iId>
-                      <iname> Y </iname>
-                      <isnum> 0 </isnum>
-                      <ivariables> .Map </ivariables>
-                    ...
-                   </structinstance>)
-                  ...
-               </Contract>   */ 
+             
 
      rule  <k> SetStructSize(C:Id,X:Id,Y:Id) =>  . ... </k>
            <Contract>
