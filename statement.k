@@ -11,24 +11,7 @@ imports CONFIGURATION
 // Member Access
 
     rule <k> #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)  ... </k>
-         
-        /* <contractStack> ListItem(CI:Int) ... </contractStack>
-          <contractInstance>
-            <ctId> CI </ctId>
-            <ctname> Name </ctname>
-            <ctContext> ... D |-> E ... </ctContext>
-            <ctstore> ... E |-> (_=> I) ... </ctstore>
-            ...
-         </contractInstance>
-         <Contract>
-            <cname> Name </cname>
-            <structinstance>
-                <iname> X </iname>
-                <ivariables> ... Y |-> D ... </ivariables>
-                ... 
-            </structinstance>
-           ...
-         </Contract> */
+       
 
      rule <k> write(#memberAccess(X:Id,Y:Id), I:Value)   => 1 ... </k>
          
@@ -51,23 +34,7 @@ imports CONFIGURATION
          </Contract> 
 
      rule <k> #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id)) ... </k>
-        /* <contractStack> ListItem(CI:Int) ... </contractStack>
-         <contractInstance>
-            <ctId> CI </ctId>
-            <ctname> Name </ctname>
-            <ctContext> ... D |-> E ... </ctContext>
-            <ctstore> ... E |-> I ... </ctstore>
-            ...
-         </contractInstance>
-         <Contract>
-            <cname> Name </cname>
-            <structinstance>
-                <iname> X </iname>
-                <ivariables> ... Y |-> D ... </ivariables>
-                ... 
-            </structinstance>
-         ...
-         </Contract>*/
+      
 
     rule <k> read(#memberAccess(X:Id, Y:Id)) => I ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -91,23 +58,7 @@ imports CONFIGURATION
 
     rule <k> #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  ... </k>
          
-       /*  <contractStack> ListItem(CI:Int) ... </contractStack>
-          <contractInstance>
-            <ctId> CI </ctId>
-            <ctname> Name </ctname>
-            <ctContext> ... D |-> S ... </ctContext>
-            <ctstore> ... S+Int Z+Int 1|-> (_=> I)... </ctstore>
-            ...
-         </contractInstance>
-         <Contract>
-            <cname> Name </cname>
-            <structinstance>
-                <iname> X </iname>
-                <ivariables> ... Y |-> D ... </ivariables>
-                ... 
-            </structinstance>
-           ...
-         </Contract> */
+     
 
      rule <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => 1 ... </k>
          
@@ -131,23 +82,7 @@ imports CONFIGURATION
 
 
      rule <k> #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  ... </k>
-        /* <contractStack> ListItem(CI:Int) ... </contractStack>
-         <contractInstance>
-            <ctId> CI </ctId>
-            <ctname> Name </ctname>
-            <ctContext> ... D |-> S ... </ctContext>
-            <ctstore> ... S+Int Z +Int 1|-> I... </ctstore>
-            ...
-         </contractInstance>
-         <Contract>
-            <cname> Name </cname>
-            <structinstance>
-                <iname> X </iname>
-                <ivariables> ... Y |-> D ... </ivariables>
-                ... 
-            </structinstance>
-         ...
-         </Contract>*/
+       
 
      rule <k> read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  => I ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -173,36 +108,39 @@ imports CONFIGURATION
 //Block
 
          rule <k> {Ss:Statements} => Ss ~> Rho ...</k> <env> Rho </env>  [structural]
-         rule <k> Rho => . ...</k> <env> _ => Rho </env>    [structural]        
+         rule <k> Rho:Map => . ...</k> <env> _ => Rho </env>    [structural]        
    
 //Statements
          rule .Statements => .
          rule S:Statement Ss:Statements => S ~> Ss
 
-//         rule K:KResult ; => .
+
 
          rule if (true)  S => S
          rule if (false) S:Statement => .
          rule if (true)  S else S1:Statement => S
          rule if (false) S1:Statement else S => S
          
-
+//Loops
 
          rule <k> for (A;B:Expression;C) {S} => InitStmts(A) if (B) {ExeWhile(S) ExeCounters(C) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
-              <funCond> true </funCond>
+              <exeCon> true </exeCon>
          
          rule <k> for (A;.ExpressionList;C) {S} => InitStmts(A) ExeWhile(S) ExeCounters(C) for (A;.ExpressionList;C) {S} ... </k>
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
-              <funCond> true </funCond>
+              <exeCon> true </exeCon>
 
          rule <k> for (A;B;C) {S} => Reset(1) ... </k> 
               <loopCon> false </loopCon>
 
          rule <k> for (A;B;C) {S} => . ... </k> 
-              <funCond> false </funCond>
+              <exeCon> false </exeCon>
+
+         rule <k> for (A;B;C) S:OtherStatements => A; while (B) {S C;} ... </k> 
+         rule <k> for (A;.ExpressionList;C) S:OtherStatements => A; while (true) {S C;} ... </k>
 
          rule <k> EndLoop(.Statements) => . ... </k>
               <forInit> _=>true </forInit>
@@ -220,42 +158,41 @@ imports CONFIGURATION
          rule <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
-              <funCond> true </funCond>
+              <exeCon> true </exeCon>
 
-        rule <k> do {S} while (B); => Reset(1) ... </k> 
+         rule <k> do {S} while (B); => Reset(1) ... </k> 
              <loopCon> false </loopCon>
 
-        rule <k> do {S} while (B); => . ... </k> 
-             <funCond> false </funCond>
-
-         /*rule <k> while (B) S => if (B) {S while (B) S} else {.Statements} ... </k> 
-              <loopCon> true </loopCon>
-              <Continue> false </Continue>
-              <funCon> true </funCon>*/
+         rule <k> do {S} while (B); => . ... </k> 
+             <exeCon> false </exeCon>
 
                
          rule <k> while (B) {S} => if (B) {ExeWhile(S) while (B) {S}} else {.Statements} ... </k> 
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
-              <funCond> true </funCond>
+              <exeCon> true </exeCon>
 
   
          rule <k> while (B) S:OtherStatements => if (B) {S while (B) S} else {.Statements} ... </k> 
-         rule <k> for (A;B;C) S:OtherStatements => A; while (B) {S C;} ... </k> 
-         rule <k> for (A;.ExpressionList;C) S:OtherStatements => A; while (true) {S C;} ... </k>
-        
+
+         rule <k> while (B) S => . ... </k>
+              <exeCon> false </exeCon>
+
+         rule <k> while (B) S => Reset(1) ... </k> 
+              <loopCon> false </loopCon>
+    
+         
               
-               
          rule <k> ExeWhile(S:Statement Ss:Statements) => ExeWhileStmt(S) ~>  ExeWhile(Ss) ... </k>
          rule <k> ExeWhile(.Statements) => . ... </k>
 
          rule <k> ExeWhileStmt(S) => S ... </k>
-              <funCond> true </funCond>
+              <exeCon> true </exeCon>
               <Continue> false </Continue>
               <loopCon> true </loopCon>
 
          rule <k> ExeWhileStmt(S) => . ... </k>
-              <funCond> false </funCond>
+              <exeCon> false </exeCon>
 
          rule <k> ExeWhileStmt(S) => . ... </k>
              <Continue> true </Continue>
@@ -267,16 +204,15 @@ imports CONFIGURATION
          rule <k> ExeCounters(.SimpleStatements) => . ... </k>
          rule <k> ExeCounter(S) => S; ... </k>
               <loopCon> true </loopCon>
+              <exeCon> true </exeCon>
 
          rule <k> ExeCounter(S) => . ... </k>
               <loopCon> false </loopCon>
+         
+         rule <k> ExeCounter(S) => . ... </k>
+              <exeCon> false </exeCon>
 
 
-         rule <k> while (B) S => . ... </k>
-              <funCond> false </funCond>
-
-         rule <k> while (B) S => Reset(1) ... </k> 
-              <loopCon> false </loopCon>
     
          rule <k> Reset(1) => . ... </k>
               <loopCon> _=>true </loopCon>
@@ -329,8 +265,8 @@ imports CONFIGURATION
                 <ctType> Type </ctType>
                 <ctstore> S </ctstore>
                 <ctLocation> CL </ctLocation>
-                <ditype> Dt </ditype>
-                <distore> Ds </distore>
+                <idtype> Dt </idtype>
+                <idstore> Ds </idstore>
                 <Memory> .Map </Memory>
                 <ilength> L </ilength>
                 <ibaseaddress> B </ibaseaddress>
@@ -346,69 +282,8 @@ rule <k> _:AllValues; => . ... </k>
        
         rule  <k> CallConstructor(C,N,0,E) => N ... </k>
               <newStack>  ListItem(C) => .List ... </newStack>
-        rule  <k> CallConstructor(C,N,1,E) =>  /*createTransaction(.List)  ~> functionCall(C;E) ~> returnContext(N)*/functionCall(-1;N;C;E;msginfo(-1,N,0,0))  ... </k> 
-/*
-        <contractStack>  (.List => ListItem(N)) .List ListItem(-1)   </contractStack>
-         <Msg> M1=>msginfo(-1,N,0,0) </Msg>
-         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-         <functionStack> (.List => ListItem(C)) ... </functionStack>
-      
-         
-        <contractInstance>
-     	  <ctId> N </ctId>
-          <ctname> Cn:Id </ctname>
-         
-	  ...
-        </contractInstance>
-        <contracts>
-           <Contract>
-	     <cname> Cn </cname>
-     	     <cfunction> ... (C |-> CT:Int) ...  </cfunction>
-	    ...
-           </Contract>
-         ...
-        </contracts>
-        <Function>
-	   <fId> CT </fId>
-     	   <inputparameters> Ps:FParameters </inputparameters>
-     	   <body> B:Statements </body>
-           <FunQuantifiers> FQ </FunQuantifiers>
-           <FunCon> Con </FunCon>
-	   ...
-        </Function> */
-/*
-        rule  <k> CallConstructor(C,N,1,E) =>  createTransaction(.List) ~> FunQs(FQ,C) ~> Call(C,E) ~> returnContext(N) </k> 
+        rule  <k> CallConstructor(C,N,1,E) => functionCall(-1;N;C;E;msginfo(-1,N,0,0))  ... </k> 
 
-        <contractStack>  (.List => ListItem(N)) L:List ListItem(-1)   </contractStack>
-         <Msg> M1=>msginfo(-1,N,0,0) </Msg>
-         <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-         <functionStack> (.List => ListItem(C)) ... </functionStack>
-      
-         
-        <contractInstance>
-     	  <ctId> N </ctId>
-          <ctname> Cn:Id </ctname>
-         
-	  ...
-        </contractInstance>
-        <contracts>
-           <Contract>
-	     <cname> Cn </cname>
-     	     <cfunction> ... (C |-> CT:Int) ...  </cfunction>
-	    ...
-           </Contract>
-         ...
-        </contracts>
-        <Function>
-	   <fId> CT </fId>
-     	   <inputparameters> Ps:FParameters </inputparameters>
-     	   <body> B:Statements </body>
-           <FunQuantifiers> FQ </FunQuantifiers>
-           <FunCon> Con </FunCon>
-	   ...
-        </Function>
-
-*/
         
        
         rule  <k> C:Id(I:Int)=> I ... </k>
@@ -426,21 +301,6 @@ rule <k> _:AllValues; => . ... </k>
        rule - I => (-1) * I requires I>=Int 0
        rule - I => I requires I<Int 0
      
-    //    rule <k> ++X => I +Int 1 ...</k>
-    //         <env>... X |-> N ...</env>
-    //         <store>... N |-> (I => I +Int 1) ...</store> 
-
-    //    rule <k> X++ => I +Int 1 ...</k>
-    //         <env>... X |-> N ...</env>
-    //         <store>... N |-> (I => I +Int 1) ...</store> 
-
-    //    rule <k> --X => I -Int 1 ...</k>
-    //         <env>... X |-> N ...</env>
-    //         <store>... N |-> (I => I -Int 1) ...</store> 
-
-    //    rule <k> X-- => I -Int 1 ...</k>
-    //         <env>... X |-> N ...</env>
-    //         <store>... N |-> (I => I -Int 1) ...</store> 
      
        
       rule <k> ++X => X = X + 1; ~>X ... </k>
@@ -627,7 +487,7 @@ rule <k> _:AllValues; => . ... </k>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <distore> ... (E +Int Y |-> I) ...   </distore>
+              <idstore> ... (E +Int Y |-> I) ...   </idstore>
   
               ...
            </contractInstance>
@@ -735,14 +595,7 @@ rule <k> _:AllValues; => . ... </k>
               ...
            </contractInstance>
     
-   /* rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
-         <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
-            
-              ...
-           </contractInstance>     //requires N<Int Num */
+   
 
      rule <k> IdxWrite(X,A[Y:Int],N:Int,E,I) => IdxWrite(X,A:IndexAccess,N +Int 1,BaseAddress(X,N,E,Y),I) ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -753,21 +606,7 @@ rule <k> _:AllValues; => . ... </k>
               ...
            </contractInstance>     
           
-/*
-     rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => 1 ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-             // <ctstore> ... (Idx |->(_ => I)) ...   </ctstore>
-              <ctLocation> ... X  |-> L:StorageLocations ... </ctLocation>
-              <iarray>
-                <ianame> X </ianame>
-                <idnum> Num </idnum>
-                ...
-              </iarray>
-              ...
-           </contractInstance>*/
+
     
      rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
           
@@ -779,7 +618,7 @@ rule <k> _:AllValues; => . ... </k>
              <contractInstance>
               <ctId> CI </ctId>
               <ctname> Name </ctname>
-              <distore> ... (A |-> V) => (A |-> I) ...   </distore>
+              <idstore> ... (A |-> V) => (A |-> I) ...   </idstore>
               <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ... 
            </contractInstance>
@@ -796,128 +635,7 @@ rule <k> _:AllValues; => . ... </k>
 
  
 
-   /*
-   //One-dimensional array
-
-     //Array with fixed-size
-
-     rule <k> X:Id[Y:Int] => I ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-              <ctstore> ... (E +Int Y |-> I) ...   </ctstore>
-              ...
-           </contractInstance>
-
-     rule <k> X:Id[Y:Int] = I:Value => 1 ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-             <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-             <ctstore> ... (E +Int Y |->(_ => I)) ...   </ctstore>
-             ...
-           </contractInstance>
-
-     // dynamic array
-
-
-     rule <k> X:Id[Y:Int] => I ... </k>
-           <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ibaseaddress> ... X  |-> S ... </ibaseaddress>
-              <distore> ... S +Int Y |-> I ... </distore>
-               ...
-           </contractInstance>
-
-     rule <k> X:Id[Y:Int] = I:Value => 1 ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ibaseaddress> ... X  |-> S ... </ibaseaddress>
-              <distore> ... S +Int Y |->(_=> I) ... </distore>
-               ...
-           </contractInstance>
-
-  //Two-dimensional array
-
-      //Global array with fixed-size
-
-      rule <k> X:Id[Y:Int][Z:Int] => I ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-              <ctstore> ... (E +Int Y +Int Size*Int Z|-> I) ...   </ctstore>
-            
-              ...
-           </contractInstance>
-          <Contract>
-           <cname> Name </cname>
-           <array>
-                <aname> X </aname>
-                <dimensions> ... 2 |-> Size ... </dimensions>
-              ...
-              </array>
-           ...
-          </Contract>
-
-     rule <k> X:Id[Y:Int][Z:Int] = I:Value => 1 ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ctname> Name </ctname>
-             <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-              <ctstore> ... (E +Int Y +Int Size*Int Z|->(_ => I)) ...   </ctstore>
-      
-             ...
-           </contractInstance>
-          <Contract>
-           <cname> Name </cname>
-           <array>
-                <aname> X </aname>
-                <dimensions> ... 2 |-> Size ... </dimensions>
-              ...
-              </array>
-           ...
-          </Contract>
-           
-
-
-     //Local array with fixed-size
-
-     rule <k> X:Id[Y:Int][Z:Int] => I ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-              <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-              <ctstore> ... (E +Int Y +Int Size*Int Z|-> I) ...   </ctstore>
-              <iarray>
-                <ianame> X </ianame>
-                <idimensions> ... 2 |-> Size ... </idimensions>
-              ...
-              </iarray>
-              ...
-           </contractInstance>
-           
-
-     rule <k> X:Id[Y:Int][Z:Int] = I:Value => 1 ... </k>
-          <contractStack> ListItem(CI:Int) ... </contractStack>
-             <contractInstance>
-              <ctId> CI </ctId>
-             <ibaseaddress> ... X  |-> E ... </ibaseaddress>
-             <ctstore> ... (E +Int Y +Int Size*Int Z|->(_ => I)) ...   </ctstore>
-               <iarray>
-                <ianame> X </ianame>
-                <idimensions> ... 2 |-> Size ... </idimensions>
-              ...
-              </iarray>
-             ...
-           </contractInstance>
-           
-      */
+   
      rule <k> (X:Expression) => X ... </k>   
      
      rule X:Id[Y:Int] += E:Expression => X[Y]= X[Y]+ E
@@ -966,7 +684,7 @@ rule <k> _:AllValues; => . ... </k>
               <ctContext> ... X |-> E ... </ctContext>
               <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
               <ibaseaddress> ... X |-> (_=>!Num:Int) ... </ibaseaddress>
-              <distore> (.Map => !Num:Int |-> 0) ... </distore>
+              <idstore> (.Map => !Num:Int |-> 0) ... </idstore>
               <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               ...
            </contractInstance>
@@ -980,7 +698,7 @@ rule <k> _:AllValues; => . ... </k>
               <ctContext> ... X |-> E ... </ctContext>
               <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
               <ibaseaddress> (.Map => X |-> !Num:Int) ... </ibaseaddress>
-              <distore> (.Map => !Num:Int |-> 0) ... </distore>
+              <idstore> (.Map => !Num:Int |-> 0) ... </idstore>
              <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
@@ -996,7 +714,7 @@ rule <k> _:AllValues; => . ... </k>
       rule <k> InstanceUpdate(Ins,CI,X,I) => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
-              <distore> (.Map => !Num:Int |-> 0)... </distore>
+              <idstore> (.Map => !Num:Int |-> 0)... </idstore>
             ...
            </contractInstance> 
            requires Ins>Int 0 
@@ -1010,7 +728,7 @@ rule <k> _:AllValues; => . ... </k>
       rule <k> DInstanceUpdate(Ins,CI,X,I) => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
-              <distore> (.Map => !Num:Int |-> 0)... </distore>
+              <idstore> (.Map => !Num:Int |-> 0)... </idstore>
             ...
            </contractInstance> 
            requires Ins>Int 0 
@@ -1066,7 +784,7 @@ rule <k> _:AllValues; => . ... </k>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
               <ctstore> ... E |-> (S => S+Int 1) ... </ctstore>
-              <distore> ... (A +Int S |->(_=> Y))  ... </distore>
+              <idstore> ... (A +Int S |->(_=> Y))  ... </idstore>
               <ibaseaddress> ... X |-> A ... </ibaseaddress>
               <ilength> ... X|-> 0 ...</ilength>
               ...
@@ -1078,7 +796,7 @@ rule <k> _:AllValues; => . ... </k>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
               <ctstore> ... E |-> (S => S+Int 1) ... </ctstore>
-              <distore> ... (.Map => A +Int S |-> Y)  ... </distore>
+              <idstore> ... (.Map => A +Int S |-> Y)  ... </idstore>
               <ibaseaddress> ... X |-> A ... </ibaseaddress>
               <ilength>... X|-> 0 ...</ilength>
               ...
@@ -1100,11 +818,7 @@ rule <k> _:AllValues; => . ... </k>
            requires N>Int 0
 
 
-    //rule .ExpressionList => .Values
-
-    //rule <k> using X:Id for * ; => . ... </k>
-    //rule <k> using X:Id for Y:Typename ; => . ... </k>
-
+   
     
    
 

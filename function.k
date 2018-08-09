@@ -379,12 +379,12 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
                <ctname> Cn:Id </ctname>
                <ctContext> Rho </ctContext>
                <ctstore> S </ctstore>
-               <distore> Ds </distore>
+               <idstore> Ds </idstore>
                <Memory> M </Memory>
                <tempContext> _=> Rho </tempContext>
                <tempStore> _=>S </tempStore>
-               <tempdistore> _=>Ds </tempdistore>
-               <tempmemory> _=>M </tempmemory>
+               <tempIdstore> _=>Ds </tempIdstore>
+               <tempMemory> _=>M </tempMemory>
 	       ...
            </contractInstance>
            <contracts>
@@ -411,15 +411,15 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
      	       <ctId> CI </ctId>
                <ctContext> Rho </ctContext>
                <ctstore> S </ctstore>
-               <distore> Ds </distore>
+               <idstore> Ds </idstore>
                <Memory> M </Memory>
                <tempContext> Rho1=>Rho </tempContext>
                <tempStore> S1=>S </tempStore>
-               <tempdistore> Ds1 => Ds </tempdistore>
-               <tempmemory> M1 => M </tempmemory>
+               <tempIdstore> Ds1 => Ds </tempIdstore>
+               <tempMemory> M1 => M </tempMemory>
                ...
            </contractInstance>  
-           <funCond> _=>true </funCond>
+           <exeCon> _=>true </exeCon>
            <forInit> _=>true </forInit>
 
       rule <k> throw; => . ... </k>
@@ -428,24 +428,24 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
      	       <ctId> CI </ctId>
                <ctContext> Rho => Rho1 </ctContext>
                <ctstore> S => S1 </ctstore>
-               <distore> Ds => Ds1 </distore>
+               <idstore> Ds => Ds1 </idstore>
                <Memory> M => M1 </Memory>
                <tempContext> Rho1 </tempContext>
                <tempStore> S1 </tempStore>
-               <tempdistore> Ds1 </tempdistore>
-               <tempmemory> M1 </tempmemory>
+               <tempIdstore> Ds1 </tempIdstore>
+               <tempMemory> M1 </tempMemory>
                ...
            </contractInstance>
-           <funCond> _ => false </funCond>
+           <exeCon> _ => false </exeCon>
   
 
       rule <k> funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss) ... </k>
       rule <k> funBody(Con,.Statements) => . ... </k>
       rule <k> funStmt(S) => S ... </k>
-           <funCond> true </funCond>
+           <exeCon> true </exeCon>
            
       rule <k> funStmt(S) => . ... </k>
-           <funCond> false </funCond>
+           <exeCon> false </exeCon>
          
 
 
@@ -553,10 +553,10 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
      	       <Return> _=> E </Return>
 	       ...
            </Function> 
-           <funCond> _=>false </funCond>
+           <exeCon> _=>false </exeCon>
 
       rule <k> return; => . ... </k>
-           <funCond> _=>false </funCond>
+           <exeCon> _=>false </exeCon>
 
 
 endmodule

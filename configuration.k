@@ -26,7 +26,7 @@ imports SOLIDITY-SYNTAX
 
                 <vposition> 1:Int </vposition>
                 <loopCon> true </loopCon>
-                <funCond> true </funCond>
+                <exeCon> true </exeCon>
                 <Continue> false </Continue>
                 <forInit> true </forInit>
                 
@@ -135,10 +135,10 @@ imports SOLIDITY-SYNTAX
                         <ctLocation> .Map </ctLocation>
                         <tempContext> .Map </tempContext>
                         <tempStore> .Map </tempStore>
-                        <tempdistore> .Map </tempdistore>
-                        <tempmemory> .Map </tempmemory>
-                        <ditype> .Map </ditype>
-                        <distore> .Map </distore>
+                        <tempIdstore> .Map </tempIdstore>
+                        <tempMemory> .Map </tempMemory>
+                        <idtype> .Map </idtype>
+                        <idstore> .Map </idstore>
                         <Memory> .Map </Memory>
                         <ilength> .Map </ilength>
                         <idim> 1:Int </idim>
