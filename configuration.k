@@ -126,19 +126,19 @@ imports SOLIDITY-SYNTAX
 	             <cntContracts> 0:Int </cntContracts>
 	             <contractInstance multiplicity = "*">
 	                <ctId> (-1):Int </ctId>
-                        <ctname> .K </ctname>
-                        <ctnum> 0:Int </ctnum>
-                        <ctvId> .Map </ctvId>
+                        <ctName> .K </ctName>
+                        <ctNum> 0:Int </ctNum>
+                        <ctVId> .Map </ctVId>
 	                <ctContext> .Map </ctContext>
                         <ctType> .Map </ctType>
-                        <ctstore> .Map </ctstore>
+                        <ctStore> .Map </ctStore>
                         <ctLocation> .Map </ctLocation>
                         <tempContext> .Map </tempContext>
                         <tempStore> .Map </tempStore>
-                        <tempIdstore> .Map </tempIdstore>
+                        <tempIdStore> .Map </tempIdStore>
                         <tempMemory> .Map </tempMemory>
-                        <idtype> .Map </idtype>
-                        <idstore> .Map </idstore>
+                        <idType> .Map </idType>
+                        <idStore> .Map </idStore>
                         <Memory> .Map </Memory>
                         <ilength> .Map </ilength>
                         <idim> 1:Int </idim>

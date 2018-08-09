@@ -368,11 +368,11 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             <vposition> Pos:Int => 1 </vposition>
            <contractInstance>
               <ctId> CI </ctId>
-              <ctnum>  N:Int => N +Int 1 </ctnum>
-              <ctvId> (.Map => N |-> X) ... </ctvId>
+              <ctNum>  N:Int => N +Int 1 </ctNum>
+              <ctVId> (.Map => N |-> X) ... </ctVId>
               <ctContext> ( .Map => X |-> 1) ... </ctContext>
               <ctType> ( .Map => X |-> T) ... </ctType>
-              <ctstore> ... 1 |-> (_=> V) ... </ctstore>
+              <ctStore> ... 1 |-> (_=> V) ... </ctStore>
               <ctLocation> ( .Map => X |-> S) ... </ctLocation>
               <ilength> (.Map => X |-> Y) ...</ilength>
               <Memory> (.Map => X |-> 1) ... </Memory>
@@ -401,11 +401,11 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
           <vposition> Pos=>1 </vposition>
            <contractInstance>
               <ctId> CI </ctId>
-              <ctnum>  N:Int => N +Int 1 </ctnum>
-              <ctvId> (.Map => N |-> X) ... </ctvId>
+              <ctNum>  N:Int => N +Int 1 </ctNum>
+              <ctVId> (.Map => N |-> X) ... </ctVId>
               <ctContext> ( .Map => X |-> 1) ... </ctContext>
               <ctType> ( .Map => X |-> T) ... </ctType>
-              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ctStore> ... 1 |-> (_=> 0) ... </ctStore>
               <ctLocation> ( .Map => X |-> S) ... </ctLocation>
               <ilength> (.Map => X |-> 0) ...</ilength>
               <ivdim> (.Map => X |-> 0) ... </ivdim>
@@ -465,11 +465,11 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
           <vposition> P:Int => P +Int 1 </vposition>
           <contractInstance>
               <ctId> CI </ctId>
-              <ctnum>  N1:Int => N1 +Int 1 </ctnum>
-              <ctvId> (.Map => N1 |-> !Num:Int) ... </ctvId>
+              <ctNum>  N1:Int => N1 +Int 1 </ctNum>
+              <ctVId> (.Map => N1 |-> !Num:Int) ... </ctVId>
               <ctContext> (.Map => !Num:Int |-> P) ... </ctContext>
               <ctType> ... (.Map => !Num:Int |-> X)  ... </ctType>
-              <ctstore> ... P |-> (_=> V) ... </ctstore>
+              <ctStore> ... P |-> (_=> V) ... </ctStore>
                ...
             </contractInstance>
    
@@ -479,12 +479,12 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
           <vposition> _=>1 </vposition>
            <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ctnum>  N:Int => N +Int 1 </ctnum>
-              <ctvId> (.Map => N |-> X) ... </ctvId>
+              <ctName> Name </ctName>
+              <ctNum>  N:Int => N +Int 1 </ctNum>
+              <ctVId> (.Map => N |-> X) ... </ctVId>
               <ctContext> ( .Map => X |-> 1) ... </ctContext>
               <ctType> ( .Map => X |-> T) ... </ctType>
-              <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ctStore> ... 1 |-> (_=> 0) ... </ctStore>
               <ctLocation> ( .Map => X |-> S) ... </ctLocation>
               <ilength> (.Map => T X |-> Y) ...</ilength>
               <Memory> (.Map => X |-> 1) ... </Memory>

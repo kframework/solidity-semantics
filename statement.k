@@ -18,9 +18,9 @@ imports CONFIGURATION
          <contractStack> ListItem(CI:Int) ... </contractStack>
           <contractInstance>
             <ctId> CI </ctId>
-            <ctname> Name </ctname>
+            <ctName> Name </ctName>
             <ctContext> ... D |-> E ... </ctContext>
-            <ctstore> ... E |-> (_=> I) ... </ctstore>
+            <ctStore> ... E |-> (_=> I) ... </ctStore>
             ...
          </contractInstance>
          <Contract>
@@ -40,9 +40,9 @@ imports CONFIGURATION
           <contractStack> ListItem(CI:Int) ... </contractStack>
          <contractInstance>
             <ctId> CI </ctId>
-            <ctname> Name </ctname>
+            <ctName> Name </ctName>
             <ctContext> ... D |-> E ... </ctContext>
-            <ctstore> ... E |-> I ... </ctstore>
+            <ctStore> ... E |-> I ... </ctStore>
             ...
          </contractInstance>
          <Contract>
@@ -65,9 +65,9 @@ imports CONFIGURATION
          <contractStack> ListItem(CI:Int) ... </contractStack>
           <contractInstance>
             <ctId> CI </ctId>
-            <ctname> Name </ctname>
+            <ctName> Name </ctName>
             <ctContext> ... D |-> S ... </ctContext>
-            <ctstore> ... S+Int Z+Int 1|-> (_=> I)... </ctstore>
+            <ctStore> ... S+Int Z+Int 1|-> (_=> I)... </ctStore>
             ...
          </contractInstance>
          <Contract>
@@ -88,9 +88,9 @@ imports CONFIGURATION
          <contractStack> ListItem(CI:Int) ... </contractStack>
          <contractInstance>
             <ctId> CI </ctId>
-            <ctname> Name </ctname>
+            <ctName> Name </ctName>
             <ctContext> ... D |-> S ... </ctContext>
-            <ctstore> ... S+Int Z +Int 1|-> I... </ctstore>
+            <ctStore> ... S+Int Z +Int 1|-> I... </ctStore>
             ...
          </contractInstance>
          <Contract>
@@ -258,15 +258,15 @@ imports CONFIGURATION
 	(.Bag => 
 	    <contractInstance>
 		<ctId> N </ctId>
-                <ctname> X </ctname>
-                <ctnum> Num </ctnum>
-                <ctvId> V </ctvId>
+                <ctName> X </ctName>
+                <ctNum> Num </ctNum>
+                <ctVId> V </ctVId>
 		<ctContext> Rho </ctContext>
                 <ctType> Type </ctType>
-                <ctstore> S </ctstore>
+                <ctStore> S </ctStore>
                 <ctLocation> CL </ctLocation>
-                <idtype> Dt </idtype>
-                <idstore> Ds </idstore>
+                <idType> Dt </idType>
+                <idStore> Ds </idStore>
                 <Memory> .Map </Memory>
                 <ilength> L </ilength>
                 <ibaseaddress> B </ibaseaddress>
@@ -341,7 +341,7 @@ rule <k> _:AllValues; => . ... </k>
              <contractInstance>
               <ctId> CI </ctId>
               <ctContext>... X |-> N...</ctContext>
-              <ctstore> ... (N |-> V) => (N |->I) ...</ctstore> 
+              <ctStore> ... (N |-> V) => (N |->I) ...</ctStore> 
               <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
@@ -381,7 +381,7 @@ rule <k> _:AllValues; => . ... </k>
              <contractInstance>
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
-              <ctstore>... N |-> I ...</ctstore> 
+              <ctStore>... N |-> I ...</ctStore> 
               <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
               <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
               ...
@@ -442,7 +442,7 @@ rule <k> _:AllValues; => . ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ibaseaddress> ... X  |-> E ... </ibaseaddress>
             
               ...
@@ -453,7 +453,7 @@ rule <k> _:AllValues; => . ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
@@ -467,7 +467,7 @@ rule <k> _:AllValues; => . ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>     
@@ -486,8 +486,8 @@ rule <k> _:AllValues; => . ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <idstore> ... (E +Int Y |-> I) ...   </idstore>
+              <ctName> Name </ctName>
+              <idStore> ... (E +Int Y |-> I) ...   </idStore>
   
               ...
            </contractInstance>
@@ -497,8 +497,8 @@ rule <k> _:AllValues; => . ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ctstore> ... (E +Int Y |-> I) ...   </ctstore>
+              <ctName> Name </ctName>
+              <ctStore> ... (E +Int Y |-> I) ...   </ctStore>
             
               ...
            </contractInstance>
@@ -512,7 +512,7 @@ rule <k> _:AllValues; => . ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
@@ -528,7 +528,7 @@ rule <k> _:AllValues; => . ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               
               ...
@@ -550,7 +550,7 @@ rule <k> _:AllValues; => . ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               <iarray>
                 <ianame> X </ianame>
@@ -564,7 +564,7 @@ rule <k> _:AllValues; => . ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
@@ -589,7 +589,7 @@ rule <k> _:AllValues; => . ... </k>
          <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
               <ibaseaddress> ... X  |-> E ... </ibaseaddress>
             
               ...
@@ -601,7 +601,7 @@ rule <k> _:AllValues; => . ... </k>
           <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
+              <ctName> Name </ctName>
              // <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>     
@@ -617,8 +617,8 @@ rule <k> _:AllValues; => . ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <idstore> ... (A |-> V) => (A |-> I) ...   </idstore>
+              <ctName> Name </ctName>
+              <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>
               <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ... 
            </contractInstance>
@@ -627,8 +627,8 @@ rule <k> _:AllValues; => . ... </k>
             <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
               <ctId> CI </ctId>
-              <ctname> Name </ctname>
-              <ctstore> ... (A |-> V) => (A |-> I) ...   </ctstore>
+              <ctName> Name </ctName>
+              <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore>
               <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
@@ -682,9 +682,9 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
-              <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
+              <ctStore> ... (E |-> V) => (E |-> I) ... </ctStore>
               <ibaseaddress> ... X |-> (_=>!Num:Int) ... </ibaseaddress>
-              <idstore> (.Map => !Num:Int |-> 0) ... </idstore>
+              <idStore> (.Map => !Num:Int |-> 0) ... </idStore>
               <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
               ...
            </contractInstance>
@@ -696,9 +696,9 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
-              <ctstore> ... (E |-> V) => (E |-> I) ... </ctstore>
+              <ctStore> ... (E |-> V) => (E |-> I) ... </ctStore>
               <ibaseaddress> (.Map => X |-> !Num:Int) ... </ibaseaddress>
-              <idstore> (.Map => !Num:Int |-> 0) ... </idstore>
+              <idStore> (.Map => !Num:Int |-> 0) ... </idStore>
              <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
               ...
            </contractInstance>
@@ -714,7 +714,7 @@ rule <k> _:AllValues; => . ... </k>
       rule <k> InstanceUpdate(Ins,CI,X,I) => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
-              <idstore> (.Map => !Num:Int |-> 0)... </idstore>
+              <idStore> (.Map => !Num:Int |-> 0)... </idStore>
             ...
            </contractInstance> 
            requires Ins>Int 0 
@@ -728,7 +728,7 @@ rule <k> _:AllValues; => . ... </k>
       rule <k> DInstanceUpdate(Ins,CI,X,I) => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
-              <idstore> (.Map => !Num:Int |-> 0)... </idstore>
+              <idStore> (.Map => !Num:Int |-> 0)... </idStore>
             ...
            </contractInstance> 
            requires Ins>Int 0 
@@ -743,7 +743,7 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
                <ctId> CI </ctId>
                <Memory> ... X |-> (E=>E+Int 1) ... </Memory>
-               <ctstore> ... (A +Int E |->(_=> Y))... </ctstore>
+               <ctStore> ... (A +Int E |->(_=> Y))... </ctStore>
                <ibaseaddress> ... X |-> A ... </ibaseaddress>
                <ilength> ... X |-> N ...</ilength>
                ...
@@ -756,7 +756,7 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
                <ctId> CI </ctId>
                <Memory> ... X |-> (E=>E+Int 1) ... </Memory>
-               <ctstore> (.Map => A +Int E |-> Y)... </ctstore>
+               <ctStore> (.Map => A +Int E |-> Y)... </ctStore>
                <ibaseaddress> ... X |-> A ... </ibaseaddress>
                <ilength> ... X |-> N ...</ilength>
                ...
@@ -770,7 +770,7 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
                <ctId> CI </ctId>
                <ctContext> ... X |-> E ... </ctContext>
-               <ctstore> ... E |-> (S => S+Int 1) (A +Int S |->(_=> Y))... </ctstore>
+               <ctStore> ... E |-> (S => S+Int 1) (A +Int S |->(_=> Y))... </ctStore>
                <ibaseaddress> ... X |-> A ... </ibaseaddress>
                <ilength> ... X |-> N ...</ilength>
                ...
@@ -783,8 +783,8 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
-              <ctstore> ... E |-> (S => S+Int 1) ... </ctstore>
-              <idstore> ... (A +Int S |->(_=> Y))  ... </idstore>
+              <ctStore> ... E |-> (S => S+Int 1) ... </ctStore>
+              <idStore> ... (A +Int S |->(_=> Y))  ... </idStore>
               <ibaseaddress> ... X |-> A ... </ibaseaddress>
               <ilength> ... X|-> 0 ...</ilength>
               ...
@@ -795,8 +795,8 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
               <ctId> CI </ctId>
               <ctContext> ... X |-> E ... </ctContext>
-              <ctstore> ... E |-> (S => S+Int 1) ... </ctstore>
-              <idstore> ... (.Map => A +Int S |-> Y)  ... </idstore>
+              <ctStore> ... E |-> (S => S+Int 1) ... </ctStore>
+              <idStore> ... (.Map => A +Int S |-> Y)  ... </idStore>
               <ibaseaddress> ... X |-> A ... </ibaseaddress>
               <ilength>... X|-> 0 ...</ilength>
               ...
@@ -810,7 +810,7 @@ rule <k> _:AllValues; => . ... </k>
            <contractInstance>
                <ctId> CI </ctId>
                <ctContext> ... X |-> E ... </ctContext>
-               <ctstore> ... E |-> (S => S+Int 1) (.Map => A +Int S |-> Y)... </ctstore>
+               <ctStore> ... E |-> (S => S+Int 1) (.Map => A +Int S |-> Y)... </ctStore>
                <ibaseaddress> ... X |-> A ... </ibaseaddress>
                <ilength> ... X |-> N ...</ilength>
                ...

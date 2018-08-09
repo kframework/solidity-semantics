@@ -225,7 +225,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
               <contractInstance>
                 <ctId> CI </ctId>
                 <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
-                <ctstore> .Map => (!N:Int |-> E) ... </ctstore>
+                <ctStore> .Map => (!N:Int |-> E) ... </ctStore>
                 <ctLocation> .Map =>( P |-> String2Id("Global")) ...</ctLocation>
                 <ctType> .Map =>(P |-> T) ... </ctType>
                 ...
@@ -352,7 +352,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
     
         <contractInstance>
      	  <ctId> CI </ctId>
-          <ctname> Cn:Id </ctname>
+          <ctName> Cn:Id </ctName>
 	  ...
         </contractInstance>
         <contracts>
@@ -376,14 +376,14 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
      	       <ctId> CI </ctId>
-               <ctname> Cn:Id </ctname>
+               <ctName> Cn:Id </ctName>
                <ctContext> Rho </ctContext>
-               <ctstore> S </ctstore>
-               <idstore> Ds </idstore>
+               <ctStore> S </ctStore>
+               <idStore> Ds </idStore>
                <Memory> M </Memory>
                <tempContext> _=> Rho </tempContext>
                <tempStore> _=>S </tempStore>
-               <tempIdstore> _=>Ds </tempIdstore>
+               <tempIdStore> _=>Ds </tempIdStore>
                <tempMemory> _=>M </tempMemory>
 	       ...
            </contractInstance>
@@ -410,12 +410,12 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <contractInstance>
      	       <ctId> CI </ctId>
                <ctContext> Rho </ctContext>
-               <ctstore> S </ctstore>
-               <idstore> Ds </idstore>
+               <ctStore> S </ctStore>
+               <idStore> Ds </idStore>
                <Memory> M </Memory>
                <tempContext> Rho1=>Rho </tempContext>
                <tempStore> S1=>S </tempStore>
-               <tempIdstore> Ds1 => Ds </tempIdstore>
+               <tempIdStore> Ds1 => Ds </tempIdStore>
                <tempMemory> M1 => M </tempMemory>
                ...
            </contractInstance>  
@@ -427,12 +427,12 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <contractInstance>
      	       <ctId> CI </ctId>
                <ctContext> Rho => Rho1 </ctContext>
-               <ctstore> S => S1 </ctstore>
-               <idstore> Ds => Ds1 </idstore>
+               <ctStore> S => S1 </ctStore>
+               <idStore> Ds => Ds1 </idStore>
                <Memory> M => M1 </Memory>
                <tempContext> Rho1 </tempContext>
                <tempStore> S1 </tempStore>
-               <tempIdstore> Ds1 </tempIdstore>
+               <tempIdStore> Ds1 </tempIdStore>
                <tempMemory> M1 </tempMemory>
                ...
            </contractInstance>
@@ -468,7 +468,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
     
         <contractInstance>
      	  <ctId> C </ctId>
-          <ctname> Cn:Id </ctname>
+          <ctName> Cn:Id </ctName>
 	  ...
         </contractInstance>
         <contracts>
@@ -514,7 +514,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
            <newStack>  L => .List </newStack>
            <contractInstance>
      	      <ctId> C </ctId>
-              <ctname> Cn:Id </ctname>
+              <ctName> Cn:Id </ctName>
 	      ...
            </contractInstance>
            <contracts>
@@ -537,7 +537,7 @@ rule <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers
    
            <contractInstance>
      	      <ctId> CI </ctId>
-              <ctname> Cn:Id </ctname>
+              <ctName> Cn:Id </ctName>
 	      ...
            </contractInstance>
            <contracts>
