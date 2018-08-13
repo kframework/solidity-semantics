@@ -90,14 +90,14 @@ module CONFIGURATION
         <functions>
             <Function multiplicity = "*" color="blue"> 
                 <fId color="black"> 0:Int </fId>
-                <inputparameters> .FParameters </inputparameters>
-                <outputparameters> .FParameters </outputparameters>
+                <inputParameters> .FParameters </inputParameters>
+                <outputParameters> .FParameters </outputParameters>
                 <body color="orange"> .K </body>
                 <FunQuantifiers> .K </FunQuantifiers>
                 <Return> .K </Return>
                 <FunCon> true:Expression </FunCon>
             </Function>
-            <cntfunction> 0:Int </cntfunction>
+            <cntFunction> 0:Int </cntFunction>
         </functions>
         <contractInstances>
             <cntContracts> 0:Int </cntContracts>
@@ -132,7 +132,7 @@ module CONFIGURATION
         </contractInstances>
         <transactions>
             <cnttran> 1:Int </cnttran>
-            <trancomputation> 0 |-> "Main"  </trancomputation>
+            <tranComputation> 0 |-> "Main"  </tranComputation>
         </transactions>
         <Msg> .K </Msg>
         <MsgStack> .List </MsgStack>

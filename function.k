@@ -18,12 +18,12 @@ rule
         <constructor> _ => 1 </constructor>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters>
-            <outputparameters> Ps2 </outputparameters>
+            <inputParameters> Ps1 </inputParameters>
+            <outputParameters> Ps2 </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
@@ -38,12 +38,12 @@ rule
         <cfunction> (.Map => F |-> CF) ... </cfunction>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters>
-            <outputparameters> Ps2 </outputparameters>
+            <inputParameters> Ps1 </inputParameters>
+            <outputParameters> Ps2 </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
@@ -61,12 +61,12 @@ rule
         <constructor> _ => 1 </constructor>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1 </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1 </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters>
-            <outputparameters> .FParameters </outputparameters>
+            <inputParameters> Ps1 </inputParameters>
+            <outputParameters> .FParameters </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
@@ -81,12 +81,12 @@ rule
         <cfunction> (.Map => F |-> CF) ... </cfunction>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters>
-            <outputparameters> .FParameters </outputparameters>
+            <inputParameters> Ps1 </inputParameters>
+            <outputParameters> .FParameters </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
@@ -102,12 +102,12 @@ rule
         <cfunction> (.Map => String2Id("fallback")  |-> CF) ... </cfunction>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters>
-            <outputparameters> .FParameters </outputparameters>
+            <inputParameters> Ps1 </inputParameters>
+            <outputParameters> .FParameters </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
@@ -121,12 +121,12 @@ rule
             <cfunction> (.Map => String2Id("fallback")  |-> CF) ... </cfunction>
             ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters> 
-            <outputparameters> Ps2 </outputparameters>
+            <inputParameters> Ps1 </inputParameters> 
+            <outputParameters> Ps2 </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
@@ -140,12 +140,12 @@ rule
         <cfunction> (.Map => F |-> CF) ... </cfunction>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> Ps1 </inputparameters>
-            <outputparameters> .FParameters </outputparameters>
+            <inputParameters> Ps1 </inputParameters>
+            <outputParameters> .FParameters </outputParameters>
             <body> B </body>
             ...                    
         </Function>)
@@ -158,12 +158,12 @@ rule
         <cfunction> (.Map => F |-> CF) ... </cfunction>
         ...
     </Contract>
-    <cntfunction> CF:Int => CF +Int 1  </cntfunction>
+    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
     (.Bag =>
         <Function>
             <fId> CF </fId>
-            <inputparameters> P1 </inputparameters>
-            <outputparameters> Ps2 </outputparameters>
+            <inputParameters> P1 </inputParameters>
+            <outputParameters> Ps2 </outputParameters>
             <body> B </body>
             ...
         </Function>)
@@ -210,8 +210,8 @@ rule
         <cfunction> ... (F |-> CF:Int) ... </cfunction>
     </Contract>            
     <fId> CF </fId>
-    <inputparameters> Ps1 </inputparameters>
-    <outputparameters> Ps2 </outputparameters>
+    <inputParameters> Ps1 </inputParameters>
+    <outputParameters> Ps2 </outputParameters>
     <body> B:K </body>
     <FunQuantifiers> FQ </FunQuantifiers>
     <FunCon> FC:Expression => (FC && Con) </FunCon>
@@ -226,8 +226,8 @@ rule
         <cfunction> ... (F |-> CF:Int) ... </cfunction>
     </Contract>            
     <fId> CF </fId>
-    <inputparameters> Ps1 </inputparameters>
-    <outputparameters> Ps2 </outputparameters>
+    <inputParameters> Ps1 </inputParameters>
+    <outputParameters> Ps2 </outputParameters>
     <body> B:K </body>
     <FunQuantifiers> FQ </FunQuantifiers>
     <FunCon> (FC:Expression => (FC && Con)) </FunCon>
@@ -306,7 +306,7 @@ rule [function-call]:
     </contracts>
     <Function>
         <fId> CT </fId>
-        <inputparameters> Ps:FParameters </inputparameters>
+        <inputParameters> Ps:FParameters </inputParameters>
         <body> B:Statements </body>
         <FunQuantifiers> FQ </FunQuantifiers>
         <FunCon> Con </FunCon>
@@ -339,8 +339,8 @@ rule
     </contracts>
     <Function>
         <fId> CT </fId>
-        <inputparameters> Ps:FParameters </inputparameters>
-        <outputparameters> OPs:FParameters </outputparameters>
+        <inputParameters> Ps:FParameters </inputParameters>
+        <outputParameters> OPs:FParameters </outputParameters>
         <body> B:Statements </body>
         <FunQuantifiers> FQ </FunQuantifiers>
         <FunCon> Con </FunCon>
@@ -429,7 +429,7 @@ rule
         </contracts>
         <Function>
 	   <fId> CT </fId>
-     	   <inputparameters> Ps:FParameters </inputparameters>
+     	   <inputParameters> Ps:FParameters </inputParameters>
      	   <body> B:Statements </body>
            <FunQuantifiers> FQ </FunQuantifiers>
            <FunCon> Con </FunCon>
@@ -439,7 +439,7 @@ rule
 rule 
     <k> createTransaction(.List) => . ... </k>
     <cnttran> I:Int => I +Int 1 </cnttran>
-    <trancomputation> (.Map => I |-> "functioncall" ) ... </trancomputation>  
+    <tranComputation> (.Map => I |-> "functioncall" ) ... </tranComputation>  
     <newStack>  .List </newStack>
 
 rule 

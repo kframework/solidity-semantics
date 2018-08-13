@@ -304,7 +304,7 @@ rule
             ...
         </contractInstance> )
     <cnttran> K:Int => K +Int 1 </cnttran>
-    <trancomputation> (.Map => K |-> "new contract") ... </trancomputation>
+    <tranComputation> (.Map => K |-> "new contract") ... </tranComputation>
     <newStack> (.List => ListItem(X)) ... </newStack>
 
 // TODO: this should probably not be here
