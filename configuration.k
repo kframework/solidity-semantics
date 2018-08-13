@@ -29,7 +29,7 @@ module CONFIGURATION
                 <vnum> 0:Int </vnum>  
                 <vId> .Map </vId> 
                 <variables> .Map </variables>
-                <typename> .Map </typename>
+                <typeName> .Map </typeName>
                 <cstore> .Map </cstore>
                 <cLocation> .Map </cLocation>
                 <dtype> .Map </dtype>
@@ -38,7 +38,7 @@ module CONFIGURATION
                 <dim> 1:Int </dim>
                 <vdim> .Map </vdim>
                 <inheritance> .K </inheritance>
-                <contractbody> .K </contractbody>
+                <contractBody> .K </contractBody>
                 <events>
                     <Event multiplicity = "*">
                         <ename> .K </ename>

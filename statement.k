@@ -275,7 +275,7 @@ rule
         <vnum> Num </vnum>
         <vId> V </vId>
         <variables> Rho </variables>
-        <typename> Type </typename>
+        <typeName> Type </typeName>
         <cstore> S </cstore>
         <cLocation> CL </cLocation>
         <dtype> Dt </dtype>

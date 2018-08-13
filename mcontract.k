@@ -21,12 +21,12 @@ rule
       <cname> F </cname>
       <cId> N </cId>
       //<variables> .Map </variables>
-      <typename> .Map </typename>
+      <typeName> .Map </typeName>
       <cstore> .Map </cstore>
       <dtype> .Map </dtype>
       <dstore> .Map </dstore>
       <Length> .Map </Length>
-      // <contractbody> Cs </contractbody>
+      // <contractBody> Cs </contractBody>
       <events> .Bag </events>
       <modifiers> .Bag </modifiers>
       <usingfors> .Bag </usingfors>
@@ -45,12 +45,12 @@ rule
       <cname> F </cname>
       <cId> N </cId>
       <variables> .Map </variables>
-      <typename> .Map </typename>
+      <typeName> .Map </typeName>
       <cstore> .Map </cstore>
       <dtype> .Map </dtype>
       <dstore> .Map </dstore>
       <Length> .Map </Length>
-      // <contractbody> Cs </contractbody>
+      // <contractBody> Cs </contractBody>
       <events> .Bag </events>
       <modifiers> .Bag </modifiers>
       <usingfors> .Bag </usingfors>
@@ -80,7 +80,7 @@ rule
     <vnum>  N:Int => N +Int 1 </vnum>
     <vId> (.Map => N |-> Z) ... </vId>
     <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-    <typename> ( .Map => Z |-> X) ... </typename>
+    <typeName> ( .Map => Z |-> X) ... </typeName>
     <cstore> (.Map => !Num |-> I) ... </cstore>
     <cLocation> ( .Map => Z |-> Y) ... </cLocation>
     ...
@@ -103,7 +103,7 @@ rule
         <vnum>  N:Int => N +Int 1 </vnum>
         <vId> (.Map => N |-> Z) ... </vId>
         <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-        <typename> ( .Map => Z |-> T) ... </typename>
+        <typeName> ( .Map => Z |-> T) ... </typeName>
         <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
         <cLocation> ( .Map => Z |-> Y) ... </cLocation>
         <Length> (.Map => Z |-> I) ... </Length>
@@ -164,7 +164,7 @@ rule
         <vnum>  N:Int => N +Int 1 </vnum>
         <vId> (.Map => N |-> Z) ... </vId>
         <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-        <typename> ( .Map => Z |-> T) ... </typename>
+        <typeName> ( .Map => Z |-> T) ... </typeName>
         <dtype> (.Map => Z |-> T) ... </dtype>
         <cstore> (.Map => !Num:Int |-> V) ... </cstore>
         <cLocation> ( .Map => Z |-> Y) ... </cLocation>
@@ -185,7 +185,7 @@ rule
         <vnum>  N:Int => N +Int 1 </vnum>
         <vId> (.Map => N |-> Z) ... </vId>
         <variables> ( .Map => Z |-> !Num:Int) ... </variables>
-        <typename> ( .Map => Z |-> T) ... </typename>
+        <typeName> ( .Map => Z |-> T) ... </typeName>
         <cstore> (.Map => !Num:Int |-> !Num +Int 1) ... </cstore>
         <cLocation> ( .Map => Z |-> Y) ... </cLocation>
         <Length> (.Map => T Z|-> I) ... </Length>
@@ -281,7 +281,7 @@ rule
         <vnum>  N:Int => N +Int 1 </vnum>
         <vId> (.Map => N |-> !Num:Int) ... </vId>
         <variables> ( .Map => !Num |-> !Num) ... </variables>
-        <typename> ( .Map => !Num |-> Z) ... </typename>
+        <typeName> ( .Map => !Num |-> Z) ... </typeName>
         <cstore> (.Map => !Num |-> V) ... </cstore>
         ...
     </Contract>
@@ -630,7 +630,7 @@ rule
         <vnum>  N:Int => N +Int 1 </vnum>
         <vId> (.Map => N |-> Y )... </vId>
         <variables> ( .Map => Y |-> !Num:Int) ... </variables>
-        <typename> ( .Map => Y |-> "struct") ... </typename>
+        <typeName> ( .Map => Y |-> "struct") ... </typeName>
         <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
         <Struct>
             <sname> X </sname>
