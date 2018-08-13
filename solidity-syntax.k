@@ -519,7 +519,7 @@ syntax AllValues ::= Value | Value1
                               | HexLiteral
                               | StringLiteral
                               | TupleExpression
-                              | Id
+                              | Id 
                               | ElementaryTypeNameExpression
 
    syntax ExpressionList ::= List{Expression, ","}    [strict]
@@ -557,12 +557,9 @@ syntax AllValues ::= Value | Value1
                           | HexNumber " " NumberUnit
                           | DecimalNumber " " NumberUnit
    syntax NumberUnit ::= "wei" | "szabo" | "finney"  | "ether" | "seconds" | "minutes" | "hours" | "days"  | "weeks" | "years"
-   syntax HexLiteral ::= "hex"
+   
    syntax StringLiteral ::= String
-   syntax HexNumber ::= String                      
-
-   syntax DecimalNumber ::= Int
-
+   
 
    syntax TupleExpression ::= "(" ExpressionList ")"			[klabel(tupleExp1),prefer]
                             | "[" ExpressionList "]"
@@ -606,6 +603,12 @@ syntax AllValues ::= Value | Value1
 
 
    syntax Id ::= "returns" [reject]
+
+   syntax HexNumber ::= r"0x[0-9a-fA-F]+" [token]
+   syntax HexLiteral ::= r"hex(\"([0-9a-fA-F]{2})*\"|\\'([0-9a-fA-F]{2})*\\')" [token]
+   
+   syntax DecimalNumber ::= Int | Float
+   
 
 
 endmodule
