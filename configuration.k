@@ -66,16 +66,16 @@ module CONFIGURATION
                     </Struct>
                 </structs>
                 <structinstances>
-                    <cntstructinstance> 0:Int </cntstructinstance>
-                        <structinstance multiplicity = "*">
-                            <structname> .K </structname>
+                    <cntStructInstance> 0:Int </cntStructInstance>
+                        <structInstance multiplicity = "*">
+                            <structName> .K </structName>
                             <iname> .K </iname>
                             <iId> (-1):Int </iId>
                             <isnum> 0:Int </isnum>
                             <ivariables> .Map </ivariables>
-                        </structinstance>
+                        </structInstance>
                 </structinstances>
-                <baseaddress> .Map </baseaddress>
+                <baseAddress> .Map </baseAddress>
                 <arrays>
                     <array multiplicity = "*">
                         <aname> .K </aname>

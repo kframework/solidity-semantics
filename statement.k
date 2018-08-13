@@ -23,11 +23,11 @@ rule
     </contractInstance>
     <Contract>
         <cname> Name </cname>
-        <structinstance>
+        <structInstance>
             <iname> X </iname>
             <ivariables> ... Y |-> D ... </ivariables>
             ... 
-        </structinstance>
+        </structInstance>
         ...
     </Contract> 
 
@@ -46,11 +46,11 @@ rule
     </contractInstance>
     <Contract>
         <cname> Name </cname>
-        <structinstance>
+        <structInstance>
             <iname> X </iname>
             <ivariables> ... Y |-> D ... </ivariables>
             ... 
-        </structinstance>
+        </structInstance>
         ...
     </Contract>
 
@@ -69,11 +69,11 @@ rule
         </contractInstance>
         <Contract>
             <cname> Name </cname>
-            <structinstance>
+            <structInstance>
                 <iname> X </iname>
                 <ivariables> ... Y |-> D ... </ivariables>
                 ... 
-            </structinstance>
+            </structInstance>
             ...
         </Contract> 
 
@@ -92,11 +92,11 @@ rule
     </contractInstance>
     <Contract>
         <cname> Name </cname>
-        <structinstance>
+        <structInstance>
             <iname> X </iname>
             <ivariables> ... Y |-> D ... </ivariables>
             ... 
-        </structinstance>
+        </structInstance>
         ...
     </Contract>
 
@@ -281,7 +281,7 @@ rule
         <dtype> Dt </dtype>
         <dstore> Ds </dstore>
         <Length> L </Length>
-        <baseaddress> B </baseaddress>
+        <baseAddress> B </baseAddress>
         <constructor> Cst </constructor>
         ...
     </Contract> 

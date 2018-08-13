@@ -127,7 +127,7 @@ rule
         <cname> C </cname>
         <variables> ... Z |-> E ... </variables>
         <cstore> ... E |-> (A:Int=>1) ... </cstore>
-        <baseaddress> (.Map => Z |-> A:Int) ... </baseaddress>
+        <baseAddress> (.Map => Z |-> A:Int) ... </baseAddress>
         <array>
             <aname> Z </aname>
             <dnum> DNum </dnum>
@@ -570,13 +570,13 @@ rule
     <k> pcsStateVariableDeclaration(C:Id,X:Id,T:NotBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,0) ... </k>
     <Contract>
         <cname> C </cname>
-        <structinstance>
-            <structname> X </structname>
+        <structInstance>
+            <structName> X </structName>
             <iname> IName </iname>
             <isnum> N1:Int => N1 +Int 1 </isnum>
             <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
             ...
-        </structinstance>
+        </structInstance>
         ...
     </Contract>
              
@@ -584,13 +584,13 @@ rule
     <k> pcsStateVariableDeclaration(C:Id,X:Id, T:SBool Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,false) ... </k>
     <Contract>
         <cname> C </cname>
-        <structinstance>
-            <structname> X </structname>
+        <structInstance>
+            <structName> X </structName>
             <iname> IName </iname>
             <isnum> N1:Int => N1 +Int 1 </isnum>
             <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
             ...
-        </structinstance>
+        </structInstance>
     ...
 </Contract>
 
@@ -600,13 +600,13 @@ rule
     <k> pcsStateVariableDeclaration(C:Id,X:Id, T:ArrayTypeName Y:StorageLocations Z:Id,IName:Id) => allocate(C,T,String2Id("Global"),!D,0)... </k>
     <Contract>
         <cname> C </cname>
-        <structinstance>
-            <structname> X </structname>
+        <structInstance>
+            <structName> X </structName>
             <iname> IName </iname>
             <isnum> N1:Int => N1 +Int 1 </isnum>
             <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
             ...
-        </structinstance>
+        </structInstance>
         ...
     </Contract>
 
@@ -637,16 +637,16 @@ rule
             <vardec> VarD </vardec>
             ...
         </Struct>
-        <cntstructinstance> N1:Int => N1 +Int 1 </cntstructinstance>
+        <cntStructInstance> N1:Int => N1 +Int 1 </cntStructInstance>
         (.Bag =>
-            <structinstance>
-                <structname> X </structname>
+            <structInstance>
+                <structName> X </structName>
                 <iId> N1 </iId>
                 <iname> Y </iname>
                 <isnum> 0 </isnum>
                 <ivariables> .Map </ivariables>
                 ...
-            </structinstance>)
+            </structInstance>)
         ...
     </Contract>    
 
@@ -659,13 +659,13 @@ rule
         <cname> C </cname>
         <variables> ... Y |-> E ... </variables>
         <cstore> ... E |-> (A:Int=> Num) ... </cstore>
-        <structinstance>
-            <structname> X </structname>
+        <structInstance>
+            <structName> X </structName>
             <iname> Y </iname>
             <isnum> Num </isnum>
             ...
-        </structinstance>
-        <baseaddress> (.Map => Y |-> A) ... </baseaddress>
+        </structInstance>
+        <baseAddress> (.Map => Y |-> A) ... </baseAddress>
         ...
     </Contract>   
 
