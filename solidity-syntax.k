@@ -497,7 +497,6 @@ syntax NumberLiteral ::= HexNumber
 
 syntax NumberUnit ::= "wei" | "szabo" | "finney"  | "ether" | "seconds" | "minutes" | "hours" | "days"  | "weeks" | "years"
 
-syntax HexLiteral ::= "hex"
 
 syntax StringLiteral ::= String
 
@@ -530,5 +529,9 @@ syntax FunctionItem ::= returnValue(Statements)	[strict]
                       | Call(Id,Values)
 
 syntax Id ::= "returns" [reject]
+
+syntax HexNumber ::= r"0x[0-9a-fA-F]+" [token]
+syntax HexLiteral ::= r"hex(\"([0-9a-fA-F]{2})*\"|\\'([0-9a-fA-F]{2})*\\')" [token]
+syntax DecimalNumber ::= Int | Float
 
 endmodule
