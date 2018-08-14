@@ -8,7 +8,6 @@ imports CONFIGURATION
 
 // Member Access
 
-// rule <k> #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)  ... </k>
 rule #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)
 
 rule 
@@ -31,8 +30,7 @@ rule
         ...
     </Contract> 
 
-// rule <k> #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id)) ... </k>
-rule #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id))
+rule #memberAccess(X:Id, Y:Id) => read(#memberAccess(X:Id, Y:Id))
 
 rule 
     <k> read(#memberAccess(X:Id, Y:Id)) => I ... </k>
@@ -54,34 +52,33 @@ rule
         ...
     </Contract>
 
-    // rule <k> #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  ... </k>
-    rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
+rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value) => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
 
-    rule 
-        <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => 1 ... </k>
-        <contractStack> ListItem(CI:Int) ... </contractStack>
-        <contractInstance>
-            <ctId> CI </ctId>
-            <ctName> Name </ctName>
-            <ctContext> ... D |-> S ... </ctContext>
-            <ctStore> ... S+Int Z+Int 1|-> (_=> I)... </ctStore>
-            ...
-        </contractInstance>
-        <Contract>
-            <cname> Name </cname>
-            <structInstance>
-                <iname> X </iname>
-                <ivariables> ... Y |-> D ... </ivariables>
-                ... 
-            </structInstance>
-            ...
-        </Contract> 
+rule 
+    <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> Name </ctName>
+        <ctContext> ... D |-> S ... </ctContext>
+        <ctStore> ... S+Int Z+Int 1|-> (_=> I)... </ctStore>
+        ...
+    </contractInstance>
+    <Contract>
+        <cname> Name </cname>
+        <structInstance>
+            <iname> X </iname>
+            <ivariables> ... Y |-> D ... </ivariables>
+            ... 
+        </structInstance>
+        ...
+    </Contract> 
 
-// rule <k> #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  ... </k>
-rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
+rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int) => 
+        read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
 
 rule
-    <k> read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  => I ... </k>
+    <k> read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)) => I ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -169,9 +166,6 @@ rule
 
 rule 
     <k> InitStmts(.SimpleStatements) => . ... </k>
-     
-              
-            
 
 rule 
     <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
@@ -359,28 +353,26 @@ rule
     requires CI>=Int 0
     
 rule 
-    <k> write(X,I) => I ... </k>
+    <k> write(X,I) => writeToAddress(N,I,Id2String(Location)) ~> I ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
+        <ctLocation> ... X |-> Location:Id ... </ctLocation>
         <ctId> CI </ctId>
-        <ctContext>... X |-> N...</ctContext>
-        <ctStore> ... (N |-> V) => (N |->I) ...</ctStore> 
-        <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
-        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
+        <ctContext>... X |-> N ...</ctContext>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType> // TODO: is this needed?
         ...
     </contractInstance>
 
-rule 
-    <k> write(X,I) => I ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext>... X |-> N ...</ctContext>
-        <Memory>... (N |-> _) => (N |-> I) ...</Memory> 
-        <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
-        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
-        ...
-    </contractInstance>
+// Auxiliary operation for writing to local/global storage
+syntax K ::= "writeToAddress" "(" Int "," Value "," String ")"
+
+rule [read-address-local]:
+    <k> writeToAddress(X, I, "Local")  => . ... </k>
+    <Memory>... (X |-> _) => (X |-> I) ...</Memory> 
+
+rule [read-address-global]:
+    <k> writeToAddress(X, I, "Global")  => . ... </k>
+    <ctStore>... (X |-> _) => (X |-> I) ...</ctStore> 
 
 rule X:Expression += Y:Expression => X=X + Y 
 rule X:Expression -= Y:Expression => X=X - Y 
@@ -390,45 +382,36 @@ rule X:Expression %= Y:Expression => X=X % Y
 rule X <<= Y => X= X *2^Int Y
 rule X >>= Y => X= X /2^Int Y
 
-// rule <k> X:Id => read(X) ...</k>
 rule X:Id => read(X)
      
 rule 
     <k> read(X:Id) => I ... </k>
     <contractStack> ListItem(-1) ... </contractStack>
-    <env>... X |-> N ...</env>
-    <store>... N |-> I ...</store>  [lookup] 
+    <env> ... X |-> N ... </env>
+    <store> ... N |-> I ... </store>  [lookup] 
 
-// TODO: this and the following rule looks exactly the same 
-// (except for the "Global" and "Local" string). Do we need 
-// to keep them? Why not using a single rule with a side contition?
-// Or, if "Global" and "Local" represent all possibilities, why not 
-// avoiding to match <ctLocation> altogether?
 rule 
-    <k> read(X:Id) => I ... </k>
+    <k> read(X:Id) => readAddress(N, Id2String(Location)) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
+        <ctLocation> ...  X |-> Location:Id ... </ctLocation>
         <ctId> CI </ctId>
-        <ctContext>... X |-> N ...</ctContext>
-        <ctStore>... N |-> I ...</ctStore> 
-        <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
+        <ctContext> ... X |-> N ... </ctContext>
         <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
     requires CI >=Int 0
 
-rule 
-    <k> read(X:Id) => I ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext>... X |-> N ...</ctContext>
-        <Memory>... N |-> I ...</Memory> 
-        <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
-        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
-        ...
-    </contractInstance>
-    requires CI >=Int 0
+// Auxiliary operation for reading from local/global storage
+syntax K ::= "readAddress" "(" Int "," String ")"
+
+rule [read-address-local]:
+    <k> readAddress(X, "Local")  => I ... </k>
+    <Memory> ... X |-> I ... </Memory> 
+
+rule [read-address-global]:
+    <k> readAddress(X, "Global")  => I ... </k>
+    <ctStore> ... X |-> I ... </ctStore> 
 
 rule I1 * I2 => I1 *Int I2
 rule I1 ** I2 => I1^Int I2
@@ -639,9 +622,9 @@ rule
     
 rule 
     <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
-    // rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
 
-// TODO: see rules for "read" - same comments applies here
+// TODO: following 2 rules are the same expept for one matching <idStore> and the other <ctStore>
+//       they both match X |-> String2Id("Global") so I'm not sure what's the goal here. 
 rule 
     <k> WriteIndex(A,I) => 1 ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -664,16 +647,13 @@ rule
         ...
     </contractInstance>
    
-// rule <k> (X:Expression) => X ... </k>   
-rule (X:Expression) => X
+rule (X:Expression) => X // ???
      
 rule X:Id[Y:Int] += E:Expression => X[Y]= X[Y]+ E
 rule X:Id[Y:Int] -= E:Expression => X[Y]= X[Y]- E
 rule X:Id[Y:Int] %= E:Expression => X[Y]= X[Y]% E
 
-
 //Msg
-
 
 rule 
     <k> msg.value => V ... </k>
@@ -686,7 +666,6 @@ rule
 rule 
     <k> msg.sender => V ... </k>
     <Msg> msginfo(V,_,_,_) </Msg>
-
 
 rule 
     <k> msg.owner => V ... </k>
