@@ -857,5 +857,272 @@ rule
     </contractInstance>
     requires N>Int 0
 
+//Bitwise operations
+
+rule 
+    <k> X & Y => BinaryConvert(X,X) ~> BinaryConvert(Y,Y) ~> BitAnd(Max(X,Y),Min(X,Y)) ... </k>
+    (.Bag => 
+        <binaryConversion>
+            <decimal> X </decimal>
+            ...
+        </binaryConversion>)
+    (.Bag => 
+        <binaryConversion>
+            <decimal> Y </decimal>
+            ...
+       </binaryConversion>)
+
+rule 
+    <k> X | Y => BinaryConvert(X,X) ~> BinaryConvert(Y,Y) ~> BitOr(Max(X,Y),Min(X,Y))... </k>
+    (.Bag => 
+        <binaryConversion>
+            <decimal> X </decimal>
+            ...
+        </binaryConversion>)
+    (.Bag => 
+        <binaryConversion>
+            <decimal> Y </decimal>
+            ...
+        </binaryConversion>)
+
+rule 
+    <k> X ^ Y => BinaryConvert(X,X) ~> BinaryConvert(Y,Y) ~> BitExOr(Max(X,Y),Min(X,Y))... </k>
+    (.Bag => 
+        <binaryConversion>
+            <decimal> X </decimal>
+            ...
+            </binaryConversion>)
+    (.Bag => 
+        <binaryConversion>
+            <decimal> Y </decimal>
+            ...
+        </binaryConversion>)
+
+rule 
+    <k> ~ X => (2**S) - X - 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> Y:Uint ... </ctType>
+        ...
+    </contractInstance>
+    <uintSize> ... Y |-> S ... </uintSize>
+
+rule 
+    <k> ~ X:Id =>  (-1)* X - 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:SInt ... </ctType>
+        ...
+    </contractInstance>
+
+rule 
+    <k> ~ X:Int =>  (-1)* X - 1 ... </k>
+           
+
+rule 
+    <k> BitAnd(X,Y) => BitAndSteps(X,Y,N -Int 1) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> N </digitNum>
+        ...
+    </binaryConversion>
+            
+rule 
+    <k> BitAndSteps(X,Y,N) => BitAndStep(X,Y,N) ~> BitAndSteps(X,Y,N -Int 1) ... </k>
+    requires N >=Int 0
+
+rule 
+    <k> BitAndSteps(X,Y,-1) => DecimalConversions(Y,0) ~> GetValue(Y)... </k>
+
+rule 
+    <k> BitOr(X,Y) => BitOrSteps(X,Y,N -Int 1) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> N </digitNum>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BitOrSteps(X,Y,N) => BitOrStep(X,Y,N) ~> BitOrSteps(X,Y,N -Int 1) ... </k>
+    requires N >=Int 0
+
+rule 
+    <k> BitOrSteps(X,Y,-1) => DecimalConversions(X,0) ~> GetValue(X)... </k>
+
+rule 
+    <k> BitExOr(X,Y) => BitExOrSteps(X,Y,N -Int 1) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> N </digitNum>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BitExOrSteps(X,Y,N) => BitExOrStep(X,Y,N) ~> BitExOrSteps(X,Y,N -Int 1) ... </k>
+    requires N >=Int 0
+
+rule 
+    <k> BitExOrSteps(X,Y,-1) => DecimalConversions(X,0) ~> GetValue(X)... </k>
+
+rule 
+    <k> GetValue(Y) => I ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <binary> I </binary>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> DecimalConversions(Y,N) => DecimalConversion(Y,N) ~> DecimalConversions(Y,N +Int 1)... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> Num </digitNum>
+        ...
+    </binaryConversion>
+    requires N <Int Num
+
+rule 
+    <k> DecimalConversions(Y,Num) => . ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> Num </digitNum>
+        ...
+    </binaryConversion>
+       
+rule 
+    <k> DecimalConversion(Y,N) => BinaryValue(Y,B+I*(2**N)) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ... N  |-> I ... </digits>
+        <binary> B </binary>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BinaryValue(Y,I) => . ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <binary> _=>I </binary>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BitAndStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...N |-> Bx ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...(N |-> By) => (N |-> 1) ... </digits>
+        ...
+    </binaryConversion>
+    requires Bx ==Int 1 andBool By ==Int 1
+
+rule 
+    <k> BitAndStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...N |-> Bx  ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...(N |-> By) => (N |-> 0) ... </digits>
+        ...
+    </binaryConversion>
+    requires notBool (Bx ==Int 1 andBool By ==Int 1)
+       
+rule 
+    <k> BitOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) => (N |-> 1) ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By ... </digits>
+        ...
+    </binaryConversion>
+    requires Bx ==Int 1 orBool By ==Int 1
+
+rule 
+    <k> BitOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) =>(N |-> 0)  ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By  ... </digits>
+        ...
+    </binaryConversion>
+    requires notBool (Bx ==Int 1 orBool By ==Int 1)
+
+rule 
+    <k> BitExOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) => (N |-> 1) ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By ... </digits>
+       ...
+    </binaryConversion>
+    requires notBool (Bx ==Int By)
+
+rule 
+    <k> BitExOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) =>(N |-> 0)  ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By  ... </digits>
+        ...
+    </binaryConversion>
+    requires Bx ==Int By
+
+rule 
+    <k> BinaryConvert(Y,X:Int)=> ModValue(Y,X%2) ~> BinaryConvert(Y,X/2) ... </k>
+    requires X >Int 0
+
+rule 
+    <k> ModValue(X:Int,Y:Int) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digitNum> N:Int => N +Int 1 </digitNum>
+        <digits> (.Map => N |-> Y) ... </digits>
+        ...
+    </binaryConversion>
+             
+rule 
+    <k> BinaryConvert(X,0) => . ... </k>
+
+rule 
+    <k> Max(X,Y) => X ... </k> 
+    requires X >=Int Y
+
+rule 
+    <k> Max(X,Y) => Y ... </k>
+    requires X <Int Y
+
+rule 
+    <k> Min(X,Y) => Y ... </k> 
+    requires X >=Int Y
+
+rule 
+    <k> Min(X,Y) => X ... </k>
+    requires X <Int Y
+
 endmodule
 
