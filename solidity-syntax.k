@@ -516,9 +516,9 @@ syntax Msg ::= msginfo(Expression,Expression,Expression,Expression)	[strict]
            //| "msg"
  
 syntax FunctionCall ::= "functionCall" "(" Expression ";" Expression ";" Id ";" ExpressionList ";" Msg ")" [strict(1,2,4)]
-                      | "functionCall" "(" Expression ";" Id ";" ExpressionList ";" Msg ")"	[strict(1,3)]
-                      | "functionCall" "(" Id ";" ExpressionList ";" Msg ")"			[strict(2)]
                       | "functionCall" "(" Id ";" ExpressionList ")"				[strict(2)] 
+                    //| "functionCall" "(" Expression ";" Id ";" ExpressionList ";" Msg ")"	[strict(1,3)]
+                    //| "functionCall" "(" Id ";" ExpressionList ";" Msg ")"			[strict(2)]
 
 syntax FunctionItem ::= returnValue(Statements)	[strict]
                       | returnValue(Int)
