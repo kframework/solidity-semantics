@@ -650,6 +650,7 @@ rule
         <ctName> Name </ctName>
         <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> 0 ... </ilength>
         ... 
     </contractInstance>
       
@@ -661,8 +662,10 @@ rule
         <ctName> Name </ctName>
         <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore>
         <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> L ... </ilength>
         ...
     </contractInstance>
+    requires L >Int 0
    
 // rule <k> (X:Expression) => X ... </k>   
 rule (X:Expression) => X
