@@ -497,14 +497,12 @@ rule
 rule 
     <k> T:ArrayTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],String2Id("Local"),X,0)... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-        
            
 rule 
     <k> NewRows(CI,X,T,N,Y,V) => NewRow(CI,X,T,N,Y,V) ~> NewRows(CI,X,T,N +Int1,Y,V) ... </k> requires N<Int Y
 
 rule 
     <k> NewRows(CI,X,T,Y,Y,V) => . ... </k>
-          
      
 rule 
     <k> NewRow(CI,X,T:ElementaryTypeName [Ins],N,Y,V) => IcntLength(CI,X,Ins) ~> NewArrayIndexes(CI,X,0,Ins,V) ~> . ... </k>
