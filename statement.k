@@ -778,84 +778,87 @@ rule
 
 //Push
 
-rule 
+rule [push-memory-existing]: 
     <k> X:Id.push(Y:Int); => . ... </k> 
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
-        <Memory> ... X |-> (E=>E+Int 1) ... </Memory>
-        <ctStore> ... (A +Int E |->(_=> Y))... </ctStore>
-        <ibaseaddress> ... X |-> A ... </ibaseaddress>
-        <ilength> ... X |-> N ...</ilength>
-        ...
-    </contractInstance>
-    requires N>Int 0
-
-rule 
-    <k> X:Id.push(Y:Int); => . ... </k> 
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <Memory> ... X |-> (E=>E+Int 1) ... </Memory>
-        <ctStore> (.Map => A +Int E |-> Y)... </ctStore>
+        <Memory> ... X |-> (E => E +Int 1) ... </Memory>
+        <ctStore> ... (A +Int E |-> (_=> Y))... </ctStore>
         <ibaseaddress> ... X |-> A ... </ibaseaddress>
         <ilength> ... X |-> N ...</ilength>
         ...
     </contractInstance>
     requires N >Int 0
 
-rule 
+rule [push-memory-new]:
+    <k> X:Id.push(Y:Int); => . ... </k> 
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <Memory> ... X |-> (E => E +Int 1) ... </Memory>
+        <ctStore> (.Map => A +Int E |-> Y) Rho:Map </ctStore>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X |-> N ...</ilength>
+        ...
+    </contractInstance>
+    requires (N >Int 0) andBool (notBool ((A +Int E) in keys(Rho)))
+
+// ***
+
+rule [push-store-N-existing]: 
     <k> X:Id.push(Y:Int); => . ... </k> 
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) (A +Int S |->(_=> Y))... </ctStore>
+        <ctStore> ... E |-> (S => S+Int 1) (A +Int S |-> (_ => Y)) ... </ctStore>
         <ibaseaddress> ... X |-> A ... </ibaseaddress>
         <ilength> ... X |-> N ...</ilength>
         ...
     </contractInstance>
     requires N >Int 0
 
-// TODO: lots of duplication in this and other rules. Can we refactor?
-rule 
+rule [push-store-N-new]:
     <k> X:Id.push(Y:Int); => . ... </k> 
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) ... </ctStore>
-        <idStore> ... (A +Int S |->(_=> Y))  ... </idStore>
-        <ibaseaddress> ... X |-> A ... </ibaseaddress>
-        <ilength> ... X|-> 0 ...</ilength>
-        ...
-    </contractInstance>
-
-rule    
-    <k> X:Id.push(Y:Int); => . ... </k> 
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) ... </ctStore>
-        <idStore> ... (.Map => A +Int S |-> Y)  ... </idStore>
-        <ibaseaddress> ... X |-> A ... </ibaseaddress>
-        <ilength>... X|-> 0 ...</ilength>
-        ...
-    </contractInstance>
-
-rule 
-    <k> X:Id.push(Y:Int); => . ... </k> 
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) (.Map => A +Int S |-> Y)... </ctStore>
+        <ctStore> E |-> (S => S+Int 1) (.Map => A +Int S |-> Y) Rho:Map </ctStore>
         <ibaseaddress> ... X |-> A ... </ibaseaddress>
         <ilength> ... X |-> N ...</ilength>
         ...
     </contractInstance>
-    requires N>Int 0
+    requires (N >Int 0) andBool (notBool ((A +Int S) in keys(Rho)))
+
+// ***
+
+rule [push-store-N0-existing]:
+    <k> X:Id.push(Y:Int); => . ... </k> 
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> E ... </ctContext>
+        <ctStore> ... E |-> (S => S +Int 1) ... </ctStore> 
+        <idStore> ... (A +Int S |-> (_=> Y)) ... </idStore>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X|-> 0 ... </ilength>
+        ...
+    </contractInstance>
+
+rule [push-store-N0-new]:
+    <k> X:Id.push(Y:Int); => . ... </k> 
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> E ... </ctContext>
+        <ctStore> ... E |-> (S => S +Int 1) ... </ctStore>
+        <idStore> (.Map => A +Int S |-> Y) Rho:Map </idStore>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X|-> 0 ... </ilength>
+        ...
+    </contractInstance>
+    requires notBool ((A +Int S) in keys(Rho))
 
 endmodule
-
