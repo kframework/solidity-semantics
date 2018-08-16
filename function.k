@@ -313,6 +313,16 @@ rule [function-call]:
         ...
     </Function>
 
+rule
+    <k> functionCall(Sender:Int ; C:Int ; F:Id ; Es:Values ; M:Msg) => 
+            createTransaction(L) ~> 
+            functionCall(F ; Es) ~> 
+            returnContext(C) ... </k>
+    <contractStack> (.List => ListItem(C)) L:List </contractStack>
+    <Msg> M1 => M </Msg>
+    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
+    <functionStack> (.List => ListItem(F)) ... </functionStack>
+
 rule 
     <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -396,21 +406,6 @@ rule
     <k> funStmt(S) => . ... </k>
     <exeCon> false </exeCon>
 
-rule 
-    <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => createTransaction(.List) ~> functionCall(F;Es) ~> returnContext(C) ... </k>
-    <contractStack>  (.List => ListItem(C))  ListItem(-1) </contractStack>
-    <Msg> M1=>M </Msg>
-    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-    <functionStack> (.List => ListItem(F)) ... </functionStack>
-       
-rule 
-    <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) =>  createTransaction(L:List) ~> functionCall(F;Es) ~> returnContext(C)  ... </k>
-    <contractStack>  (.List => ListItem(C)) L:List ListItem(-1) </contractStack>
-    <Msg> M1=>M </Msg>
-    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-    <functionStack> (.List => ListItem(F)) ... </functionStack>
-    requires L =/=K .List
-
   /*rule <k> FunCall(C:Int, F:Id, Es:Values,M:Msg) => createTransaction(L:List) ~> FunQs(FQ,F)~> Call(F,Es) ~> returnContext(C)  ... </k>
         <contractStack>   ListItem(C) L:List ListItem(-1)   </contractStack>
     
@@ -437,19 +432,19 @@ rule
         </Function>*/
      
 rule 
-    <k> createTransaction(.List) => . ... </k>
+    <k> createTransaction(ListItem(-1)) => . ... </k>
+    <newStack> .List </newStack>
     <cnttran> I:Int => I +Int 1 </cnttran>
     <tranComputation> (.Map => I |-> "functioncall" ) ... </tranComputation>  
-    <newStack>  .List </newStack>
 
 rule 
-    <k> createTransaction(.List) => . ... </k> 
+    <k> createTransaction(ListItem(-1)) => . ... </k> 
     <newStack> L </newStack>
     requires L =/=K .List
 
-// rule <k> createTransaction(L) => . ... </k> requires L =/=K .List
-rule createTransaction(L) => . 
-     requires L =/=K .List
+rule 
+    createTransaction(L ListItem(-1)) => . 
+    requires L =/=K .List
 
 rule 
     <k> returnContext(C:Int) => E ... </k>

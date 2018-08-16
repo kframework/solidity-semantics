@@ -8,6 +8,7 @@ imports CONFIGURATION
 
 // Member Access
 
+// rule <k> #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)  ... </k>
 rule #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)
 
 rule 
@@ -30,7 +31,8 @@ rule
         ...
     </Contract> 
 
-rule #memberAccess(X:Id, Y:Id) => read(#memberAccess(X:Id, Y:Id))
+// rule <k> #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id)) ... </k>
+rule #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id))
 
 rule 
     <k> read(#memberAccess(X:Id, Y:Id)) => I ... </k>
@@ -52,33 +54,34 @@ rule
         ...
     </Contract>
 
-rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value) => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
+    // rule <k> #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  ... </k>
+    rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
 
-rule 
-    <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value) => 1 ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Name </ctName>
-        <ctContext> ... D |-> S ... </ctContext>
-        <ctStore> ... S+Int Z+Int 1|-> (_=> I)... </ctStore>
-        ...
-    </contractInstance>
-    <Contract>
-        <cname> Name </cname>
-        <structInstance>
-            <iname> X </iname>
-            <ivariables> ... Y |-> D ... </ivariables>
-            ... 
-        </structInstance>
-        ...
-    </Contract> 
+    rule 
+        <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => 1 ... </k>
+        <contractStack> ListItem(CI:Int) ... </contractStack>
+        <contractInstance>
+            <ctId> CI </ctId>
+            <ctName> Name </ctName>
+            <ctContext> ... D |-> S ... </ctContext>
+            <ctStore> ... S+Int Z+Int 1|-> (_=> I)... </ctStore>
+            ...
+        </contractInstance>
+        <Contract>
+            <cname> Name </cname>
+            <structInstance>
+                <iname> X </iname>
+                <ivariables> ... Y |-> D ... </ivariables>
+                ... 
+            </structInstance>
+            ...
+        </Contract> 
 
-rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int) => 
-        read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
+// rule <k> #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  ... </k>
+rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
 
 rule
-    <k> read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)) => I ... </k>
+    <k> read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  => I ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -166,6 +169,9 @@ rule
 
 rule 
     <k> InitStmts(.SimpleStatements) => . ... </k>
+     
+              
+            
 
 rule 
     <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
@@ -353,26 +359,23 @@ rule
     requires CI>=Int 0
     
 rule 
-    <k> write(X,I) => writeToAddress(N,I,Id2String(Location)) ~> I ... </k>
+    <k> write(X,I) => writeToAddress(N,I,L) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
-        <ctLocation> ... X |-> Location:Id ... </ctLocation>
         <ctId> CI </ctId>
-        <ctContext>... X |-> N ...</ctContext>
-        <ctType> ... X |-> T:ElementaryTypeName ... </ctType> // TODO: is this needed?
+        <ctContext>... X |-> N...</ctContext>
+        <ctLocation> ...  X |-> L ...</ctLocation>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
 
-// Auxiliary operation for writing to local/global storage
-syntax K ::= "writeToAddress" "(" Int "," Value "," String ")"
+rule 
+    <k> writeToAddress(N,I,String2Id("Global")) => I ... </k>
+    <ctStore> ... (N |-> _) => (N |->I) ...</ctStore>
 
-rule [read-address-local]:
-    <k> writeToAddress(X, I, "Local")  => . ... </k>
-    <Memory>... (X |-> _) => (X |-> I) ...</Memory> 
-
-rule [read-address-global]:
-    <k> writeToAddress(X, I, "Global")  => . ... </k>
-    <ctStore>... (X |-> _) => (X |-> I) ...</ctStore> 
+rule 
+    <k> writeToAddress(N,I,String2Id("Local")) => I ... </k>
+    <Memory>... (N |-> _) => (N |-> I) ...</Memory>
 
 rule X:Expression += Y:Expression => X=X + Y 
 rule X:Expression -= Y:Expression => X=X - Y 
@@ -382,36 +385,40 @@ rule X:Expression %= Y:Expression => X=X % Y
 rule X <<= Y => X= X *2^Int Y
 rule X >>= Y => X= X /2^Int Y
 
+// rule <k> X:Id => read(X) ...</k>
 rule X:Id => read(X)
      
 rule 
     <k> read(X:Id) => I ... </k>
     <contractStack> ListItem(-1) ... </contractStack>
-    <env> ... X |-> N ... </env>
-    <store> ... N |-> I ... </store>  [lookup] 
+    <env>... X |-> N ...</env>
+    <store>... N |-> I ...</store>  [lookup] 
+
+// TODO: this and the following rule looks exactly the same 
+// (except for the "Global" and "Local" string). Do we need 
+// to keep them? Why not using a single rule with a side contition?
+// Or, if "Global" and "Local" represent all possibilities, why not 
+// avoiding to match <ctLocation> altogether?
+rule 
+    <k> readAddress(N,String2Id("Global")) => I ... </k>
+    <ctStore>... N |-> I ...</ctStore>
 
 rule 
-    <k> read(X:Id) => readAddress(N, Id2String(Location)) ... </k>
+    <k> readAddress(N,String2Id("Local")) => I ... </k>
+    <Memory>... N |-> I ...</Memory>
+
+rule 
+    <k> read(X:Id) => readAddress(N,L) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
-        <ctLocation> ...  X |-> Location:Id ... </ctLocation>
         <ctId> CI </ctId>
-        <ctContext> ... X |-> N ... </ctContext>
+        <ctContext>... X |-> N ...</ctContext>
+        <ctLocation> ...  X |-> L ...</ctLocation>
         <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
     requires CI >=Int 0
 
-// Auxiliary operation for reading from local/global storage
-syntax K ::= "readAddress" "(" Int "," String ")"
-
-rule [read-address-local]:
-    <k> readAddress(X, "Local")  => I ... </k>
-    <Memory> ... X |-> I ... </Memory> 
-
-rule [read-address-global]:
-    <k> readAddress(X, "Global")  => I ... </k>
-    <ctStore> ... X |-> I ... </ctStore> 
 
 rule I1 * I2 => I1 *Int I2
 rule I1 ** I2 => I1^Int I2
@@ -495,26 +502,25 @@ rule
         ...
     </Contract>
     requires N<Int Num 
-
-rule 
-    <k> IdxAccess(X,#indexAccess(X,Y),Num,E) => I ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Name </ctName>
-        <idStore> ... (E +Int Y |-> I) ...   </idStore>
-        ...
-    </contractInstance>
  
 rule 
-    <k> IdxAccess(X,X[Y:Int],Num,E) => I ... </k>
+    <k> IdxAccess(X,X[Y:Int],Num,E) => readIndexAddress(E +Int Y,L) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> Name </ctName>
-        <ctStore> ... (E +Int Y |-> I) ...   </ctStore>
+        <ilength> ... X |-> L ... </ilength>
         ...
     </contractInstance>
+
+rule 
+    <k> readIndexAddress(A,0) => I ... </k>
+    <idStore> ... A |-> I ...   </idStore>
+
+rule 
+    <k> readIndexAddress(A,L) => I ... </k>
+    <ctStore> ... A |-> I ...   </ctStore>
+    requires L >Int 0
    
 rule 
     <k> BaseAddress(X,N,E,Y) => CntBaseSize(X,N,Y) + E ... </k>
@@ -622,38 +628,39 @@ rule
     
 rule 
     <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
+    // rule <k> IdxWrite(X,X[Y:Int],Num,E,I) => WriteIndex(E +Int Y,I) ... </k>
 
-// TODO: following 2 rules are the same expept for one matching <idStore> and the other <ctStore>
-//       they both match X |-> String2Id("Global") so I'm not sure what's the goal here. 
+// TODO: see rules for "read" - same comments applies here
 rule 
-    <k> WriteIndex(A,I) => 1 ... </k>
+    <k> WriteIndex(A,I) => writeIndexToAddress(A,I,L) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> Name </ctName>
-        <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> L ... </ilength>
         ... 
     </contractInstance>
-      
+
 rule 
-    <k> WriteIndex(A,I) => 1 ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Name </ctName>
-        <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore>
-        <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
-        ...
-    </contractInstance>
+    <k> writeIndexToAddress(A,I,0) => I ... </k> 
+    <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>  
+
+rule 
+    <k> writeIndexToAddress(A,I,L) => I ... </k> 
+    <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore> 
+    requires L >Int 0
    
-rule (X:Expression) => X // ???
+// rule <k> (X:Expression) => X ... </k>   
+rule (X:Expression) => X
      
 rule X:Id[Y:Int] += E:Expression => X[Y]= X[Y]+ E
 rule X:Id[Y:Int] -= E:Expression => X[Y]= X[Y]- E
 rule X:Id[Y:Int] %= E:Expression => X[Y]= X[Y]% E
 
+
 //Msg
+
 
 rule 
     <k> msg.value => V ... </k>
@@ -666,6 +673,7 @@ rule
 rule 
     <k> msg.sender => V ... </k>
     <Msg> msginfo(V,_,_,_) </Msg>
+
 
 rule 
     <k> msg.owner => V ... </k>
@@ -835,6 +843,273 @@ rule
         ...
     </contractInstance>
     requires N>Int 0
+
+//Bitwise operations
+
+rule 
+    <k> X & Y => BinaryConvert(X,X) ~> BinaryConvert(Y,Y) ~> BitAnd(Max(X,Y),Min(X,Y)) ... </k>
+    (.Bag => 
+        <binaryConversion>
+            <decimal> X </decimal>
+            ...
+        </binaryConversion>)
+    (.Bag => 
+        <binaryConversion>
+            <decimal> Y </decimal>
+            ...
+       </binaryConversion>)
+
+rule 
+    <k> X | Y => BinaryConvert(X,X) ~> BinaryConvert(Y,Y) ~> BitOr(Max(X,Y),Min(X,Y))... </k>
+    (.Bag => 
+        <binaryConversion>
+            <decimal> X </decimal>
+            ...
+        </binaryConversion>)
+    (.Bag => 
+        <binaryConversion>
+            <decimal> Y </decimal>
+            ...
+        </binaryConversion>)
+
+rule 
+    <k> X ^ Y => BinaryConvert(X,X) ~> BinaryConvert(Y,Y) ~> BitExOr(Max(X,Y),Min(X,Y))... </k>
+    (.Bag => 
+        <binaryConversion>
+            <decimal> X </decimal>
+            ...
+            </binaryConversion>)
+    (.Bag => 
+        <binaryConversion>
+            <decimal> Y </decimal>
+            ...
+        </binaryConversion>)
+
+rule 
+    <k> ~ X => (2**S) - X - 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> Y:Uint ... </ctType>
+        ...
+    </contractInstance>
+    <uintSize> ... Y |-> S ... </uintSize>
+
+rule 
+    <k> ~ X:Id =>  (-1)* X - 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:SInt ... </ctType>
+        ...
+    </contractInstance>
+
+rule 
+    <k> ~ X:Int =>  (-1)* X - 1 ... </k>
+           
+
+rule 
+    <k> BitAnd(X,Y) => BitAndSteps(X,Y,N -Int 1) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> N </digitNum>
+        ...
+    </binaryConversion>
+            
+rule 
+    <k> BitAndSteps(X,Y,N) => BitAndStep(X,Y,N) ~> BitAndSteps(X,Y,N -Int 1) ... </k>
+    requires N >=Int 0
+
+rule 
+    <k> BitAndSteps(X,Y,-1) => DecimalConversions(Y,0) ~> GetValue(Y)... </k>
+
+rule 
+    <k> BitOr(X,Y) => BitOrSteps(X,Y,N -Int 1) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> N </digitNum>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BitOrSteps(X,Y,N) => BitOrStep(X,Y,N) ~> BitOrSteps(X,Y,N -Int 1) ... </k>
+    requires N >=Int 0
+
+rule 
+    <k> BitOrSteps(X,Y,-1) => DecimalConversions(X,0) ~> GetValue(X)... </k>
+
+rule 
+    <k> BitExOr(X,Y) => BitExOrSteps(X,Y,N -Int 1) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> N </digitNum>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BitExOrSteps(X,Y,N) => BitExOrStep(X,Y,N) ~> BitExOrSteps(X,Y,N -Int 1) ... </k>
+    requires N >=Int 0
+
+rule 
+    <k> BitExOrSteps(X,Y,-1) => DecimalConversions(X,0) ~> GetValue(X)... </k>
+
+rule 
+    <k> GetValue(Y) => I ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <binary> I </binary>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> DecimalConversions(Y,N) => DecimalConversion(Y,N) ~> DecimalConversions(Y,N +Int 1)... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> Num </digitNum>
+        ...
+    </binaryConversion>
+    requires N <Int Num
+
+rule 
+    <k> DecimalConversions(Y,Num) => . ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digitNum> Num </digitNum>
+        ...
+    </binaryConversion>
+       
+rule 
+    <k> DecimalConversion(Y,N) => BinaryValue(Y,B+I*(2**N)) ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ... N  |-> I ... </digits>
+        <binary> B </binary>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BinaryValue(Y,I) => . ... </k>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <binary> _=>I </binary>
+        ...
+    </binaryConversion>
+
+rule 
+    <k> BitAndStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...N |-> Bx ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...(N |-> By) => (N |-> 1) ... </digits>
+        ...
+    </binaryConversion>
+    requires Bx ==Int 1 andBool By ==Int 1
+
+rule 
+    <k> BitAndStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...N |-> Bx  ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...(N |-> By) => (N |-> 0) ... </digits>
+        ...
+    </binaryConversion>
+    requires notBool (Bx ==Int 1 andBool By ==Int 1)
+       
+rule 
+    <k> BitOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) => (N |-> 1) ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By ... </digits>
+        ...
+    </binaryConversion>
+    requires Bx ==Int 1 orBool By ==Int 1
+
+rule 
+    <k> BitOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) =>(N |-> 0)  ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By  ... </digits>
+        ...
+    </binaryConversion>
+    requires notBool (Bx ==Int 1 orBool By ==Int 1)
+
+rule 
+    <k> BitExOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) => (N |-> 1) ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By ... </digits>
+       ...
+    </binaryConversion>
+    requires notBool (Bx ==Int By)
+
+rule 
+    <k> BitExOrStep(X,Y,N) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digits> ...(N |-> Bx) =>(N |-> 0)  ... </digits>
+        ...
+    </binaryConversion>
+    <binaryConversion>
+        <decimal> Y </decimal>
+        <digits> ...N |-> By  ... </digits>
+        ...
+    </binaryConversion>
+    requires Bx ==Int By
+
+rule 
+    <k> BinaryConvert(Y,X:Int)=> ModValue(Y,X%2) ~> BinaryConvert(Y,X/2) ... </k>
+    requires X >Int 0
+
+rule 
+    <k> ModValue(X:Int,Y:Int) => . ... </k>
+    <binaryConversion>
+        <decimal> X </decimal>
+        <digitNum> N:Int => N +Int 1 </digitNum>
+        <digits> (.Map => N |-> Y) ... </digits>
+        ...
+    </binaryConversion>
+             
+rule 
+    <k> BinaryConvert(X,0) => . ... </k>
+
+rule 
+    <k> Max(X,Y) => X ... </k> 
+    requires X >=Int Y
+
+rule 
+    <k> Max(X,Y) => Y ... </k>
+    requires X <Int Y
+
+rule 
+    <k> Min(X,Y) => Y ... </k> 
+    requires X >=Int Y
+
+rule 
+    <k> Min(X,Y) => X ... </k>
+    requires X <Int Y
 
 endmodule
 
