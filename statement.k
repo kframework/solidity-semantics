@@ -922,8 +922,7 @@ rule
 
 rule 
     <k> ~ X:Int =>  (-1)* X - 1 ... </k>
-           
-
+    
 rule 
     <k> BitAnd(X,Y) => BitAndSteps(X,Y,N -Int 1) ... </k>
     <binaryConversion>
@@ -1100,6 +1099,9 @@ rule
     requires X >Int 0
 
 rule 
+    <k> BinaryConvert(X,0) => . ... </k>
+
+rule 
     <k> ModValue(X:Int,Y:Int) => . ... </k>
     <binaryConversion>
         <decimal> X </decimal>
@@ -1107,23 +1109,20 @@ rule
         <digits> (.Map => N |-> Y) ... </digits>
         ...
     </binaryConversion>
-             
-rule 
-    <k> BinaryConvert(X,0) => . ... </k>
 
-rule 
+rule [max-first]:
     <k> Max(X,Y) => X ... </k> 
     requires X >=Int Y
 
-rule 
+rule [max-second]:
     <k> Max(X,Y) => Y ... </k>
     requires X <Int Y
 
-rule 
+rule [min-second]:
     <k> Min(X,Y) => Y ... </k> 
     requires X >=Int Y
 
-rule 
+rule [min-first]:
     <k> Min(X,Y) => X ... </k>
     requires X <Int Y
 
