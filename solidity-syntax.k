@@ -91,7 +91,7 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | BinaryConvert(Expression,Expression) [strict]
                     | Max(Int,Int)
                     | Min(Int,Int)
-                                           
+                                         
 syntax BuiltinParam ::= "msg"	       [prefer]
                       | "msg.sender"   [prefer]
                       | "msg.value"    [prefer]

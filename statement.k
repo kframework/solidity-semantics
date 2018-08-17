@@ -377,6 +377,7 @@ rule
     <k> writeToAddress(N,I,String2Id("Local")) => I ... </k>
     <Memory>... (N |-> _) => (N |-> I) ...</Memory>
 
+
 rule X:Expression += Y:Expression => X=X + Y 
 rule X:Expression -= Y:Expression => X=X - Y 
 rule X:Expression *= Y:Expression => X=X * Y 
@@ -418,7 +419,6 @@ rule
         ...
     </contractInstance>
     requires CI >=Int 0
-
 
 rule I1 * I2 => I1 *Int I2
 rule I1 ** I2 => I1^Int I2
@@ -502,7 +502,7 @@ rule
         ...
     </Contract>
     requires N<Int Num 
- 
+
 rule 
     <k> IdxAccess(X,X[Y:Int],Num,E) => readIndexAddress(E +Int Y,L) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -906,7 +906,7 @@ rule
 
 rule 
     <k> ~ X:Int =>  (-1)* X - 1 ... </k>
-           
+    
 rule 
     <k> BitAnd(X,Y) => BitAndSteps(X,Y,N -Int 1) ... </k>
     <binaryConversion>
