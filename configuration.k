@@ -130,11 +130,54 @@ module CONFIGURATION
                 </iarrays>
             </contractInstance>
         </contractInstances>
+        <binaryConversions>
+            <binaryConversion multiplicity = "*">
+                <decimal> .K </decimal>
+                <digitNum> 0:Int </digitNum>
+                <digits> .Map </digits>
+                <binary> 0:Int </binary>
+            </binaryConversion>
+        </binaryConversions>
         <transactions>
             <cnttran> 1:Int </cnttran>
             <tranComputation> 0 |-> "Main"  </tranComputation>
         </transactions>
         <Msg> .K </Msg>
         <MsgStack> .List </MsgStack>
+        <uintSize>
+            uint |-> 256
+            uint8 |-> 8
+            uint16 |-> 16
+            uint24 |-> 24
+            uint32 |-> 32
+            uint40 |-> 40
+            uint48 |-> 48
+            uint56 |-> 56
+            uint64 |-> 64
+            uint72 |-> 72
+            uint80 |-> 80
+            uint88 |-> 88
+            uint96 |-> 96
+            uint104 |-> 104
+            uint112 |-> 112
+            uint120 |-> 120
+            uint128 |-> 128
+            uint136 |-> 136
+            uint144 |-> 144
+            uint152 |-> 152
+            uint160 |-> 160
+            uint168 |-> 168
+            uint176 |-> 176
+            uint184 |-> 184
+            uint192 |-> 192
+            uint200 |-> 200
+            uint208 |-> 208
+            uint216 |-> 216
+            uint224 |-> 224
+            uint232 |-> 232
+            uint240 |-> 240
+            uint248 |-> 248
+            uint256 |-> 256
+        </uintSize>
     </T>
 endmodule
