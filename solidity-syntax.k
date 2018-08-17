@@ -91,9 +91,8 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | BinaryConvert(Expression,Expression) [strict]
                     | Max(Int,Int)
                     | Min(Int,Int)
-                      
-                     
-syntax BuiltinParam ::= "msg"	  		   [prefer]
+                                           
+syntax BuiltinParam ::= "msg"	       [prefer]
                       | "msg.sender"   [prefer]
                       | "msg.value"    [prefer]
                       | "msg.gas"      [prefer]
@@ -101,7 +100,6 @@ syntax BuiltinParam ::= "msg"	  		   [prefer]
                       | "msg.data"     [prefer]               
 
 syntax Value ::= Int | Bool 
-
 
 syntax SInt ::= "int"
               | "int8"
@@ -402,8 +400,6 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | writeIndexToAddress(Int,Expression,Int)
                       | readIndexAddress(Int,Int)
          
-
-
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression)
                | read(Expression)
                | write(Expression,Expression)
@@ -444,8 +440,6 @@ syntax Break ::= "break"
 syntax Return ::= "return" Expression
                   | "return"
 syntax Throw ::= "throw"
-syntax RewritingStatement ::= Expression "=>" Expression
-
 
 syntax VariableDefinition ::= "var" Id
                             | VariableDeclaration
@@ -525,7 +519,6 @@ syntax NumberLiteral ::= HexNumber
                        | DecimalNumber " " NumberUnit
 
 syntax NumberUnit ::= "wei" | "szabo" | "finney"  | "ether" | "seconds" | "minutes" | "hours" | "days"  | "weeks" | "years"
-
 
 syntax StringLiteral ::= String
 
