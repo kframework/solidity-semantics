@@ -632,23 +632,28 @@ rule
 
 // TODO: see rules for "read" - same comments applies here
 rule 
-    <k> WriteIndex(A,I) => writeIndexToAddress(A,I,L) ... </k>
+    <k> WriteIndex(A,I) => 1 ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> Name </ctName>
+        <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
-        <ilength> ... X |-> L ... </ilength>
+        <ilength> ... X |-> 0 ... </ilength>
         ... 
     </contractInstance>
-
+      
 rule 
-    <k> writeIndexToAddress(A,I,0) => I ... </k> 
-    <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>  
-
-rule 
-    <k> writeIndexToAddress(A,I,L) => I ... </k> 
-    <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore> 
+    <k> WriteIndex(A,I) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> Name </ctName>
+        <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore>
+        <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> L ... </ilength>
+        ...
+    </contractInstance>
     requires L >Int 0
    
 // rule <k> (X:Expression) => X ... </k>   
