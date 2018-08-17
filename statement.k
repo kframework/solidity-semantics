@@ -8,7 +8,6 @@ imports CONFIGURATION
 
 // Member Access
 
-// rule <k> #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)  ... </k>
 rule #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)
 
 rule 
@@ -31,7 +30,6 @@ rule
         ...
     </Contract> 
 
-// rule <k> #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id)) ... </k>
 rule #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id))
 
 rule 
@@ -54,7 +52,6 @@ rule
         ...
     </Contract>
 
-    // rule <k> #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  ... </k>
     rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
 
     rule 
@@ -77,7 +74,6 @@ rule
             ...
         </Contract> 
 
-// rule <k> #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  ... </k>
 rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
 
 rule
@@ -169,9 +165,6 @@ rule
 
 rule 
     <k> InitStmts(.SimpleStatements) => . ... </k>
-     
-              
-            
 
 rule 
     <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
@@ -264,9 +257,8 @@ rule
     <k> revert(.ExpressionList); => throw; ... </k>
 
 //Expression
-         
         
-         //NewExpression
+//NewExpression
 
 rule 
     <k> new X:Id (E:ExpressionList) => CallConstructor(X,N,Cst,E) ... </k>
@@ -332,7 +324,7 @@ rule + I => (-1) * I requires I<Int 0
 rule - I => (-1) * I requires I>=Int 0
 rule - I => I requires I<Int 0
        
-rule <k> ++X => X = X + 1; ~>X ... </k>
+rule <k> ++X => X = X + 1; ~> X ... </k>
 rule <k> X++ => X = X + 1; ~> X - 1 ... </k>
     
 rule <k> --X => X = X - 1; ~> X ... </k>
@@ -511,7 +503,7 @@ rule
         </array>
         ...
     </Contract>
-    requires N<Int Num 
+    requires N <Int Num 
 
 rule 
     <k> IdxAccess(X,#indexAccess(X,Y),Num,E) => I ... </k>
@@ -572,7 +564,7 @@ rule
         </array>
         ...
     </Contract>
-    requires  N<Int Num
+    requires N <Int Num
 
 rule 
     <k> CntBaseSize(X,Num,S) => S ... </k>
@@ -667,53 +659,50 @@ rule
     </contractInstance>
     requires L >Int 0
    
-// rule <k> (X:Expression) => X ... </k>   
 rule (X:Expression) => X
      
 rule X:Id[Y:Int] += E:Expression => X[Y]= X[Y]+ E
 rule X:Id[Y:Int] -= E:Expression => X[Y]= X[Y]- E
 rule X:Id[Y:Int] %= E:Expression => X[Y]= X[Y]% E
 
-
 //Msg
 
+rule 
+    <k> msg => M ... </k>
+    <Msg> M:Msg </Msg>
 
 rule 
     <k> msg.value => V ... </k>
     <Msg> msginfo(_,_,V,_) </Msg>
 
 rule 
-    <k> msg.gas => V ... </k>
-    <Msg> msginfo(_,_,_,V) </Msg>
-
-rule 
-    <k> msg.sender => V ... </k>
-    <Msg> msginfo(V,_,_,_) </Msg>
-
-
-rule 
-    <k> msg.owner => V ... </k>
-    <Msg> msginfo(_,V,_,_) </Msg>
-
-rule 
-    <k> msg.sender = I:Int => I ... </k>
-    <Msg> msginfo((_=> I),_,_,_) </Msg>
-
-rule 
-    <k> msg.owner = I:Int => I ... </k>
-    <Msg> msginfo(_,(_=> I),_,_) </Msg>
-
-rule 
     <k> msg.value = I:Int => I ... </k>
     <Msg> msginfo(_,_,(_=> I),_) </Msg>
+
+rule 
+    <k> msg.gas => V ... </k>
+    <Msg> msginfo(_,_,_,V) </Msg>
 
 rule 
     <k> msg.gas = I:Int => I ... </k>
     <Msg> msginfo(_,_,_,(_=> I)) </Msg>
 
 rule 
-    <k> msg => M ... </k>
-    <Msg> M:Msg </Msg>
+    <k> msg.sender => V ... </k>
+    <Msg> msginfo(V,_,_,_) </Msg>
+
+rule 
+    <k> msg.sender = I:Int => I ... </k>
+    <Msg> msginfo((_=> I),_,_,_) </Msg>
+
+rule 
+    <k> msg.owner => V ... </k>
+    <Msg> msginfo(_,V,_,_) </Msg>
+
+rule 
+    <k> msg.owner = I:Int => I ... </k>
+    <Msg> msginfo(_,(_=> I),_,_) </Msg>
+
 
 //Setting length of one-dimensional dynamic array
     
@@ -1127,4 +1116,3 @@ rule [min-first]:
     requires X <Int Y
 
 endmodule
-

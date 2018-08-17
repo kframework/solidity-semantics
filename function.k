@@ -192,15 +192,17 @@ rule
         ...
     </contractInstance>
 
-//FunQuantifiers
+// FunQuantifiers
        
 rule FunQs(FQ:FunQuantifier FQs:FunQuantifiers,F:Param) => FunQ(FQ,F) ~> FunQs(FQs,F)
 rule FunQs(.FunQuantifiers,F:Param) => .
       
-//Specifier
+// Specifier
+
 rule FunQ(FQ:Specifier,F:Param) => .
       
-//ModifierInvocation
+// ModifierInvocation
+
 rule 
     <k> FunQ(X:Id, F:Param) => . ... </k>
     <Contract>
@@ -232,7 +234,7 @@ rule
     <FunQuantifiers> FQ </FunQuantifiers>
     <FunCon> (FC:Expression => (FC && Con)) </FunCon>
 
-//ModifierDefinition
+// ModifierDefinition
 
 rule 
     <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {require(C:Expression); _;}) => . ... </k>
@@ -286,7 +288,7 @@ rule
         ...
     </Contract> 
 
-//Functioncall
+// Functioncall
 
 rule [function-call]:
     <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
@@ -392,11 +394,11 @@ rule
     </contractInstance>
     <exeCon> _ => false </exeCon>
   
-// rule <k> funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss) ... </k>
-rule funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss)
+rule 
+    funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss)
 
-// rule <k> funBody(Con,.Statements) => . ... </k>
-rule funBody(Con,.Statements) => .
+rule 
+    funBody(Con,.Statements) => .
 
 rule 
     <k> funStmt(S) => S ... </k>
@@ -405,31 +407,6 @@ rule
 rule 
     <k> funStmt(S) => . ... </k>
     <exeCon> false </exeCon>
-
-  /*rule <k> FunCall(C:Int, F:Id, Es:Values,M:Msg) => createTransaction(L:List) ~> FunQs(FQ,F)~> Call(F,Es) ~> returnContext(C)  ... </k>
-        <contractStack>   ListItem(C) L:List ListItem(-1)   </contractStack>
-    
-        <contractInstance>
-     	  <ctId> C </ctId>
-          <ctName> Cn:Id </ctName>
-	  ...
-        </contractInstance>
-        <contracts>
-           <Contract>
-	     <cname> Cn </cname>
-     	     <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-	    ...
-           </Contract>
-         ...
-        </contracts>
-        <Function>
-	   <fId> CT </fId>
-     	   <inputParameters> Ps:FParameters </inputParameters>
-     	   <body> B:Statements </body>
-           <FunQuantifiers> FQ </FunQuantifiers>
-           <FunCon> Con </FunCon>
-	   ...
-        </Function>*/
      
 rule 
     <k> createTransaction(ListItem(-1)) => . ... </k>
