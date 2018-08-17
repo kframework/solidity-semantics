@@ -165,7 +165,7 @@ rule
         <vId> (.Map => N |-> Z) ... </vId>
         <variables> ( .Map => Z |-> !Num:Int) ... </variables>
         <typeName> ( .Map => Z |-> T) ... </typeName>
-        <dtype> (.Map => Z |-> T) ... </dtype>
+        //<dtype> (.Map => Z |-> T) ... </dtype>
         <cstore> (.Map => !Num:Int |-> V) ... </cstore>
         <cLocation> ( .Map => Z |-> Y) ... </cLocation>
         <Length> (.Map => Z |-> 0) ... </Length>
@@ -174,7 +174,7 @@ rule
     </Contract>   
 
 rule 
-    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ... </k>
+    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T[],String2Id("Global"),Z,0) ... </k>
 
 //Multi-dimensional array
 
@@ -497,14 +497,12 @@ rule
 rule 
     <k> T:ArrayTypeName [Y:Int] S:StorageLocations X:Id; => allocate(CI,T[Y],String2Id("Local"),X,0)... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-        
            
 rule 
     <k> NewRows(CI,X,T,N,Y,V) => NewRow(CI,X,T,N,Y,V) ~> NewRows(CI,X,T,N +Int1,Y,V) ... </k> requires N<Int Y
 
 rule 
     <k> NewRows(CI,X,T,Y,Y,V) => . ... </k>
-          
      
 rule 
     <k> NewRow(CI,X,T:ElementaryTypeName [Ins],N,Y,V) => IcntLength(CI,X,Ins) ~> NewArrayIndexes(CI,X,0,Ins,V) ~> . ... </k>
