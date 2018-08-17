@@ -407,21 +407,6 @@ rule
 rule 
     <k> funStmt(S) => . ... </k>
     <exeCon> false </exeCon>
-
-rule 
-    <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => createTransaction(.List) ~> functionCall(F;Es) ~> returnContext(C) ... </k>
-    <contractStack> (.List => ListItem(C))  ListItem(-1) </contractStack>
-    <Msg> M1 => M </Msg>
-    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-    <functionStack> (.List => ListItem(F)) ... </functionStack>
-       
-rule 
-    <k> functionCall(Sender:Int; C:Int ; F:Id ; Es:Values ; M:Msg) => createTransaction(L:List) ~> functionCall(F;Es) ~> returnContext(C)  ... </k>
-    <contractStack> (.List => ListItem(C)) L:List ListItem(-1) </contractStack>
-    <Msg> M1 => M </Msg>
-    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-    <functionStack> (.List => ListItem(F)) ... </functionStack>
-    requires L =/=K .List
      
 rule 
     <k> createTransaction(ListItem(-1)) => . ... </k>
