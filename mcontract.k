@@ -165,7 +165,7 @@ rule
         <vId> (.Map => N |-> Z) ... </vId>
         <variables> ( .Map => Z |-> !Num:Int) ... </variables>
         <typeName> ( .Map => Z |-> T) ... </typeName>
-        <dtype> (.Map => Z |-> T) ... </dtype>
+        //<dtype> (.Map => Z |-> T) ... </dtype>
         <cstore> (.Map => !Num:Int |-> V) ... </cstore>
         <cLocation> ( .Map => Z |-> Y) ... </cLocation>
         <Length> (.Map => Z |-> 0) ... </Length>
@@ -174,7 +174,7 @@ rule
     </Contract>   
 
 rule 
-    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ... </k>
+    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T[],String2Id("Global"),Z,0) ... </k>
 
 //Multi-dimensional array
 

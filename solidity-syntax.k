@@ -68,9 +68,9 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | Expression "-" Expression  [left, strict]
                     > Expression "<<" Expression [left, strict]
                     | Expression ">>" Expression [left, strict]
-                    > Expression "&" Expression
-                    > Expression "^" Expression
-                    > Expression "|" Expression
+                    > Expression "&" Expression  [strict]
+                    > Expression "^" Expression  [strict]
+                    > Expression "|" Expression  [strict]
                     > SimpleExpression2
                     > Expression "==" Expression [seqstrict,prefer]
                     | Expression "!=" Expression [seqstrict,prefer]
@@ -88,7 +88,10 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | BaseAddress(Id,Int,Expression,Int)
                     | CntBaseSize(Id,Int,Expression)
                     | SolidityItem
-                     
+                    | BinaryConvert(Expression,Expression) [strict]
+                    | Max(Int,Int)
+                    | Min(Int,Int)
+                                         
 syntax BuiltinParam ::= "msg"	  		   [prefer]
                       | "msg.sender"   [prefer]
                       | "msg.value"    [prefer]
@@ -97,7 +100,6 @@ syntax BuiltinParam ::= "msg"	  		   [prefer]
                       | "msg.data"     [prefer]               
 
 syntax Value ::= Int | Bool 
-
 
 syntax SInt ::= "int"
               | "int8"
@@ -133,6 +135,14 @@ syntax Uint ::= "uint"
               | "uint40"
               | "uint48"
               | "uint56"
+              | "uint64"
+              | "uint72"
+              | "uint80"
+              | "uint88"
+              | "uint96"
+              | "uint104"
+              | "uint112"
+              | "uint120"
               | "uint128"
               | "uint136"
               | "uint144"
@@ -371,10 +381,21 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | ExeWhileStmt(Statement)
                       | InitStmt(SimpleStatement)
                       | ExeCounter(SimpleStatement)
-                      | GetInt(Int)
+                      | BitAnd(Expression, Expression) [strict]
+                      | ModValue(Int,Expression)  [strict(2)]
+                      | BitAndSteps(Int,Int,Int)
+                      | BitAndStep(Int,Int,Int)
+                      | DecimalConversions(Int,Int)
+                      | DecimalConversion(Int,Int)
+                      | BinaryValue(Int,Expression) [strict(2)]
+                      | GetValue(Int)
+                      | BitOr(Expression, Expression) [strict]
+                      | BitOrSteps(Int,Int,Int)
+                      | BitOrStep(Int,Int,Int)
+                      | BitExOr(Expression, Expression) [strict]
+                      | BitExOrSteps(Int,Int,Int)
+                      | BitExOrStep(Int,Int,Int)
          
-// syntax Value ::= CallCons(Id,Int,Int,ExpressionList)
-
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression)
                | read(Expression)
                | write(Expression,Expression)
@@ -416,7 +437,6 @@ syntax Return ::= "return" Expression
                   | "return"
 syntax Throw ::= "throw"
 syntax RewritingStatement ::= Expression "=>" Expression
-
 
 syntax VariableDefinition ::= "var" Id
                             | VariableDeclaration
@@ -496,7 +516,6 @@ syntax NumberLiteral ::= HexNumber
                        | DecimalNumber " " NumberUnit
 
 syntax NumberUnit ::= "wei" | "szabo" | "finney"  | "ether" | "seconds" | "minutes" | "hours" | "days"  | "weeks" | "years"
-
 
 syntax StringLiteral ::= String
 
