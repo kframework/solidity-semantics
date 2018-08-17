@@ -1,0 +1,18 @@
+
+contract Test {
+
+       function f(uint n) returns(uint nfac) {
+			nfac = 1;
+			var i = 2;
+			do { nfac *= i++; } while (i <= n);
+		}
+}
+
+contract main {
+
+    function main() { 
+          new Test(); 
+          functionCall(-1;0;f;10;msginfo(-1,0,2,2));
+    }
+
+}

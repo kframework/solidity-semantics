@@ -200,7 +200,7 @@ imports CONFIGURATION
          syntax SolidityItem
                   ::=BindParam(Parameters, Values)
       
-         rule BindParam(.Parameters, .Values) => .
+         rule BindParam(.Parameters, Values) => .
 
          rule <k> BindParam(T:TypeName .StorageLocations P:Id, Ps:Parameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
               <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -208,6 +208,7 @@ imports CONFIGURATION
                 <ctId> CI </ctId>
                 <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
                 <ctstore> .Map => (!N:Int |-> E) ... </ctstore>
+                <ctLocation> .Map => (P |-> String2Id("Parameter")) ... </ctLocation>
                 ...
               </contractInstance>
 
@@ -294,10 +295,14 @@ imports CONFIGURATION
               ...
               </contract> 
 
+            
+
+
+
 
 //Functioncall
 
-     rule [function-call]:
+       rule [function-call]:
         <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
         <contractStack> ListItem(CI:Int) ... </contractStack>
     
@@ -323,7 +328,7 @@ imports CONFIGURATION
 	   ...
         </function>
 
-      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> funBody(Con,B) ~> UpdateTemp(CI) ... </k>
+      rule <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0)~> funBody(Con,B) ~> UpdateTemp(CI) ... </k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
            <contractInstance>
      	       <ctId> CI </ctId>
@@ -349,6 +354,7 @@ imports CONFIGURATION
            <function>
 	       <fId> CT </fId>
      	       <inputparameters> Ps:Parameters </inputparameters>
+               <outputparameters> OPs:Parameters </outputparameters>
      	       <body> B:Statements </body>
                <FunQuantifiers> FQ </FunQuantifiers>
                <FunCon> Con </FunCon>

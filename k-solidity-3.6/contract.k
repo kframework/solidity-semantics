@@ -26,7 +26,7 @@ rule <k> contract F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 	           //<variables> .Map </variables>
                    <typename> .Map </typename>
                    <cstore> .Map </cstore>
-                   
+                   <cLocation> .Map </cLocation>
                    <dtype> .Map </dtype>
                    <dstore> .Map </dstore>
                    <length> .Map </length>
@@ -50,7 +50,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 	           <variables> .Map </variables>
                    <typename> .Map </typename>
                    <cstore> .Map </cstore>
-                   
+                   <cLocation> .Map </cLocation>
                    <dtype> .Map </dtype>
                    <dstore> .Map </dstore>
                    <length> .Map </length>
@@ -64,7 +64,6 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
 	           ...
                  </contract>
                )
-             
 
 //ContractPart
        rule pcsContractParts(F, C:ContractPart Cs:ContractParts) => pcsContractPart(F,C) ~> pcsContractParts(F,Cs)
@@ -82,6 +81,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <variables> ( .Map => Z |-> !Num:Int) ... </variables>
               <typename> ( .Map => Z |-> X) ... </typename>
               <cstore> (.Map => !Num |-> 0) ... </cstore>
+              <cLocation> ( .Map => Z |-> String2Id("Global")) ... </cLocation>
                ...
             </contract>
      
@@ -93,6 +93,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <variables> ( .Map => Z |-> !Num:Int) ... </variables>
               <typename> ( .Map => Z |-> X) ... </typename>
               <cstore> (.Map => !Num |-> E) ... </cstore>
+              <cLocation> ( .Map => Z |-> String2Id("Global")) ... </cLocation>
                ...
             </contract> 
     
@@ -104,6 +105,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <variables> ( .Map => Z |-> !Num:Int) ... </variables>
               <typename> ( .Map => Z |-> X) ... </typename>
               <cstore> (.Map => !Num |-> false) ... </cstore>
+              <cLocation> ( .Map => Z |-> String2Id("Global")) ... </cLocation>
                ...
             </contract>
     
@@ -119,6 +121,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <variables> ( .Map => Z |-> !Num:Int) ... </variables>
               <typename> ( .Map => Z |-> T) ... </typename>
               <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
+              <cLocation> ( .Map => Z |-> String2Id("Global")) ... </cLocation>
               <length> (.Map => Z |-> I) ... </length>
               <vdim> (.Map => Z |-> 1) ... </vdim>
                (.Bag =>
@@ -178,6 +181,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <typename> ( .Map => Z |-> T) ... </typename>
               <dtype> (.Map => Z |-> T) ... </dtype>
               <cstore> (.Map => !Num:Int |-> 0) ... </cstore>
+              <cLocation> ( .Map => Z |-> String2Id("Global")) ... </cLocation>
               <length> (.Map => Z |-> 0) ... </length>
               <vdim> (.Map => Z |-> 0) ... </vdim>
                ...
@@ -193,6 +197,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <variables> ( .Map => Z |-> !Num:Int) ... </variables>
               <typename> ( .Map => Z |-> T) ... </typename>
               <cstore> (.Map => !Num:Int |-> !Num +Int 1) ... </cstore>
+              <cLocation> ( .Map => Z |-> String2Id("Global")) ... </cLocation>
               <length> (.Map => T Z|-> I) ... </length>
               <dim> _=>1 </dim>
               <vdim> (.Map => Z |-> 1) ... </vdim>
@@ -297,6 +302,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
        rule <k> pcsContractPart(C:Id, X:Id Y:Specifiers Z:Id = X(V:Values);) => new X (.ExpressionList); ... </k>
       
 
+
                
    //For elementary type names in the main contract
      
@@ -310,7 +316,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             <env> Rho => Rho[X <- !N:Int] </env>
             <store>... .Map => !N |-> false ...</store>
 
-    //Local variables 
+   //Local variables 
 
        //ElementaryTypeName 
  
@@ -319,6 +325,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             <contractInstance>
               <ctId> CI </ctId>
               <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
+              <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
               <memory>... .Map => !N |-> 0 ...</memory>
             ...
             </contractInstance>
@@ -328,6 +335,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <contractInstance>
               <ctId> CI </ctId>
               <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
+              <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
               <memory>... .Map => !N |-> false ...</memory>
             ...
             </contractInstance>
@@ -337,6 +345,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
             <contractInstance>
               <ctId> CI </ctId>
               <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
+              <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
               <memory>... .Map => !N |-> E ...</memory>
             ...
             </contractInstance>
@@ -366,6 +375,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <ctContext> ( .Map => X |-> 1) ... </ctContext>
               <ctType> ( .Map => X |-> T) ... </ctType>
               <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
               <ilength> (.Map => X |-> Y) ...</ilength>
               <memory> (.Map => X |-> 1) ... </memory>
               
@@ -390,6 +400,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <ctContext> ( .Map => X |-> 1) ... </ctContext>
               <ctType> ( .Map => X |-> T) ... </ctType>
               <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
               <ilength> (.Map => X |-> 0) ...</ilength>
               <ivdim> (.Map => X |-> 0) ... </ivdim>
               <ibaseaddress> (.Map => X |-> 1) ... </ibaseaddress>
@@ -448,6 +459,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <ctContext> (.Map => !Num:Int |-> P) ... </ctContext>
               <ctType> ... (.Map => !Num:Int |-> X)  ... </ctType>
               <ctstore> ... P |-> (_=> 0) ... </ctstore>
+              
                ...
             </contractInstance>
    
@@ -464,6 +476,7 @@ rule <k> library F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
               <ctContext> ( .Map => X |-> 1) ... </ctContext>
               <ctType> ( .Map => X |-> T) ... </ctType>
               <ctstore> ... 1 |-> (_=> 0) ... </ctstore>
+              <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
               <ilength> (.Map => T X |-> Y) ...</ilength>
               <memory> (.Map => X |-> 1) ... </memory>
               <idim> _=>1 </idim>

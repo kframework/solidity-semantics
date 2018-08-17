@@ -105,7 +105,7 @@ imports CONFIGURATION
          rule if (true)  S else _ => S
          rule if (false) _ else S => S
 
-         rule <k> for (A;B;C) {S} => InitStmts(A;) if (B) {ExeWhile(C; S) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
+         rule <k> for (A;B;C) {S} => InitStmts(A;) if (B) {ExeWhile(S) ExeCounters(C;) for (A;B;C) {S}} else {EndLoop(.Statements)} ... </k>
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCon> true </funCon>
@@ -129,15 +129,15 @@ imports CONFIGURATION
               
             
 
-         rule <k> do {S} while (B) =>  ExeWhile(S) if(B) {do {S} while (B)} else {.Statements} ... </k> 
+         rule <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCon> true </funCon>
 
-        rule <k> do {S} while (B) => Reset(1) ... </k> 
+        rule <k> do {S} while (B); => Reset(1) ... </k> 
              <loopCon> false </loopCon>
 
-        rule <k> do {S} while (B) => . ... </k> 
+        rule <k> do {S} while (B); => . ... </k> 
              <funCon> false </funCon>
 
          /*rule <k> while (B) S => if (B) {S while (B) S} else {.Statements} ... </k> 
@@ -150,6 +150,14 @@ imports CONFIGURATION
               <loopCon> true </loopCon>
               <Continue> _=>false </Continue>
               <funCon> true </funCon>
+
+  
+         rule <k> while (B) S:OtherStatements => if (B) {S while (B) S} else {.Statements} ... </k> 
+         rule <k> for (A;B;C) S:OtherStatements => A; while (B) {S C;} ... </k> 
+         rule <k> for (.SimpleStatements;.ExpressionList ;.SimpleStatements ) S =>  while (true) S ... </k> 
+         
+              
+               
              
 
 
@@ -170,6 +178,14 @@ imports CONFIGURATION
          rule <k> ExeWhileStmt(S) => . ... </k>
              <loopCon> false </loopCon>
               
+         rule <k> ExeCounters(S:Statement Ss:Statements) => ExeCounter(S) ~> ExeCounters(Ss) ... </k>
+         rule <k> ExeCounters(.Statements) => . ... </k>
+         rule <k> ExeCounter(S) => S ... </k>
+              <loopCon> true </loopCon>
+
+         rule <k> ExeCounter(S) => . ... </k>
+              <loopCon> false </loopCon>
+
 
          rule <k> while (B) S => . ... </k>
               <funCon> false </funCon>
@@ -186,7 +202,8 @@ imports CONFIGURATION
 
          rule <k> continue; => . ... </k> 
               <Continue> _=> true </Continue>
-          
+
+         rule <k> revert(.ExpressionList); => throw; ... </k>
       
 
   
@@ -199,6 +216,7 @@ imports CONFIGURATION
         
          //NewExpression
       
+         
          rule <k>  new C (E:ExpressionList)  => CallConstructor(C,N,Cst,E) ~> N ... </k>
      
    	<contract>
@@ -208,7 +226,7 @@ imports CONFIGURATION
 		<variables> Rho </variables>
                 <typename> Type </typename>
                 <cstore> S </cstore>
-               
+                <cLocation> CL </cLocation>
                 <dtype> Dt </dtype>
                 <dstore> Ds </dstore>
                 <length> L </length>
@@ -227,6 +245,7 @@ imports CONFIGURATION
 		<ctContext> Rho </ctContext>
                 <ctType> Type </ctType>
                 <ctstore> S </ctstore>
+                <ctLocation> CL </ctLocation>
                 <tempContext> Rho </tempContext>
                 <tempStore> S </tempStore>
                 <tempdistore> Ds </tempdistore>
@@ -281,7 +300,7 @@ imports CONFIGURATION
             <env>... X |-> N ...</env>
             <store>... N |-> (I => I -Int 1) ...</store> 
      */
-       
+      /* 
       rule <k> ++X => I +Int 1 ...</k>
            <contractStack> ListItem(CI:Int) ... </contractStack>
              <contractInstance>
@@ -318,7 +337,26 @@ imports CONFIGURATION
               <ctstore>... N |-> (I => I -Int 1) ...</ctstore> 
               ...
              </contractInstance>
-      
+      */
+
+      rule <k> ++X => X = X + 1 ... </k>
+      rule <k> X++; => X = X + 1; ... </k>
+      rule <k> --X => X = X - 1 ... </k>
+      rule <k> X--; => X = X - 1; ... </k>
+
+      rule <k> E:Expression = X++; => E:Expression = X; X++; ... </k>
+      rule <k> Expression +=X++; => Expression +=X; X++; ... </k>
+      rule <k> Expression -=X++; => Expression -=X; X++; ... </k>
+      rule <k> Expression *=X++; => Expression *=X; X++; ... </k>
+      rule <k> Expression /=X++; => Expression /=X; X++; ... </k>
+      rule <k> Expression %=X++; => Expression %=X; X++; ... </k>
+
+      rule <k> E:Expression =X--; => E:Expression =X; X--; ... </k>
+      rule <k> Expression +=X--; => Expression +=X; X--; ... </k>
+      rule <k> Expression -=X--; => Expression -=X; X--; ... </k>
+      rule <k> Expression *=X--; => Expression *=X; X--; ... </k>
+      rule <k> Expression /=X--; => Expression /=X; X--; ... </k>
+      rule <k> Expression %=X--; => Expression %=X; X--; ... </k>
 
 //SimpleExpression2
 
@@ -341,8 +379,35 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
               <ctstore>... N |-> (_ => I) ...</ctstore> 
+              <ctLocation> ...  X |-> String2Id("Global") ... </ctLocation>
+ 
               ...
              </contractInstance>
+
+       rule <k> X:Expression = I:Value => I ...</k>
+             
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext>... X |-> N ...</ctContext>
+              <ctstore>... N |-> (_ => I) ...</ctstore> 
+              <ctLocation> ...  X |-> String2Id("Parameter") ... </ctLocation>
+ 
+              ...
+             </contractInstance>
+
+       rule <k> X:Expression = I:Value => I ...</k>
+             
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext>... X |-> N ...</ctContext>
+              <memory>... N |-> (_ => I) ...</memory> 
+              <ctLocation> ...  X |-> String2Id("Local") ... </ctLocation>
+ 
+              ...
+             </contractInstance>
+            
 
 
        rule X:Expression += Y:Expression => X=X + Y 
@@ -365,6 +430,27 @@ imports CONFIGURATION
               <ctId> CI </ctId>
               <ctContext>... X |-> N ...</ctContext>
               <ctstore>... N |-> I ...</ctstore> 
+              <ctLocation> ...  X |-> String2Id("Global") ... </ctLocation>
+              ...
+             </contractInstance>
+
+        rule <k> X:Id => I ...</k>
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext>... X |-> N ...</ctContext>
+              <ctstore>... N |-> I ...</ctstore> 
+              <ctLocation> ...  X |-> String2Id("Parameter") ... </ctLocation>
+              ...
+             </contractInstance>
+
+        rule <k> X:Id => I ...</k>
+            <contractStack> ListItem(CI:Int) ... </contractStack>
+             <contractInstance>
+              <ctId> CI </ctId>
+              <ctContext>... X |-> N ...</ctContext>
+              <memory>... N |-> I ...</memory> 
+              <ctLocation> ...  X |-> String2Id("Local") ... </ctLocation>
               ...
              </contractInstance>
 
