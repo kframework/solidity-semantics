@@ -176,7 +176,7 @@ rule
     </Contract>
 
 rule 
-    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ... </k>
+    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T[],String2Id("Global"),Z,0) ... </k>
 
 //Multi-dimensional array
 
