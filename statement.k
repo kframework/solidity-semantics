@@ -351,23 +351,28 @@ rule
     requires CI>=Int 0
     
 rule 
-    <k> write(X,I) => writeToAddress(N,I,L) ... </k>
+    <k> write(X,I) => I ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext>... X |-> N...</ctContext>
-        <ctLocation> ...  X |-> L ...</ctLocation>
+        <ctStore> ... (N |-> V) => (N |->I) ...</ctStore> 
+        <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
         <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
 
 rule 
-    <k> writeToAddress(N,I,String2Id("Global")) => I ... </k>
-    <ctStore> ... (N |-> _) => (N |->I) ...</ctStore>
-
-rule 
-    <k> writeToAddress(N,I,String2Id("Local")) => I ... </k>
-    <Memory>... (N |-> _) => (N |-> I) ...</Memory>
+    <k> write(X,I) => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext>... X |-> N ...</ctContext>
+        <Memory>... (N |-> _) => (N |-> I) ...</Memory> 
+        <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
+        ...
+    </contractInstance>
 
 rule X:Expression += Y:Expression => X=X + Y 
 rule X:Expression -= Y:Expression => X=X - Y 
@@ -392,20 +397,26 @@ rule
 // Or, if "Global" and "Local" represent all possibilities, why not 
 // avoiding to match <ctLocation> altogether?
 rule 
-    <k> readAddress(N,String2Id("Global")) => I ... </k>
-    <ctStore>... N |-> I ...</ctStore>
-
-rule 
-    <k> readAddress(N,String2Id("Local")) => I ... </k>
-    <Memory>... N |-> I ...</Memory>
-
-rule 
-    <k> read(X:Id) => readAddress(N,L) ... </k>
+    <k> read(X:Id) => I ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext>... X |-> N ...</ctContext>
-        <ctLocation> ...  X |-> L ...</ctLocation>
+        <ctStore>... N |-> I ...</ctStore> 
+        <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
+        ...
+    </contractInstance>
+    requires CI >=Int 0
+
+rule 
+    <k> read(X:Id) => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext>... X |-> N ...</ctContext>
+        <Memory>... N |-> I ...</Memory> 
+        <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
         <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
@@ -495,23 +506,24 @@ rule
     requires N <Int Num 
 
 rule 
-    <k> IdxAccess(X,X[Y:Int],Num,E) => readIndexAddress(E +Int Y,L) ... </k>
+    <k> IdxAccess(X,#indexAccess(X,Y),Num,E) => I ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> Name </ctName>
-        <ilength> ... X |-> L ... </ilength>
+        <idStore> ... (E +Int Y |-> I) ...   </idStore>
         ...
     </contractInstance>
-
+ 
 rule 
-    <k> readIndexAddress(A,0) => I ... </k>
-    <idStore> ... A |-> I ...   </idStore>
-
-rule 
-    <k> readIndexAddress(A,L) => I ... </k>
-    <ctStore> ... A |-> I ...   </ctStore>
-    requires L >Int 0
+    <k> IdxAccess(X,X[Y:Int],Num,E) => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> Name </ctName>
+        <ctStore> ... (E +Int Y |-> I) ...   </ctStore>
+        ...
+    </contractInstance>
    
 rule 
     <k> BaseAddress(X,N,E,Y) => CntBaseSize(X,N,Y) + E ... </k>
@@ -623,23 +635,28 @@ rule
 
 // TODO: see rules for "read" - same comments applies here
 rule 
-    <k> WriteIndex(A,I) => writeIndexToAddress(A,I,L) ... </k>
+    <k> WriteIndex(A,I) => 1 ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> Name </ctName>
+        <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
-        <ilength> ... X |-> L ... </ilength>
+        <ilength> ... X |-> 0 ... </ilength>
         ... 
     </contractInstance>
-
+      
 rule 
-    <k> writeIndexToAddress(A,I,0) => I ... </k> 
-    <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>  
-
-rule 
-    <k> writeIndexToAddress(A,I,L) => I ... </k> 
-    <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore> 
+    <k> WriteIndex(A,I) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> Name </ctName>
+        <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore>
+        <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> L ... </ilength>
+        ...
+    </contractInstance>
     requires L >Int 0
    
 rule (X:Expression) => X
