@@ -8,7 +8,6 @@ imports CONFIGURATION
 
 // Member Access
 
-// rule <k> #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)  ... </k>
 rule #assign1(#memberAccess(X:Id,Y:Id), I:Value)  => write(#memberAccess(X:Id,Y:Id), I:Value)
 
 rule 
@@ -31,7 +30,6 @@ rule
         ...
     </Contract> 
 
-// rule <k> #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id)) ... </k>
 rule #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id))
 
 rule 
@@ -54,7 +52,6 @@ rule
         ...
     </Contract>
 
-    // rule <k> #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  ... </k>
     rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
 
     rule 
@@ -77,7 +74,6 @@ rule
             ...
         </Contract> 
 
-// rule <k> #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  ... </k>
 rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
 
 rule
@@ -169,9 +165,6 @@ rule
 
 rule 
     <k> InitStmts(.SimpleStatements) => . ... </k>
-     
-              
-            
 
 rule 
     <k> do {S} while (B); =>  ExeWhile(S) if(B) {do {S} while (B);} else {.Statements} ... </k> 
@@ -264,9 +257,8 @@ rule
     <k> revert(.ExpressionList); => throw; ... </k>
 
 //Expression
-         
         
-         //NewExpression
+//NewExpression
 
 rule 
     <k> new X:Id (E:ExpressionList) => CallConstructor(X,N,Cst,E) ... </k>
@@ -332,7 +324,7 @@ rule + I => (-1) * I requires I<Int 0
 rule - I => (-1) * I requires I>=Int 0
 rule - I => I requires I<Int 0
        
-rule <k> ++X => X = X + 1; ~>X ... </k>
+rule <k> ++X => X = X + 1; ~> X ... </k>
 rule <k> X++ => X = X + 1; ~> X - 1 ... </k>
     
 rule <k> --X => X = X - 1; ~> X ... </k>
@@ -376,7 +368,6 @@ rule
 rule 
     <k> writeToAddress(N,I,String2Id("Local")) => I ... </k>
     <Memory>... (N |-> _) => (N |-> I) ...</Memory>
-
 
 rule X:Expression += Y:Expression => X=X + Y 
 rule X:Expression -= Y:Expression => X=X - Y 
@@ -501,7 +492,7 @@ rule
         </array>
         ...
     </Contract>
-    requires N<Int Num 
+    requires N <Int Num 
 
 rule 
     <k> IdxAccess(X,X[Y:Int],Num,E) => readIndexAddress(E +Int Y,L) ... </k>
@@ -561,7 +552,7 @@ rule
         </array>
         ...
     </Contract>
-    requires  N<Int Num
+    requires N <Int Num
 
 rule 
     <k> CntBaseSize(X,Num,S) => S ... </k>
@@ -632,77 +623,69 @@ rule
 
 // TODO: see rules for "read" - same comments applies here
 rule 
-    <k> WriteIndex(A,I) => 1 ... </k>
+    <k> WriteIndex(A,I) => writeIndexToAddress(A,I,L) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> Name </ctName>
-        <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
-        <ilength> ... X |-> 0 ... </ilength>
+        <ilength> ... X |-> L ... </ilength>
         ... 
     </contractInstance>
-      
+
 rule 
-    <k> WriteIndex(A,I) => 1 ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Name </ctName>
-        <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore>
-        <ctLocation> ... X  |->String2Id("Global") ... </ctLocation>
-        <ilength> ... X |-> L ... </ilength>
-        ...
-    </contractInstance>
+    <k> writeIndexToAddress(A,I,0) => I ... </k> 
+    <idStore> ... (A |-> V) => (A |-> I) ...   </idStore>  
+
+rule 
+    <k> writeIndexToAddress(A,I,L) => I ... </k> 
+    <ctStore> ... (A |-> V) => (A |-> I) ...   </ctStore> 
     requires L >Int 0
    
-// rule <k> (X:Expression) => X ... </k>   
 rule (X:Expression) => X
      
 rule X:Id[Y:Int] += E:Expression => X[Y]= X[Y]+ E
 rule X:Id[Y:Int] -= E:Expression => X[Y]= X[Y]- E
 rule X:Id[Y:Int] %= E:Expression => X[Y]= X[Y]% E
 
-
 //Msg
 
+rule 
+    <k> msg => M ... </k>
+    <Msg> M:Msg </Msg>
 
 rule 
     <k> msg.value => V ... </k>
     <Msg> msginfo(_,_,V,_) </Msg>
 
 rule 
-    <k> msg.gas => V ... </k>
-    <Msg> msginfo(_,_,_,V) </Msg>
-
-rule 
-    <k> msg.sender => V ... </k>
-    <Msg> msginfo(V,_,_,_) </Msg>
-
-
-rule 
-    <k> msg.owner => V ... </k>
-    <Msg> msginfo(_,V,_,_) </Msg>
-
-rule 
-    <k> msg.sender = I:Int => I ... </k>
-    <Msg> msginfo((_=> I),_,_,_) </Msg>
-
-rule 
-    <k> msg.owner = I:Int => I ... </k>
-    <Msg> msginfo(_,(_=> I),_,_) </Msg>
-
-rule 
     <k> msg.value = I:Int => I ... </k>
     <Msg> msginfo(_,_,(_=> I),_) </Msg>
+
+rule 
+    <k> msg.gas => V ... </k>
+    <Msg> msginfo(_,_,_,V) </Msg>
 
 rule 
     <k> msg.gas = I:Int => I ... </k>
     <Msg> msginfo(_,_,_,(_=> I)) </Msg>
 
 rule 
-    <k> msg => M ... </k>
-    <Msg> M:Msg </Msg>
+    <k> msg.sender => V ... </k>
+    <Msg> msginfo(V,_,_,_) </Msg>
+
+rule 
+    <k> msg.sender = I:Int => I ... </k>
+    <Msg> msginfo((_=> I),_,_,_) </Msg>
+
+rule 
+    <k> msg.owner => V ... </k>
+    <Msg> msginfo(_,V,_,_) </Msg>
+
+rule 
+    <k> msg.owner = I:Int => I ... </k>
+    <Msg> msginfo(_,(_=> I),_,_) </Msg>
+
 
 //Setting length of one-dimensional dynamic array
     
@@ -770,84 +753,88 @@ rule
 
 //Push
 
-rule 
+rule [push-memory-existing]: 
     <k> X:Id.push(Y:Int); => . ... </k> 
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
-        <Memory> ... X |-> (E=>E+Int 1) ... </Memory>
-        <ctStore> ... (A +Int E |->(_=> Y))... </ctStore>
-        <ibaseaddress> ... X |-> A ... </ibaseaddress>
-        <ilength> ... X |-> N ...</ilength>
-        ...
-    </contractInstance>
-    requires N>Int 0
-
-rule 
-    <k> X:Id.push(Y:Int); => . ... </k> 
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <Memory> ... X |-> (E=>E+Int 1) ... </Memory>
-        <ctStore> (.Map => A +Int E |-> Y)... </ctStore>
+        <Memory> ... X |-> (E => E +Int 1) ... </Memory>
+        <ctStore> ... (A +Int E |-> (_=> Y))... </ctStore>
         <ibaseaddress> ... X |-> A ... </ibaseaddress>
         <ilength> ... X |-> N ...</ilength>
         ...
     </contractInstance>
     requires N >Int 0
 
-rule 
+rule [push-memory-new]:
+    <k> X:Id.push(Y:Int); => . ... </k> 
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <Memory> ... X |-> (E => E +Int 1) ... </Memory>
+        <ctStore> (.Map => A +Int E |-> Y) Rho:Map </ctStore>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X |-> N ...</ilength>
+        ...
+    </contractInstance>
+    requires (N >Int 0) andBool (notBool ((A +Int E) in keys(Rho)))
+
+// ***
+
+rule [push-store-N-existing]: 
     <k> X:Id.push(Y:Int); => . ... </k> 
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) (A +Int S |->(_=> Y))... </ctStore>
+        <ctStore> ... E |-> (S => S+Int 1) (A +Int S |-> (_ => Y)) ... </ctStore>
         <ibaseaddress> ... X |-> A ... </ibaseaddress>
         <ilength> ... X |-> N ...</ilength>
         ...
     </contractInstance>
     requires N >Int 0
 
-// TODO: lots of duplication in this and other rules. Can we refactor?
-rule 
+rule [push-store-N-new]:
     <k> X:Id.push(Y:Int); => . ... </k> 
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) ... </ctStore>
-        <idStore> ... (A +Int S |->(_=> Y))  ... </idStore>
-        <ibaseaddress> ... X |-> A ... </ibaseaddress>
-        <ilength> ... X|-> 0 ...</ilength>
-        ...
-    </contractInstance>
-
-rule    
-    <k> X:Id.push(Y:Int); => . ... </k> 
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) ... </ctStore>
-        <idStore> ... (.Map => A +Int S |-> Y)  ... </idStore>
-        <ibaseaddress> ... X |-> A ... </ibaseaddress>
-        <ilength>... X|-> 0 ...</ilength>
-        ...
-    </contractInstance>
-
-rule 
-    <k> X:Id.push(Y:Int); => . ... </k> 
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> ... X |-> E ... </ctContext>
-        <ctStore> ... E |-> (S => S+Int 1) (.Map => A +Int S |-> Y)... </ctStore>
+        <ctStore> E |-> (S => S+Int 1) (.Map => A +Int S |-> Y) Rho:Map </ctStore>
         <ibaseaddress> ... X |-> A ... </ibaseaddress>
         <ilength> ... X |-> N ...</ilength>
         ...
     </contractInstance>
-    requires N>Int 0
+    requires (N >Int 0) andBool (notBool ((A +Int S) in keys(Rho)))
+
+// ***
+
+rule [push-store-N0-existing]:
+    <k> X:Id.push(Y:Int); => . ... </k> 
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> E ... </ctContext>
+        <ctStore> ... E |-> (S => S +Int 1) ... </ctStore> 
+        <idStore> ... (A +Int S |-> (_=> Y)) ... </idStore>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X|-> 0 ... </ilength>
+        ...
+    </contractInstance>
+
+rule [push-store-N0-new]:
+    <k> X:Id.push(Y:Int); => . ... </k> 
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> E ... </ctContext>
+        <ctStore> ... E |-> (S => S +Int 1) ... </ctStore>
+        <idStore> (.Map => A +Int S |-> Y) Rho:Map </idStore>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X|-> 0 ... </ilength>
+        ...
+    </contractInstance>
+    requires notBool ((A +Int S) in keys(Rho))
 
 //Bitwise operations
 
@@ -1116,4 +1103,3 @@ rule [min-first]:
     requires X <Int Y
 
 endmodule
-

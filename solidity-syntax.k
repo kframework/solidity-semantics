@@ -92,12 +92,12 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | Max(Int,Int)
                     | Min(Int,Int)
                                          
-syntax BuiltinParam ::= "msg"	       [prefer]
+syntax BuiltinParam ::= "msg"	  		   [prefer]
                       | "msg.sender"   [prefer]
                       | "msg.value"    [prefer]
                       | "msg.gas"      [prefer]
                       | "msg.owner"    [prefer]   
-                      | "msg.data"     [prefer]                            
+                      | "msg.data"     [prefer]               
 
 syntax Value ::= Int | Bool 
 
@@ -395,6 +395,10 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | BitExOr(Expression, Expression) [strict]
                       | BitExOrSteps(Int,Int,Int)
                       | BitExOrStep(Int,Int,Int)
+                      | readAddress(Int,Id)
+                      | writeToAddress(Int,Expression,Id)
+                      | writeIndexToAddress(Int,Expression,Int)
+                      | readIndexAddress(Int,Int)
          
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression)
                | read(Expression)
@@ -436,7 +440,6 @@ syntax Break ::= "break"
 syntax Return ::= "return" Expression
                   | "return"
 syntax Throw ::= "throw"
-
 syntax RewritingStatement ::= Expression "=>" Expression
 
 syntax VariableDefinition ::= "var" Id
