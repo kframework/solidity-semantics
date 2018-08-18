@@ -83,6 +83,7 @@ rule
     <typeName> ( .Map => Z |-> X) ... </typeName>
     <cstore> (.Map => !Num |-> I) ... </cstore>
     <cLocation> ( .Map => Z |-> Y) ... </cLocation>
+    <Length> (.Map => Z |-> 0) ... </Length>
     ...
   </Contract>
      
@@ -117,6 +118,7 @@ rule
         )
         ...
     </Contract>
+    requires I >Int 0
 
 rule 
     <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>
@@ -158,7 +160,7 @@ rule
     </Contract>
 
 rule 
-    <k> allocate(C:Id, T:ElementaryTypeName[ ], Y:Id, Z:Id, V:Value) => . ... </k>    
+    <k> allocate(C:Id, T:ElementaryTypeName [], Y:Id, Z:Id, V:Value) => . ... </k>    
     <Contract>
         <cname> C </cname>
         <vnum>  N:Int => N +Int 1 </vnum>
@@ -171,7 +173,7 @@ rule
         <Length> (.Map => Z |-> 0) ... </Length>
         <vdim> (.Map => Z |-> 0) ... </vdim>
         ...
-    </Contract>   
+    </Contract>
 
 rule 
     <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T[],String2Id("Global"),Z,0) ... </k>
@@ -200,6 +202,7 @@ rule
         )
         ...
     </Contract>
+    requires I >Int 0
 
 rule 
     <k> pcsContractPart(C:Id, T:ArrayTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>

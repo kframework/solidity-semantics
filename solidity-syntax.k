@@ -395,6 +395,10 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | BitExOr(Expression, Expression) [strict]
                       | BitExOrSteps(Int,Int,Int)
                       | BitExOrStep(Int,Int,Int)
+                      | readAddress(Int,Id)
+                      | writeToAddress(Int,Expression,Id)
+                      | writeIndexToAddress(Int,Expression,Int)
+                      | readIndexAddress(Int,Int)
          
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression)
                | read(Expression)
