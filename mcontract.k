@@ -11,10 +11,10 @@ imports CONFIGURATION
 ***********************************/
 
 rule 
-  <k> contract F:Id is I:Identifiers { Cs:ContractParts } => contract F:Id { Cs:ContractParts } ... </k>
+  <k> contract F:Id { Cs:ContractParts } => contract F:Id is String2Id("object") { Cs:ContractParts } ... </k>
 
 rule 
-  <k> contract F:Id { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
+  <k> contract F:Id is I:Identifiers { Cs:ContractParts } =>  pcsContractParts(F,Cs) ... </k>
   <contractnum> N:Int => N +Int 1 </contractnum>
   (.Bag =>
     <Contract> 
@@ -29,6 +29,7 @@ rule
       // <contractBody> Cs </contractBody>
       <events> .Bag </events>
       <modifiers> .Bag </modifiers>
+      <parents> I </parents>
       <usingfors> .Bag </usingfors>
       <structs> .Bag </structs>
       //<arrays> .Bag </arrays>
@@ -74,7 +75,7 @@ rule
   <k> pcsContractPart(C:Id, X:NotBool Y:FunQuantifiers Z:Id;) => allocate(C,X,String2Id("Global"),Z,0) ... </k>
 
 rule 
-  <k> allocate(C,X:ElementaryTypeName, Y:Id, Z:Id, I:Expression) => . ... </k>
+  <k> allocate(C, X:ElementaryTypeName, Y:Id, Z:Id, I:Expression) => . ... </k>
   <Contract>
     <cname> C </cname>
     <vnum>  N:Int => N +Int 1 </vnum>
@@ -124,12 +125,12 @@ rule
     <k> pcsContractPart(C:Id, T:ElementaryTypeName[I:Int] Y:FunQuantifiers Z:Id;) => allocate(C,T[I],String2Id("Global"),Z,0) ... </k>
            
 rule 
-    <k> SetSize(C,Z) => CntSize(C,Z,DNum,0) ... </k>
+    <k> SetSize(C, Z) => CntSize(C, Z, DNum,0) ... </k>
     <Contract>
         <cname> C </cname>
         <variables> ... Z |-> E ... </variables>
         <cstore> ... E |-> (A:Int=>1) ... </cstore>
-        <baseAddress> (.Map => Z |-> A:Int) ... </baseAddress>
+        <baseAddress> (.Map => Z |-> A) ... </baseAddress>
         <array>
             <aname> Z </aname>
             <dnum> DNum </dnum>

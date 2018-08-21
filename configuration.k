@@ -37,7 +37,7 @@ module CONFIGURATION
                 <Length> .Map </Length>
                 <dim> 1:Int </dim>
                 <vdim> .Map </vdim>
-                <inheritance> .K </inheritance>
+                <parents> .K </parents>
                 <contractBody> .K </contractBody>
                 <events>
                     <Event multiplicity = "*">

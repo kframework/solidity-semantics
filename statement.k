@@ -260,44 +260,101 @@ rule
         
 //NewExpression
 
-rule 
-    <k> new X:Id (E:ExpressionList) => CallConstructor(X,N,Cst,E) ... </k>
+syntax K ::= "makeInstance" "(" Id "," Int ")"
+           | "makeEmptyInstance" "(" Id "," Int ")"
+           | "initInstanceVars" "(" Id "," Int ")"
+           | "initInstanceVars1" "(" Id "," Int "," Map ")"
+
+rule [new]:
+    <k> new X:Id (E:ExpressionList) => makeInstance(X, N) ~> CallConstructor(X, N, Ctor, E) ... </k>
     <Contract>
         <cname> X </cname>
-        <vnum> Num </vnum>
-        <vId> V </vId>
-        <variables> Rho </variables>
-        <typeName> Type </typeName>
-        <cstore> S </cstore>
-        <cLocation> CL </cLocation>
+        <constructor> Ctor </constructor>
+        ...
+    </Contract>
+    <cntContracts> N:Int => N +Int 1 </cntContracts>
+    <cnttran> K:Int => K +Int 1 </cnttran>
+    <tranComputation> (.Map => K |-> "new contract") ... </tranComputation>
+    <newStack> (.List => ListItem(X)) ... </newStack>
+
+rule [makeInstance]:
+    makeInstance(X:Id, N:Int) => 
+        makeEmptyInstance(X, N) ~> initInstanceVars(X, N)
+
+rule [make-empty-instance]:
+    <k> makeEmptyInstance(X:Id, N:Int) => . ... </k>
+    <Contract>
+        <cname> X </cname>
+        // TODO: the 3 cells above need to be handled properly
+        <baseAddress> B </baseAddress>
         <dtype> Dt </dtype>
         <dstore> Ds </dstore>
-        <Length> L </Length>
-        <baseAddress> B </baseAddress>
-        <constructor> Cst </constructor>
         ...
-    </Contract> 
-    <cntContracts> N:Int => N +Int 1 </cntContracts>
+    </Contract>
     (.Bag => 
         <contractInstance>
             <ctId> N </ctId>
             <ctName> X </ctName>
-            <ctNum> Num </ctNum>
-            <ctVId> V </ctVId>
-            <ctContext> Rho </ctContext>
-            <ctType> Type </ctType>
-            <ctStore> S </ctStore>
-            <ctLocation> CL </ctLocation>
+            // TODO: see comment above!
+            <ibaseaddress> B </ibaseaddress>
             <idType> Dt </idType>
             <idStore> Ds </idStore>
-            <Memory> .Map </Memory>
-            <ilength> L </ilength>
-            <ibaseaddress> B </ibaseaddress>
             ...
-        </contractInstance> )
-    <cnttran> K:Int => K +Int 1 </cnttran>
-    <tranComputation> (.Map => K |-> "new contract") ... </tranComputation>
-    <newStack> (.List => ListItem(X)) ... </newStack>
+        </contractInstance>)
+
+rule [initInstanceVars-object]: // reached top of inheritance chain; nothing to be done
+    <k> initInstanceVars(ContractName:Id, _) => . ... </k> 
+    requires Id2String(ContractName) ==String "object"
+
+rule [initInstanceVars]:
+    <k> initInstanceVars(ContractName:Id, InstanceId:Int) => 
+            initInstanceVars1(ContractName, InstanceId, V) ~> 
+            initInstanceVars(ParentName, InstanceId) ... </k>
+    <Contract>
+        <cname> ContractName </cname>
+        <parents> ParentName:Id, .Identifiers </parents>
+        <vId> V </vId>
+        ...
+    </Contract> 
+    requires Id2String(ContractName) =/=String "object"
+
+rule [init-instance-vars-1-empty]:
+    <k> initInstanceVars1(ContractName:Id, InstanceId:Int, .Map) => . ... </k> 
+
+rule [init-instance-vars-1-non-empty-new]:
+    <k> initInstanceVars1(ContractName:Id, InstanceId:Int, (((VarId |-> Var) => .Map) Vars:Map)) ... </k> 
+    <Contract>
+        <cname> ContractName </cname>
+        <variables> ... Var     |-> Address  ... </variables>
+        <cstore>    ... Address |-> Value    ... </cstore>
+        <typeName>  ... Var     |-> Type     ... </typeName>
+        <cLocation> ... Var     |-> Location ... </cLocation>
+        <Length>    ... Var     |-> Length   ... </Length>
+        ...
+    </Contract> 
+    <contractInstance>
+        <ctId> InstanceId </ctId>
+        <ctNum> NVars => NVars +Int 1 </ctNum>
+        //<ctVId> _ </ctVId>
+        <ctContext> (.Map => Var |-> Address) InstanceStore:Map </ctContext>
+        <ctStore>    ... (.Map => Address |-> Value)    ... </ctStore>
+        <ctType>     ... (.Map => Var |-> Type)     ... </ctType>
+        <ctLocation> ... (.Map => Var |-> Location) ... </ctLocation>
+        <ilength>    ... (.Map => Var |-> Length)   ... </ilength>
+        ...
+    </contractInstance>
+    requires Id2String (ContractName) =/=String "global" andBool
+             notBool (Var in keys(InstanceStore))
+
+rule [init-instance-vars-1-non-empty-existing]:
+    <k> initInstanceVars1(ContractName:Id, InstanceId:Int, (((VarId |-> Var) => .Map) _:Map)) ... </k> 
+    <contractInstance>
+        <ctId> InstanceId </ctId>
+        <ctContext> InstanceStore:Map </ctContext>
+        ...
+    </contractInstance>
+    requires Id2String (ContractName) =/=String "global" andBool 
+             (Var in keys(InstanceStore))
 
 // TODO: this should probably not be here
 rule <k> _:AllValues; => . ... </k>
