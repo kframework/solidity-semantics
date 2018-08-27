@@ -1,0 +1,20 @@
+contract test {
+                       
+			function f() returns (bool) {
+                               
+                              
+				bytes2 a = "a";
+				bytes2 x = "aa";
+				bytes2 b = "b";
+				return a < x && x < b;
+			}
+		}
+
+contract main {
+
+    function main() { 
+          new test(); 
+          functionCall(-1;0;f;;msginfo(-1,0,2,2));
+    }
+
+}
