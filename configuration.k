@@ -20,6 +20,7 @@ module CONFIGURATION
             <exeCon> true </exeCon>
             <Continue> false </Continue>
             <forInit> true </forInit>
+            <Throw> false </Throw>
             <contracts>
             <contractnum> 0:Int </contractnum>
             <Contract multiplicity = "*">
@@ -39,6 +40,20 @@ module CONFIGURATION
                 <vdim> .Map </vdim>
                 <inheritance> .K </inheritance>
                 <contractBody> .K </contractBody>
+                <enums>
+                    <Enum multiplicity = "*">
+                        <enumname> .K </enumname>
+                        <enumlist> .K </enumlist>
+                    </Enum>
+                </enums>
+                <enumsIns>
+                    <EnumIns multiplicity = "*">
+                        <insId> .K </insId>
+                        <enumInsname> .K </enumInsname>
+                        <enumInslist> .K </enumInslist>
+                    </EnumIns>
+                </enumsIns>
+                <insValue> .Map </insValue>
                 <events>
                     <Event multiplicity = "*">
                         <ename> .K </ename>
@@ -114,12 +129,21 @@ module CONFIGURATION
                 <tempStore> .Map </tempStore>
                 <tempIdStore> .Map </tempIdStore>
                 <tempMemory> .Map </tempMemory>
+                <tempType> .Map </tempType>
+                <tempLocation> .Map </tempLocation>
                 <idType> .Map </idType>
                 <idStore> .Map </idStore>
                 <Memory> .Map </Memory>
                 <ilength> .Map </ilength>
                 <idim> 1:Int </idim>
                 <ivdim> .Map </ivdim>
+                <ienums>
+                    <Ienum multiplicity = "*">
+                        <ienumname> .K </ienumname>
+                        <ienumlist> .K </ienumlist>
+                    </Ienum>
+                </ienums>
+                <iinsValue> .Map </iinsValue>
                 <ibaseaddress> .Map </ibaseaddress>
                 <iarrays>
                     <iarray multiplicity = "*">
@@ -179,5 +203,50 @@ module CONFIGURATION
             uint248 |-> 248
             uint256 |-> 256
         </uintSize>
+        <byteSize>
+            byte |-> 1
+            bytes1 |-> 1
+            bytes2 |-> 2
+            bytes3 |-> 3
+            bytes4 |-> 4
+            bytes5 |-> 5
+            bytes6 |-> 6
+            bytes7 |-> 7
+            bytes8 |-> 8
+            bytes9 |-> 9
+            bytes10 |-> 10
+            bytes11 |-> 11
+            bytes12 |-> 12
+            bytes13 |-> 13
+            bytes14 |-> 14
+            bytes15 |-> 15
+            bytes16 |-> 16
+            bytes17 |-> 17
+            bytes18 |-> 18
+            bytes19 |-> 19
+            bytes20 |-> 20
+            bytes21 |-> 21
+            bytes22 |-> 22
+            bytes23 |-> 23
+            bytes24 |-> 24
+            bytes25 |-> 25
+            bytes26 |-> 26
+            bytes27 |-> 27
+            bytes28 |-> 28
+            bytes29 |-> 29
+            bytes30 |-> 30
+            bytes31 |-> 31
+            bytes32 |-> 32
+        </byteSize>
+        <ASCII>
+            "a" |-> 61
+            "aa" |-> 6161
+            "b" |-> 62
+        </ASCII>
+        <stringSize>
+            "a" |-> 1
+            "aa" |-> 2
+            "b" |-> 1
+        </stringSize>
     </T>
 endmodule

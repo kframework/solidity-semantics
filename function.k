@@ -185,10 +185,11 @@ rule
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
+        <ctName> C </ctName>
         <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
-        <ctStore> .Map => (!N:Int |-> E) ... </ctStore>
-        <ctLocation> .Map =>( P |-> String2Id("Global")) ...</ctLocation>
         <ctType> .Map =>(P |-> T) ... </ctType>
+        <ctStore> .Map => (!N |-> E) ... </ctStore>
+        <ctLocation> .Map =>( P |-> String2Id("Global")) ...</ctLocation>
         ...
     </contractInstance>
 
@@ -325,8 +326,17 @@ rule
     <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
     <functionStack> (.List => ListItem(F)) ... </functionStack>
 
+rule
+    <k> BindParam(T:SBool .StorageLocations P:Id, .Values) => BindParam(T:SBool .StorageLocations P,false) ... </k>
+
 rule 
-    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
+    <k> BindParam(T:NotBoolByte .StorageLocations P:Id, .Values) => BindParam(T .StorageLocations P,0) ... </k>
+
+rule 
+    <k> BindParam(T:TypeName, .Values) => . ...</k>
+
+rule 
+    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,.Values) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -335,10 +345,14 @@ rule
         <ctStore> S </ctStore>
         <idStore> Ds </idStore>
         <Memory> M </Memory>
+        <ctType> T </ctType>
+        <ctLocation> L </ctLocation>
         <tempContext> _=> Rho </tempContext>
         <tempStore> _=>S </tempStore>
         <tempIdStore> _=>Ds </tempIdStore>
         <tempMemory> _=>M </tempMemory>
+        <tempType> _=>T </tempType>
+        <tempLocation> _=>L </tempLocation>
         ...
     </contractInstance>
     <contracts>
@@ -368,14 +382,19 @@ rule
         <ctStore> S </ctStore>
         <idStore> Ds </idStore>
         <Memory> M </Memory>
+        <ctType> T </ctType>
+        <ctLocation> L </ctLocation>
         <tempContext> Rho1=>Rho </tempContext>
         <tempStore> S1=>S </tempStore>
         <tempIdStore> Ds1 => Ds </tempIdStore>
         <tempMemory> M1 => M </tempMemory>
+        <tempType> T1=>T </tempType>
+        <tempLocation> L1=>L </tempLocation>
         ...
     </contractInstance>  
     <exeCon> _=> true </exeCon>
     <forInit> _=> true </forInit>
+    <Throw> _=> false </Throw>
 
 rule 
     <k> throw; => . ... </k>
@@ -386,10 +405,14 @@ rule
         <ctStore> S => S1 </ctStore>
         <idStore> Ds => Ds1 </idStore>
         <Memory> M => M1 </Memory>
+        <ctType> T => T1 </ctType>
+        <ctLocation> L => L1 </ctLocation>
         <tempContext> Rho1 </tempContext>
         <tempStore> S1 </tempStore>
         <tempIdStore> Ds1 </tempIdStore>
         <tempMemory> M1 </tempMemory>
+        <tempType> T1 </tempType>
+        <tempLocation> L1 </tempLocation>
         ...
     </contractInstance>
     <exeCon> _ => false </exeCon>
@@ -403,6 +426,12 @@ rule
 rule 
     <k> funStmt(S) => S ... </k>
     <exeCon> true </exeCon>
+    <Throw> false </Throw>
+
+rule 
+    <k> funStmt(S) => throw; ... </k>
+    <exeCon> true </exeCon>
+    <Throw> true </Throw>
            
 rule 
     <k> funStmt(S) => . ... </k>
@@ -451,7 +480,7 @@ rule
     </Function> 
 
 rule 
-    <k> return E:Int; => . ...</k>
+    <k> (return E:Value):Return => 1 ...</k>
     <functionStack> ListItem(F:Id) ... </functionStack>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
@@ -475,7 +504,7 @@ rule
     <exeCon> _ => false </exeCon>
 
 rule 
-    <k> return; => . ... </k>
+    <k> return => 1 ... </k>
     <exeCon> _ => false </exeCon>
 
 endmodule

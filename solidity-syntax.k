@@ -37,18 +37,25 @@ syntax UserDefinedTypeName ::= Id
 
 syntax MemberAccess ::= Expression "." Id		[klabel(#memberAccess)]
 
-syntax ElementaryTypeName ::=  NotBool
-                               | SBool
+syntax ElementaryTypeName ::=  //NotBoolByte
+                               //| SBool
+                               NotByte
+                               | Byte
+
+syntax NotByte ::= NotBoolByte | SBool
                               
-syntax NotBool ::= "address"
-                 | String
+syntax Integer ::= SInt | Uint
+
+syntax NotBoolByte ::= "address"
+                // | String
                  | "string"
                  | "var"
-                 | SInt
-                 | Uint
-                 | Byte 
+                 //| SInt
+                 //| Uint
+                 //| Byte 
                  | Fixed
                  | Ufixed
+                 | Integer
 
 syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName 
                 //  | TypeName 
@@ -91,6 +98,11 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | BinaryConvert(Expression,Expression) [strict]
                     | Max(Int,Int)
                     | Min(Int,Int)
+                    | GetItem(Id,Id,Identifiers,Int)
+                    | enumIns(Id,Id,Identifiers)
+                    | enumCheck(Id,Id,Identifiers)
+                    | Push [prefer]
+                    | GetByteValue(Id,Int,Int,Int)
                                          
 syntax BuiltinParam ::= "msg"	  		   [prefer]
                       | "msg.sender"   [prefer]
@@ -160,7 +172,7 @@ syntax Uint ::= "uint"
               | "uint240"
               | "uint248"
               | "uint256"
-
+/*
 syntax Byte ::= "byte"
               | "bytes"   
               | "bytes1"  
@@ -194,7 +206,45 @@ syntax Byte ::= "byte"
               | "bytes29" 
               | "bytes30" 
               | "bytes31" 
-              | "bytes32" 
+              | "bytes32" */
+
+syntax Byte ::= Bytes | SByte
+
+syntax Bytes ::= "bytes" [prefer]
+
+syntax SByte ::= "byte"
+                 | "bytes1"  [prefer]
+                 | "bytes2"  [prefer]
+                 | "bytes3"  [prefer]
+                 | "bytes4"  [prefer]
+                 | "bytes5"  [prefer]
+                 | "bytes6"  [prefer]
+                 | "bytes7"  [prefer]
+                 | "bytes8"  [prefer]
+                 | "bytes9"  [prefer]
+                 | "bytes10" [prefer]
+                 | "bytes11" [prefer]
+                 | "bytes12" [prefer]
+                 | "bytes13" [prefer]
+                 | "bytes14" [prefer]
+                 | "bytes15" [prefer]
+                 | "bytes16" [prefer]
+                 | "bytes17" [prefer]
+                 | "bytes18" [prefer]
+                 | "bytes19" [prefer]
+                 | "bytes20" [prefer]
+                 | "bytes21" [prefer]
+                 | "bytes22" [prefer]
+                 | "bytes23" [prefer]
+                 | "bytes24" [prefer]
+                 | "bytes25" [prefer]
+                 | "bytes26" [prefer]
+                 | "bytes27" [prefer]
+                 | "bytes28" [prefer]
+                 | "bytes29" [prefer]
+                 | "bytes30" [prefer]
+                 | "bytes31" [prefer]
+                 | "bytes32" [prefer]
 
 syntax SBool ::= "bool"
 
@@ -307,17 +357,19 @@ syntax LocationSpec ::= StorageLocations | FunQuantifiers
 syntax Block ::= "{" Statements "}"
 syntax Statements ::= List{Statement, ""}
   
-syntax Statement ::= IfStatement 
+syntax Statement ::= NotBlock
+                   | Block  
+
+syntax NotBlock ::= IfStatement 
                    | WhileStatement 
-                   | ForStatement 
-                   | Block 
-                   | OtherStatements 
+                   | ForStatement
+                   | OtherStatements
 
 syntax OtherStatements ::= DoWhileStatement 
                          | "continue" ";"
                          | "break" ";"
-                         | "return" ";"
-                         | "return" Expression ";" [strict]
+                        // | "return" ";"
+                        // | "return" Expression ";" [strict]
                          | "throw" ";"
                          | SimpleStatement ";" [strict]
                          | "require" "(" Expression ")" ";" 
@@ -342,8 +394,8 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | FunctionItem
                       | NewArray(Id,Id,Int,Int,Value)
                       | NewIdx(Id,Id,Int,Value)
-                      | NewArrayIndex(Int,Id,Int,Int,Value)
-                      | NewArrayIndexes(Int,Id,Int,Int,Value)
+                      | NewArrayIndex(Int,Id,Int,Int,Value,TypeName)
+                      | NewArrayIndexes(Int,Id,Int,Int,Value,TypeName)
                       | UpdateEnv(Int)
                       | ArrayUpdate(Int,Int,Id,Int)
                       | InstanceUpdate(Int,Int,Id,Int)
@@ -373,7 +425,7 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | NewContract(Id,ExpressionList)
                       //| CallCons(Id,Int,Int,ExpressionList)
                       | FunCall(Expression, Id, ExpressionList, Msg)
-                      | WriteIndex(Int,Expression)
+                      | WriteIndex(Id,Int,Expression)
                       | UpdateTemp(Int)
                       | Reset(Int)
                       | funBody(Bool,Statements)
@@ -396,11 +448,18 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | BitExOrSteps(Int,Int,Int)
                       | BitExOrStep(Int,Int,Int)
                       | readAddress(Int,Id)
-                      | writeToAddress(Int,Expression,Id)
-                      | writeIndexToAddress(Int,Expression,Int)
+                      | writeToAddress(Int,Expression,Id) [strict(2)]
+                      | writeIndexToAddress(Int,Expression,Int) [strict(2)]
                       | readIndexAddress(Int,Int)
+                      | Items(Id,Id,Identifiers,Int,Int)
+                      | FindEnum(Id,Id,Identifiers,Int,Int)
+                      | BytesAssign(Id,Int,Int,Int)
+                      | ByteAssign(Id,Int,Int,Int)
+                      | GetBytesValue(Id,Int,Int,Expression)    [strict(4)]    
+                      | BytesAssignG(Id,Id,Int,Int,Int)
+                      | ByteAssignG(Id,Id,Int,Int,Int,Expression) [strict(6)]
          
-syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression)
+syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression) [strict(5)]
                | read(Expression)
                | write(Expression,Expression)
 
@@ -416,7 +475,7 @@ syntax Value1 ::= String | Uint | Byte | Fixed | Ufixed | Msg
 syntax AllValues ::= Value | Value1
 
 syntax KResult ::=  Values | AllValues
-  
+
 syntax SimpleStatement ::= VariableDefinition 
                          | SimpleExpression3 
                        //| FunctionCall 
@@ -425,6 +484,8 @@ syntax SimpleStatement ::= VariableDefinition
                          | AllValues
                          | FunctionItem 
                          | SolidityItem
+                         | Push
+                         | Return
 
 //syntax ExpStatement ::= KResult 
 //syntax NewStatement ::= NewExpression 
@@ -437,10 +498,9 @@ syntax DoWhileStatement ::= "do" Statement "while" "(" Expression ")" ";"
 
 syntax Continue ::= "continue"
 syntax Break ::= "break"
-syntax Return ::= "return" Expression
+syntax Return ::= "return" Expression [strict]
                   | "return"
 syntax Throw ::= "throw"
-syntax RewritingStatement ::= Expression "=>" Expression
 
 syntax VariableDefinition ::= "var" Id
                             | VariableDeclaration
@@ -475,7 +535,9 @@ syntax SimpleExpression3 ::= Expression "=" Expression  [strict(2), klabel(#assi
                            | Id "[" Expression "]" "=" Expression  [strict(2,3),prefer] 
                            | Id "[" Expression "]" "-=" Expression  [strict(2,3),prefer]
                            | Id "[" Expression "]" "%=" Expression  [strict(2,3),prefer]
-                           | Id "." "push" "(" Int ")" [prefer]
+                           
+                           
+syntax Push ::= Id "." "push" "(" Expression ")" [strict(2),prefer]
                              
 syntax IncDecExpression ::= Expression "++"
                           | Expression "--"
