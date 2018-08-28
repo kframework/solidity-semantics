@@ -290,8 +290,8 @@ rule
 
 // Functioncall
 
-rule [function-call]:
-    <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
+rule [function-call-local]:
+    <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -315,7 +315,7 @@ rule [function-call]:
         ...
     </Function>
 
-rule
+rule [function-call-external]:
     <k> functionCall(Sender:Int ; C:Int ; F:Id ; Es:Values ; M:Msg) => 
             createTransaction(L) ~> 
             functionCall(F ; Es) ~> 
@@ -326,7 +326,7 @@ rule
     <functionStack> (.List => ListItem(F)) ... </functionStack>
 
 rule 
-    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
+    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -422,6 +422,11 @@ rule
 rule 
     createTransaction(L ListItem(-1)) => . 
     requires L =/=K .List
+
+// TODO: move in correct place
+rule 
+    <k> logValue(V:Int); => . ... </k>
+    <outputLog> ... .List => ListItem(V) </outputLog>
 
 rule 
     <k> returnContext(C:Int) => E ... </k>

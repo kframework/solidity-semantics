@@ -56,7 +56,7 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | NewExpression
                     | IndexAccess    
                     | MemberAccess   
-                    | FunctionCall 
+                    | FunctionCall // TODO: this is an "internal" op. Should be made clear. 
                     | MemOp
                     | "(" Expression ")"	   [bracket]
                     > SimpleExpression1 
@@ -321,14 +321,16 @@ syntax OtherStatements ::= DoWhileStatement
                          | "throw" ";"
                          | SimpleStatement ";" [strict]
                          | "require" "(" Expression ")" ";" 
-                         | "_;"
+                         | "_;" // Why not "_" ";"? Is this needed anyways?
                          | FunExe(Statements)
-                         | FunctionCall ";" [strict]
+                         //| FunctionCall ";" [strict] // TODO: should probably not be here (handle as Expression Statement instead)
                          | ExeWhile(Statements)
                          | InitStmts(SimpleStatements) 
                          | EndLoop(Statements)
                          | "revert" "(" ExpressionList ")" ";"
                          | ExeCounters(SimpleStatements)
+                         // TODO: move to correct place (if needed)
+                         | "logValue" "(" Expression ")" ";" [strict]      
                                                                 
 //syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
 //  syntax FunctionDefinitions ::= List{FunctionDefinition,"" }
@@ -419,7 +421,7 @@ syntax KResult ::=  Values | AllValues
   
 syntax SimpleStatement ::= VariableDefinition 
                          | SimpleExpression3 
-                       //| FunctionCall 
+                         | FunctionCall 
                          | IncDecExpression 
                          | NewExpression 
                          | AllValues
@@ -550,7 +552,7 @@ syntax FunctionItem ::= returnValue(Statements)	[strict]
                       | UpdateContext(Int)
                       | createTransaction(List)
                       | Call(Id,Values)
-
+                      
 syntax Id ::= "returns" [reject]
 
 syntax HexNumber ::= r"0x[0-9a-fA-F]+" [token]
