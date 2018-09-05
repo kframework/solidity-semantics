@@ -606,15 +606,134 @@ rule
       
 //Mapping
             
-rule mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations X:Id; => T[] Y X;
+rule mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations X:Id => T[] Y X
 
 //UserDefinedTypeName
 rule 
-    <k> T:UserDefinedTypeName Y:StorageLocations X:Id; => . ...</k>
+    <k> T:UserDefinedTypeName Y:StorageLocations X:Id => pcsLocalVariableDeclarations(C,T,VarD,X) ~> SetLocalStructSize(C,T,X) ~> 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <ctNum>  N:Int => N +Int 1 </ctNum>
+        <ctVId> (.Map => N |-> X) ... </ctVId>
+        <ctContext> ( .Map => X |-> !Num:Int) ... </ctContext>
+        <ctType> ( .Map => X |-> "struct") ... </ctType>
+        <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
+        <Memory> (.Map => !Num |-> 0) ... </Memory>
+        <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
+        (.Bag =>
+            <istructInstance>
+                <istructName> T </istructName>
+                <iiId> N1 </iiId>
+                <iiname> X </iiname>
+                <iisnum> 0 </iisnum>
+                <iivariables> .Map </iivariables>
+                ...
+            </istructInstance>)
+        ...
+    </contractInstance> 
+    <Contract>
+        <cname> C </cname>
+        <Struct>
+            <sname>  T </sname>
+            <vardec> VarD </vardec>
+        </Struct>
+        ...
+    </Contract>
 
+rule pcsLocalVariableDeclarations(C:Id,X:Id,.VariableDeclarations,IName:Id) => .
+rule pcsLocalVariableDeclarations(C:Id,X:Id,(S:VariableDeclaration; Ss:VariableDeclarations),IName:Id) => pcsLocalVariableDeclaration(C,X,S,IName) ~> pcsLocalVariableDeclarations(C,X,Ss,IName)
+
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id,T:NotBoolByte Y:StorageLocations Z:Id,IName:Id) => allocate(CI,T,String2Id("Local"),!D,0); ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <istructInstance>
+            <istructName> X </istructName>
+            <iiname> IName </iiname>
+            <iisnum> N1:Int => N1 +Int 1 </iisnum>
+            <iivariables> (.Map => Z |-> !D:Id)...</iivariables>
+            <iivariablesId> (.Map => N1 |-> Z)...</iivariablesId>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance>
+   
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id, T:SBool Y:StorageLocations Z:Id,IName:Id) => allocate(CI,T,String2Id("Local"),!D,false); ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <istructInstance>
+            <istructName> X </istructName>
+            <iiname> IName </iiname>
+            <iisnum> N1:Int => N1 +Int 1 </iisnum>
+            <iivariables> (.Map => Z |-> !D:Id)...</iivariables>
+            <iivariablesId> (.Map => N1 |-> Z)...</iivariablesId>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance>
+
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id,T:SByte Y:StorageLocations Z:Id,IName:Id) => pcsLocalVariableDeclaration(C:Id,X:Id, T [S] Y:StorageLocations Z:Id,IName:Id) ... </k>
+    <byteSize> ... T |-> S ... </byteSize>
+
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id,T:Bytes Y:StorageLocations Z:Id,IName:Id) => pcsLocalVariableDeclaration(C:Id,X:Id, T [] Y:StorageLocations Z:Id,IName:Id) ... </k>
+
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id, T:ArrayTypeName Y:StorageLocations Z:Id,IName:Id) => T:ArrayTypeName .StorageLocations !D:Id; ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <istructInstance>
+            <istructName> X </istructName>
+            <iiname> IName </iiname>
+            <iisnum> N1:Int => N1 +Int 1 </iisnum>
+            <iivariables> (.Map => Z |-> !D:Id)...</iivariables>
+            <iivariablesId> (.Map => N1 |-> Z)...</iivariablesId>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance> 
+
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id, mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations Z:Id,IName:Id) => 
+          pcsLocalVariableDeclaration(C:Id,X:Id, T[10] Y:StorageLocations Z:Id,IName:Id)... </k>  
+
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id, T:UserDefinedTypeName Y:StorageLocations Z:Id,IName:Id) =>  T .StorageLocations String2Id(Id2String(IName) +String "." +String Id2String(Z)); ... </k> 
+      
+rule 
+    <k> pcsLocalVariableDeclaration(C:Id,X:Id, T:FunctionTypeName Y:StorageLocations Z:Id,IName:Id) => . ... </k>    
+ 
+rule  
+    <k> SetLocalStructSize(C:Id,X:Id,Y:Id) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>                
+        <ctContext> ... Y |-> E ... </ctContext>
+        <Memory> ... (E |-> A:Int) => (E |-> Num) ... </Memory>
+        <istructInstance>
+            <istructName> X </istructName>
+            <iiname> Y </iiname>
+            <iisnum> Num </iisnum>
+            ...
+        </istructInstance>
+        <ibaseaddress> (.Map => Y |-> A) ... </ibaseaddress>
+        ...
+    </contractInstance>
+  
 //FunctionTypeName
 rule 
-    <k> X:FunctionTypeName Y:StorageLocations Z:Id; => . ... </k>
+    <k> X:FunctionTypeName Y:StorageLocations Z:Id => 1 ... </k>
       
 //Local Array
 
@@ -966,7 +1085,7 @@ rule
 //StructInstance
         
 rule 
-    <k> allocate(C:Id,X:Id,S:Id,Y:Id,V:Value) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
+    <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
     <Contract>
         <cname> C </cname>
         <vnum>  N:Int => N +Int 1 </vnum>
@@ -991,9 +1110,6 @@ rule
             </structInstance>)
         ...
     </Contract>    
-
-//rule  
-    //<k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => allocate(C,X,String2Id("Global"),Y,0) ... </k>
 
 rule  
     <k> SetStructSize(C:Id,X:Id,Y:Id) =>  . ... </k>

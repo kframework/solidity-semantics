@@ -17,7 +17,8 @@ rule
         <ctId> CI </ctId>
         <ctName> Name </ctName>
         <ctContext> ... D |-> E ... </ctContext>
-        <ctStore> ... E |-> (_=> I) ... </ctStore>
+        <ctLocation> ... D |-> String2Id("Global") ... </ctLocation>
+        <ctStore> ... (E |-> _) => (E |-> I) ... </ctStore>
         ...
     </contractInstance>
     <Contract>
@@ -30,6 +31,22 @@ rule
         ...
     </Contract> 
 
+rule 
+    <k> write(#memberAccess(X:Id,Y:Id), I:Value)   => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... D |-> E ... </ctContext>
+        <ctLocation> ... D |-> String2Id("Local") ... </ctLocation>
+        <Memory> ... (E |-> _) => (E |-> I) ... </Memory>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... Y |-> D ... </iivariables>
+            ... 
+        </istructInstance>
+        ...
+    </contractInstance>
+
 rule #memberAccess(X:Id, Y:Id)  => read(#memberAccess(X:Id, Y:Id))
 
 rule 
@@ -40,6 +57,7 @@ rule
         <ctName> Name </ctName>
         <ctContext> ... D |-> E ... </ctContext>
         <ctStore> ... E |-> I ... </ctStore>
+        <ctLocation> ... D |-> String2Id("Global") ... </ctLocation>
         ...
     </contractInstance>
     <Contract>
@@ -52,27 +70,60 @@ rule
         ...
     </Contract>
 
-    rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
+rule 
+    <k> read(#memberAccess(X:Id, Y:Id)) => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... D |-> E ... </ctContext>
+        <Memory> ... E |-> I ... </Memory>
+        <ctLocation> ... D |-> String2Id("Local") ... </ctLocation>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... Y |-> D ... </iivariables>
+            ... 
+        </istructInstance>
+        ...
+    </contractInstance>
 
-    rule 
-        <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => 1 ... </k>
-        <contractStack> ListItem(CI:Int) ... </contractStack>
-        <contractInstance>
-            <ctId> CI </ctId>
-            <ctName> Name </ctName>
-            <ctContext> ... D |-> S ... </ctContext>
-            <ctStore> ... S+Int Z+Int 1|-> (_=> I)... </ctStore>
-            ...
-        </contractInstance>
-        <Contract>
-            <cname> Name </cname>
-            <structInstance>
-                <iname> X </iname>
-                <ivariables> ... Y |-> D ... </ivariables>
-                ... 
-            </structInstance>
-            ...
-        </Contract> 
+rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
+
+rule 
+    <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> Name </ctName>
+        <ctContext> ... D |-> S ... </ctContext>
+        <ctStore> ... (S +Int Z +Int 1|-> _) => (S +Int Z +Int 1|-> I)... </ctStore>
+        <ctLocation> ... D |-> String2Id("Global") ... </ctLocation>
+        ...
+    </contractInstance>
+    <Contract>
+        <cname> Name </cname>
+        <structInstance>
+            <iname> X </iname>
+            <ivariables> ... Y |-> D ... </ivariables>
+            ... 
+        </structInstance>
+        ...
+    </Contract> 
+
+rule 
+    <k> write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... D |-> S ... </ctContext>
+        <Memory> ... (S +Int Z +Int 1|-> _) => (S +Int Z +Int 1|-> I)... </Memory>
+        <ctLocation> ... D |-> String2Id("Local") ... </ctLocation>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... Y |-> D ... </iivariables>
+            ... 
+        </istructInstance>
+        ...
+    </contractInstance>
 
 rule #indexAccess(#memberAccess(X:Id, Y:Id), Z:Int)  => read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))
 
@@ -83,7 +134,8 @@ rule
         <ctId> CI </ctId>
         <ctName> Name </ctName>
         <ctContext> ... D |-> S ... </ctContext>
-        <ctStore> ... S+Int Z +Int 1|-> I... </ctStore>
+        <ctStore> ... S +Int Z +Int 1|-> I... </ctStore>
+        <ctLocation> ... D |-> String2Id("Global") ... </ctLocation>
         ...
     </contractInstance>
     <Contract>
@@ -95,6 +147,22 @@ rule
         </structInstance>
         ...
     </Contract>
+
+rule
+    <k> read(#indexAccess(#memberAccess(X:Id, Y:Id), Z:Int))  => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... D |-> S ... </ctContext>
+        <Memory> ... S +Int Z +Int 1|-> I... </Memory>
+        <ctLocation> ... D |-> String2Id("Local") ... </ctLocation>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... Y |-> D ... </iivariables>
+            ... 
+        </istructInstance>
+        ...
+    </contractInstance>
 
 //Block
 

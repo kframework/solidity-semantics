@@ -389,6 +389,8 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | pcsContractPart(Id,ContractPart)
                       | pcsStateVariableDeclarations(Id,Id,VariableDeclarations,Id)
                       | pcsStateVariableDeclaration(Id,Id,VariableDeclaration,Id)
+                      | pcsLocalVariableDeclarations(Id,UserDefinedTypeName,VariableDeclarations,Id)
+                      | pcsLocalVariableDeclaration(Id,UserDefinedTypeName,VariableDeclaration,Id)
                       | FunQs(FunQuantifiers,Param)
                       | FunQ(FunQuantifier,Param)
                       | FunctionItem
@@ -417,6 +419,7 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | ICntSize(Int,Id,Int,Int)
                       | IDSize(Int,Id,Int)
                       | SetStructSize(Id,Id,Id)
+                      | SetLocalStructSize(Id,UserDefinedTypeName,Id)
                       | MemOp
                       | IdxAccess(Id,IndexAccess,Int,Expression)
                       | IdxWrite(Id,IndexAccess,Int,Expression,Expression)
@@ -461,7 +464,7 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
          
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression) [strict(5)]
                | read(Expression)
-               | write(Expression,Expression)
+               | write(Expression,Expression) [strict(2)]
 
 syntax Param ::= Int | Id 
 

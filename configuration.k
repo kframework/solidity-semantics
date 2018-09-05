@@ -88,6 +88,7 @@ module CONFIGURATION
                             <iId> (-1):Int </iId>
                             <isnum> 0:Int </isnum>
                             <ivariables> .Map </ivariables>
+                            <ivariablesId> .Map </ivariablesId>
                         </structInstance>
                 </structinstances>
                 <baseAddress> .Map </baseAddress>
@@ -152,6 +153,17 @@ module CONFIGURATION
                         <idimensions>  .Map </idimensions>
                     </iarray>
                 </iarrays>
+                <istructinstances>
+                    <icntStructInstance> 0:Int </icntStructInstance>
+                        <istructInstance multiplicity = "*">
+                            <istructName> .K </istructName>
+                            <iiname> .K </iiname>
+                            <iiId> (-1):Int </iiId>
+                            <iisnum> 0:Int </iisnum>
+                            <iivariables> .Map </iivariables>
+                            <iivariablesId> .Map </iivariablesId>
+                        </istructInstance>
+                </istructinstances>
             </contractInstance>
         </contractInstances>
         <binaryConversions>
