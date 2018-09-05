@@ -381,6 +381,8 @@ syntax OtherStatements ::= DoWhileStatement
                          | EndLoop(Statements)
                          | "revert" "(" ExpressionList ")" ";"
                          | ExeCounters(SimpleStatements)
+                         | Stmts(SimpleStatements)
+                         | Stmt(SimpleStatement)
                                                                 
 //syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
 //  syntax FunctionDefinitions ::= List{FunctionDefinition,"" }
@@ -618,5 +620,7 @@ syntax Id ::= "returns" [reject]
 syntax HexNumber ::= r"0x[0-9a-fA-F]+" [token]
 syntax HexLiteral ::= r"hex(\"([0-9a-fA-F]{2})*\"|\\'([0-9a-fA-F]{2})*\\')" [token]
 syntax DecimalNumber ::= Int | Float
+
+syntax String ::= "keccak256" "(" ExpressionList ")"
 
 endmodule

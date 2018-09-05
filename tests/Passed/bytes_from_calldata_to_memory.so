@@ -1,0 +1,15 @@
+contract C {
+		function f(bytes data) returns (bytes32) {
+			return keccak256("abc", data);
+		
+		}
+	}
+
+contract main {
+
+    function main() { 
+          new C(); 
+          functionCall(-1;0;f;0;msginfo(-1,0,2,2));
+    }
+
+}

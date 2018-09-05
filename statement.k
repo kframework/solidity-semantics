@@ -149,6 +149,15 @@ rule
     <k> for (A;.ExpressionList;C) S:NotBlock => A; while (true) {S C;} ... </k>
 
 rule 
+    <k> Stmts(S:SimpleStatement Ss:SimpleStatements) => Stmt(S) ~> Stmts(Ss) ... </k>
+
+rule 
+    <k> Stmts(.SimpleStatements) => . ... </k>
+
+rule 
+    <k> Stmt(S) => S; ... </k>
+
+rule 
     <k> EndLoop(.Statements) => . ... </k>
     <forInit> _=>true </forInit>
 
@@ -399,7 +408,7 @@ rule
     </contractInstance>
 
 rule 
-    <k> write(X,I:Value) => /*writeToAddress(N,I,String2Id("Global"))*/1 ... </k>
+    <k> write(X,I:Value) => /*writeToAddress(N,I,String2Id("Global"))*/ 1 ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -1220,5 +1229,8 @@ rule
 
 rule 
     <k> T:ElementaryTypeName (I:Int,.Values) => T(I) ... </k>
+
+rule 
+    <k> delete X:IndexAccess => write(X,0) ... </k>
 
 endmodule

@@ -554,7 +554,7 @@ rule
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext> Rho => Rho[X <- !N:Int] </ctContext>
-        <Memory>... .Map => !N |-> E ...</Memory>
+        <Memory> (.Map => !N |-> E) ...</Memory>
         <ctType> (.Map => X |-> T) ... </ctType>
         <ctLocation> (.Map => X |-> Y) ... </ctLocation>
         ...
@@ -563,17 +563,17 @@ rule
 rule 
     <k> T:NotBoolByte Y:StorageLocations X:Id =>  allocate(CI,T,String2Id("Local"),X,0) ...</k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-    requires CI>=Int 0
+    requires CI >=Int 0
 
 rule 
     <k> T:SBool Y:StorageLocations X:Id =>  allocate(CI,T,String2Id("Local"),X,false) ...</k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-    requires CI>=Int 0
+    requires CI >=Int 0
 
 rule 
     <k> T:NotByte Y:StorageLocations X:Id = E => allocate(CI,T,String2Id("Local"),X,E) ...</k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-    requires CI>=Int 0
+    requires CI >=Int 0
 
 rule 
     <k> T:SByte Y:StorageLocations X:Id = E => T [S1] Y:StorageLocations X:Id; ~> BytesAssign(X,S2,I,0) ~> 1 ...</k>
@@ -597,12 +597,12 @@ rule
     <k> T:SByte Y:StorageLocations X:Id => allocate(CI,T[S],String2Id("Local"),X,0) ... </k>
     <byteSize> ... T |-> S ... </byteSize>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-    requires CI>=Int 0
+    requires CI >=Int 0
 
 rule 
     <k> T:Bytes Y:StorageLocations X:Id => allocate(CI,T[],String2Id("Local"),X,0) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
-    requires CI>=Int 0
+    requires CI >=Int 0
       
 //Mapping
             
