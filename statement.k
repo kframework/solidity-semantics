@@ -149,15 +149,6 @@ rule
     <k> for (A;.ExpressionList;C) S:NotBlock => A; while (true) {S C;} ... </k>
 
 rule 
-    <k> Stmts(S:SimpleStatement Ss:SimpleStatements) => Stmt(S) ~> Stmts(Ss) ... </k>
-
-rule 
-    <k> Stmts(.SimpleStatements) => . ... </k>
-
-rule 
-    <k> Stmt(S) => S; ... </k>
-
-rule 
     <k> EndLoop(.Statements) => . ... </k>
     <forInit> _=>true </forInit>
 

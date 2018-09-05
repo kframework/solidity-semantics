@@ -57,7 +57,7 @@ syntax NotBoolByte ::= "address"
                  | Ufixed
                  | Integer
 
-syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName 
+syntax Expression ::=  Id |ElementaryTypeName | KResult
                 //  | TypeName 
                     | IncDecExpression
                     | NewExpression
@@ -381,8 +381,6 @@ syntax OtherStatements ::= DoWhileStatement
                          | EndLoop(Statements)
                          | "revert" "(" ExpressionList ")" ";"
                          | ExeCounters(SimpleStatements)
-                         | Stmts(SimpleStatements)
-                         | Stmt(SimpleStatement)
                                                                 
 //syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
 //  syntax FunctionDefinitions ::= List{FunctionDefinition,"" }

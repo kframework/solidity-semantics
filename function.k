@@ -480,7 +480,7 @@ rule
     </Function> 
 
 rule 
-    <k> (return E):Return => 1 ...</k>
+    <k> return E:KResult => 1 ... </k>
     <functionStack> ListItem(F:Id) ... </functionStack>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
