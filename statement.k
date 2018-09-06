@@ -86,6 +86,98 @@ rule
         ...
     </contractInstance>
 
+//Read and write for dynamic struct instance
+
+rule #assign1(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id), I:Value)  => write(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id), I:Value)
+
+rule
+    <k> write(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id), I:Value) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+        <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... A2 |-> E ... </ctContext>
+        <ctStore> ... (E |-> _) => (E |-> I) ... </ctStore>
+        <ctLocation> ... A2 |-> String2Id("Global") ... </ctLocation>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... Y |-> A1 ... </iivariables>
+            ... 
+        </istructInstance>
+        <istructInstance>
+            <iiname> A1 </iiname>
+            <iivariables> ... Z |-> A2 ... </iivariables>
+            ... 
+        </istructInstance>
+        ...
+    </contractInstance>
+
+rule
+    <k> write(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id), I:Value) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+        <contractInstance>
+            <ctId> CI </ctId>
+            <ctContext> ... A2 |-> E ... </ctContext>
+            <Memory> ... (E |-> _) => (E |-> I) ... </Memory>
+            <ctLocation> ... A2 |-> String2Id("Local") ... </ctLocation>
+            <istructInstance>
+                <iiname> X </iiname>
+                <iivariables> ... Y |-> A1 ... </iivariables>
+                ... 
+            </istructInstance>
+            <istructInstance>
+                <iiname> A1 </iiname>
+                <iivariables> ... Z |-> A2 ... </iivariables>
+                ... 
+            </istructInstance>
+            ...
+         </contractInstance>
+
+rule 
+    <k> #memberAccess(#indexAccess(X:Id,Y:Int),Z:Id) => read(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id)) ... </k>
+
+rule 
+    <k> read(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id)) => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+        <contractInstance>
+            <ctId> CI </ctId>
+            <ctContext> ... A2 |-> E ... </ctContext>
+            <ctStore> ... E |-> I ... </ctStore>
+            <ctLocation> ... A2 |-> String2Id("Global") ... </ctLocation>
+            <istructInstance>
+                <iiname> X </iiname>
+                <iivariables> ... Y |-> A1 ... </iivariables>
+                ... 
+            </istructInstance>
+            <istructInstance>
+                <iiname> A1 </iiname>
+                <iivariables> ... Z |-> A2 ... </iivariables>
+                ... 
+            </istructInstance>
+            ...
+         </contractInstance>
+
+rule 
+    <k> read(#memberAccess(#indexAccess(X:Id,Y:Int),Z:Id)) => I ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+        <contractInstance>
+            <ctId> CI </ctId>
+            <ctContext> ... A2 |-> E ... </ctContext>
+            <Memory> ... E |-> I ... </Memory>
+            <ctLocation> ... A2 |-> String2Id("Local") ... </ctLocation>
+            <istructInstance>
+                <iiname> X </iiname>
+                <iivariables> ... Y |-> A1 ... </iivariables>
+                ... 
+            </istructInstance>
+            <istructInstance>
+                <iiname> A1 </iiname>
+                <iivariables> ... Z |-> A2 ... </iivariables>
+                ... 
+            </istructInstance>
+            ...
+         </contractInstance>
+
+
 rule #assign1(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)  => write(#indexAccess(#memberAccess(X:Id,Y:Id), Z:Int), I:Value)
 
 rule 
@@ -847,6 +939,7 @@ rule
         <ibaseaddress> ... (X |-> _) => (X |-> !Num:Int) ... </ibaseaddress>
         <idStore> (.Map => !Num:Int |-> 0) ... </idStore>
         <ctLocation> ... X  |-> String2Id("Local") ... </ctLocation>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
 
@@ -872,6 +965,7 @@ rule
         <ibaseaddress> (.Map => X |-> !Num:Int) ... </ibaseaddress>
         <idStore> (.Map => !Num:Int |-> 0) ... </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
         ...
     </contractInstance>
 
@@ -917,6 +1011,100 @@ rule
         ...
     </contractInstance> 
     requires Ins>Int 0 
+
+//Dynamic struct instance
+
+rule 
+    <k> X:Id.length = I:Int => CopyStructInstance(C,X) ~> CreateStructInstance(X,I,0) ~> ResetStructSize(X,I) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <ctType> ... X |-> "struct" ... </ctType>
+        ...
+    </contractInstance>
+
+rule
+    <k> CopyStructInstance(C,X) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <ctType> ... X |-> "struct" ... </ctType>
+        <ctLocation> ... X |-> String2Id("Global") ... </ctLocation>
+         (.Bag => 
+            <istructInstance>
+            <istructName> Y </istructName>
+            <iiname> X </iiname>
+            ...
+         </istructInstance>)
+        ...
+    </contractInstance>
+    <Contract>
+        <cname> C </cname>
+        <Struct>
+            <sname> Y </sname>
+            ...
+        </Struct>
+        <structInstance>
+            <structName> Y </structName>
+            <iname> X </iname>
+            <ivariables> Var:Map </ivariables>
+            ...
+        </structInstance>
+        ...
+    </Contract>
+
+rule
+    <k> CopyStructInstance(C,X) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <ctType> ... X |-> "struct" ... </ctType>
+        <ctLocation> ... X |-> String2Id("Local") ... </ctLocation>
+        ...
+    </contractInstance>
+    
+rule 
+    <k> ResetStructSize(X,I) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> E ... </ctContext>
+        <ctStore> ... (E |->_) => (E |-> I) ... </ctStore>
+        <ctLocation> ... X |-> String2Id("Global") ... </ctLocation>
+        ...
+    </contractInstance>
+
+rule 
+    <k> ResetStructSize(X,I) => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> E ... </ctContext>
+        <Memory> ... (E |->_) => (E |-> I) ... </Memory>
+        <ctLocation> ... X |-> String2Id("Local") ... </ctLocation>
+        ...
+    </contractInstance>
+
+rule 
+    <k> CreateStructInstance(X,I,N) => Y:Id .StorageLocations !D:Id; ~> CreateStructInstance(X,I,N +Int 1) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <istructInstance>
+            <istructName> Y </istructName>
+            <iiname> X </iiname>
+            <iivariables> (.Map => N |-> !D)... </iivariables>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance>
+    requires I >Int N
+      
+rule 
+    <k> CreateStructInstance(X,I,I) => . ... </k>
 
 //Push
 

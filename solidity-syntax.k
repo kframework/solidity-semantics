@@ -461,6 +461,9 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | GetBytesValue(Id,Int,Int,Expression)    [strict(4)]    
                       | BytesAssignG(Id,Id,Int,Int,Int)
                       | ByteAssignG(Id,Id,Int,Int,Int,Expression) [strict(6)]
+                      | CreateStructInstance(Id,Int,Int)
+                      | ResetStructSize(Id,Int)
+                      | CopyStructInstance(Id,Id) 
          
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression) [strict(5)]
                | read(Expression)

@@ -609,6 +609,40 @@ rule
 rule mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations X:Id => T[] Y X
 
 //UserDefinedTypeName
+
+rule  
+    <k> T:UserDefinedTypeName[] Y:StorageLocations X:Id => 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <ctNum>  N:Int => N +Int 1 </ctNum>
+        <ctVId> (.Map => N |-> X) ... </ctVId>
+        <ctContext> ( .Map => X |-> !Num:Int) ... </ctContext>
+        <ctType> ( .Map => X |-> "struct") ... </ctType>
+        <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
+        <Memory> (.Map => !Num |-> 0) ... </Memory>
+        <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
+        (.Bag =>
+            <istructInstance>
+                <istructName> T </istructName>
+                <iiId> N1 </iiId>
+                <iiname> X </iiname>
+                <iisnum> 0 </iisnum>
+                <iivariables> .Map </iivariables>
+                ...
+            </istructInstance>)
+        ...
+    </contractInstance> 
+    <Contract>
+        <cname> C </cname>
+        <Struct>
+            <sname>  T </sname>
+            ...
+        </Struct>
+        ...
+    </Contract>
+
 rule 
     <k> T:UserDefinedTypeName Y:StorageLocations X:Id => pcsLocalVariableDeclarations(C,T,VarD,X) ~> SetLocalStructSize(C,T,X) ~> 1 ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -620,7 +654,7 @@ rule
         <ctContext> ( .Map => X |-> !Num:Int) ... </ctContext>
         <ctType> ( .Map => X |-> "struct") ... </ctType>
         <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
-        <Memory> (.Map => !Num |-> 0) ... </Memory>
+        <Memory> (.Map => !Num |-> !Num +Int 1) ... </Memory>
         <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
         (.Bag =>
             <istructInstance>
@@ -727,7 +761,6 @@ rule
             <iisnum> Num </iisnum>
             ...
         </istructInstance>
-        <ibaseaddress> (.Map => Y |-> A) ... </ibaseaddress>
         ...
     </contractInstance>
   
@@ -1083,6 +1116,33 @@ rule
     <k> pcsStateVariableDeclaration(C:Id,X:Id, T:FunctionTypeName Y:StorageLocations Z:Id,IName:Id) => . ... </k>    
 
 //StructInstance
+
+rule  
+    <k> pcsContractPart(C:Id, X:Id[] S:FunQuantifiers Y:Id;) => . ... </k>
+    <Contract>
+        <cname> C </cname>
+        <vnum>  N:Int => N +Int 1 </vnum>
+        <vId> (.Map => N |-> Y )... </vId>
+        <variables> ( .Map => Y |-> !Num:Int) ... </variables>
+        <typeName> ( .Map => Y |-> "struct") ... </typeName>
+        <cstore> (.Map => !Num |-> 0) ... </cstore>
+        <cLocation> ( .Map => Y |-> String2Id("Global")) ... </cLocation>
+        <Struct>
+            <sname> X </sname>
+            ...
+        </Struct>
+        <cntStructInstance> N1:Int => N1 +Int 1 </cntStructInstance>
+        (.Bag =>
+            <structInstance>
+                <structName> X </structName>
+                <iId> N1 </iId>
+                <iname> Y </iname>
+                <isnum> 0 </isnum>
+                <ivariables> .Map </ivariables>
+                ...
+            </structInstance>)
+            ...
+        </Contract> 
         
 rule 
     <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
@@ -1123,7 +1183,6 @@ rule
             <isnum> Num </isnum>
             ...
         </structInstance>
-        <baseAddress> (.Map => Y |-> A) ... </baseAddress>
         ...
     </Contract>   
 
