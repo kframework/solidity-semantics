@@ -1,0 +1,16 @@
+contract test {
+		function delLocal() returns (uint res){
+			uint v = 5;
+			delete v;
+			res = v;
+		}
+	}
+
+contract main {
+
+    function main() { 
+          new test(); 
+          functionCall(-1;0;delLocal;;msginfo(-1,0,2,2));
+    }
+
+}

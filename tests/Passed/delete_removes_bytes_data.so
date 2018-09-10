@@ -1,0 +1,23 @@
+contract C {
+			struct S { uint x; uint[] y; }
+			S[] data;
+                       
+			function f() returns (bool) {
+                               
+				data.length = 2;
+				data[0].x = 2**200;
+				data[1].x = 2**200;
+				delete data;
+                              
+				return true;
+			}
+		}
+
+contract main {
+
+    function main() { 
+          new C(); 
+          functionCall(-1;0;f;;msginfo(-1,0,2,2));
+        }
+
+}

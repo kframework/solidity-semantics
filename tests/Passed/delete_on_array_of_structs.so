@@ -1,0 +1,15 @@
+contract c {
+		function save(bytes b) { data = b; }
+		function del() returns (bool) { delete data; return true; }
+		bytes data;
+	}
+
+contract main {
+
+    function main() { 
+          new c(); 
+          functionCall(-1;0;save;1234;msginfo(-1,0,2,2));
+          functionCall(-1;0;del;;msginfo(-1,0,2,2));
+    }
+
+}

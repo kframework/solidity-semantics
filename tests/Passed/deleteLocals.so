@@ -1,0 +1,19 @@
+contract test {
+		function delLocal() returns (uint res1, uint res2){
+			uint v = 5;
+			uint w = 6;
+			uint x = 7;
+			delete v;
+			res1 = w;
+			res2 = x;
+		}
+	}
+
+contract main {
+
+    function main() { 
+          new test(); 
+          functionCall(-1;0;delLocal;;msginfo(-1,0,2,2));
+    }
+
+}
