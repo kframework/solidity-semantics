@@ -421,7 +421,7 @@ rule
 //NewExpression
 
 rule 
-    <k> new X:Id (E:ExpressionList) => CallConstructor(X,N,Cst,E) ... </k>
+    <k> new X:Id (E:ExpressionList) => CopyGlobalStructIns(X,N,SN,0) ~> CallConstructor(X,N,Cst,E) ... </k>
     <Contract>
         <cname> X </cname>
         <vnum> Num </vnum>
@@ -436,6 +436,7 @@ rule
         <Length> L </Length>
         <baseAddress> B </baseAddress>
         <constructor> Cst </constructor>
+        <cntStructInstance> SN </cntStructInstance>
         ...
     </Contract> 
     <cntContracts> N:Int => N +Int 1 </cntContracts>
@@ -477,6 +478,40 @@ rule
         <cname> C </cname>
         ...
     </Contract>
+
+rule 
+    <k> CopyGlobalStructIns(X,CI,SN,N) => CopyGlobalStructIns(X,CI,SN,N +Int 1) ...</k>
+    <Contract>
+        <cname> X </cname>
+        <structInstance>
+            <structName> SName </structName>
+            <iname> IName </iname>
+            <iId> N </iId>
+            <isnum> SNum </isnum>
+            <ivariables> IV </ivariables>
+            <ivariablesId> IVId </ivariablesId>
+        </structInstance>
+        ...
+    </Contract>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> X </ctName>
+        <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
+        (.Bag=>
+            <istructInstance>
+                <istructName> SName </istructName>
+                <iiname> IName </iiname>
+                <iiId> N </iiId>
+                <iisnum> SNum </iisnum>
+                <iivariables> IV </iivariables>
+                <iivariablesId> IVId </iivariablesId>
+            </istructInstance>)
+         ...
+    </contractInstance>
+    requires SN >Int N
+
+rule 
+    <k> CopyGlobalStructIns(X,CI,SN,SN) => . ... </k>
 
 //SimpleExpression1
 
@@ -545,6 +580,15 @@ rule
     </contractInstance>
     <ASCII> ... S |-> I ... </ASCII>
     <stringSize> ... S |-> Size ... </stringSize>
+
+rule 
+    <k> write(X,I:Int) =>  X.length = CountByteLength(I,0); ~> BytesAssign(X,CountByteLength(I,0),I,0) ~> 1 ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:Bytes ... </ctType>
+        ...
+    </contractInstance>
     
 rule 
     <k> write(X,I:Value) => /*writeToAddress(N,I,String2Id("Local"))*/ 1 ... </k>
@@ -553,7 +597,7 @@ rule
         <ctId> CI </ctId>
         <ctContext>... X |-> N...</ctContext>
         <ctLocation> ...  X |-> String2Id("Local") ...</ctLocation>
-        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
+        <ctType> ... X |-> T:NotByte ... </ctType>
         <Memory> ... (N |-> _) => (N |-> I) ...</Memory>
         ...
     </contractInstance>
@@ -565,7 +609,7 @@ rule
         <ctId> CI </ctId>
         <ctContext>... X |-> N...</ctContext>
         <ctLocation> ...  X |-> String2Id("Global") ...</ctLocation>
-        <ctType> ... X |-> T:ElementaryTypeName ... </ctType> 
+        <ctType> ... X |-> T:NotByte ... </ctType> 
         <ctStore> ... (N |-> _) => (N |-> I) ...</ctStore>       
         ...
     </contractInstance>
@@ -629,7 +673,7 @@ rule
         ...
     </contractInstance>
     requires CI >=Int 0
-
+/*
 rule 
     <k> read(X:Id) => GetBytesValue(X,S,0,0) ...</k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
@@ -639,6 +683,18 @@ rule
         ...
     </contractInstance>
     <byteSize> ... T |-> S ... </byteSize>
+    requires CI >=Int 0*/
+
+rule 
+    <k> read(X:Id) => GetBytesValue(X,I,0,0) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext>... X |-> N ...</ctContext>
+        <ctStore>... N |-> I ...</ctStore>  
+        <ctType> ... X |-> T:Byte </ctType>
+        ...
+    </contractInstance>
     requires CI >=Int 0
 
 rule 
@@ -686,10 +742,10 @@ rule
     <k> read(X:IndexAccess) => ArrayName(X,X) ... </k>
 
 rule 
-    <k> ArrayName(X:IndexAccess [Y:Int],Z) => ArrayName(X,Z) ... </k>
+    <k> ArrayName(#indexAccess(X:IndexAccess,Y:Int),Z) => ArrayName(X,Z) ... </k>
 
 rule 
-    <k> ArrayName(#indexAccess(X,Y),Z) => IdxAccess(X,Z,1,E) ... </k>
+    <k> ArrayName(#indexAccess(X:Id,Y),Z) => IdxAccess(X,Z,1,E) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
         <contractInstance>
         <ctId> CI </ctId>
@@ -739,18 +795,27 @@ rule
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
-        <ctName> Name </ctName>
         <ilength> ... X |-> L ... </ilength>
         ...
     </contractInstance>
 
 rule 
     <k> readIndexAddress(A,0) => I ... </k>
-    <idStore> ... A |-> I ...   </idStore>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <idStore> ... A |-> I ...   </idStore>
+         ...
+    </contractInstance>
 
 rule 
     <k> readIndexAddress(A,L) => I ... </k>
-    <ctStore> ... A |-> I ...   </ctStore>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctStore> ... A |-> I ...   </ctStore>
+          ...
+    </contractInstance>
     requires L >Int 0
    
 rule 
@@ -962,7 +1027,7 @@ rule
         <ctId> CI </ctId>
         <ctContext> ... X |-> E ... </ctContext>
         <ctStore> ... (E |-> V) => (E |-> I) ... </ctStore>
-        <ibaseaddress> (.Map => X |-> !Num:Int) ... </ibaseaddress>
+        <ibaseaddress> .Map => (X |-> !Num:Int) ... </ibaseaddress>
         <idStore> (.Map => !Num:Int |-> 0) ... </idStore>
         <ctLocation> ... X  |-> String2Id("Global") ... </ctLocation>
         <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
@@ -1015,54 +1080,12 @@ rule
 //Dynamic struct instance
 
 rule 
-    <k> X:Id.length = I:Int => CopyStructInstance(C,X) ~> CreateStructInstance(X,I,0) ~> ResetStructSize(X,I) ... </k>
+    <k> X:Id.length = I:Int => CreateStructInstance(X,I,0) ~> ResetStructSize(X,I) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
         <ctName> C </ctName>
         <ctType> ... X |-> "struct" ... </ctType>
-        ...
-    </contractInstance>
-
-rule
-    <k> CopyStructInstance(C,X) => . ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> C </ctName>
-        <ctType> ... X |-> "struct" ... </ctType>
-        <ctLocation> ... X |-> String2Id("Global") ... </ctLocation>
-         (.Bag => 
-            <istructInstance>
-            <istructName> Y </istructName>
-            <iiname> X </iiname>
-            ...
-         </istructInstance>)
-        ...
-    </contractInstance>
-    <Contract>
-        <cname> C </cname>
-        <Struct>
-            <sname> Y </sname>
-            ...
-        </Struct>
-        <structInstance>
-            <structName> Y </structName>
-            <iname> X </iname>
-            <ivariables> Var:Map </ivariables>
-            ...
-        </structInstance>
-        ...
-    </Contract>
-
-rule
-    <k> CopyStructInstance(C,X) => . ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> C </ctName>
-        <ctType> ... X |-> "struct" ... </ctType>
-        <ctLocation> ... X |-> String2Id("Local") ... </ctLocation>
         ...
     </contractInstance>
     
@@ -1477,7 +1500,452 @@ rule
 rule 
     <k> T:ElementaryTypeName (I:Int,.Values) => T(I) ... </k>
 
+//delete
+
+//delete elementary type name
+
 rule 
-    <k> delete X:IndexAccess => write(X,0) ... </k>
+    <k> delete X => write(X,0) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:NotBoolByte ... </ctType>
+        <ilength> Rho </ilength>
+        ...
+    </contractInstance>
+    requires notBool(X in keys(Rho))
+
+rule 
+    <k> delete X => write(X,false) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:SBool ... </ctType>
+        <ilength> Rho </ilength>
+        ...
+    </contractInstance>
+    requires notBool(X in keys(Rho))
+
+//delete index access
+
+rule 
+    <k> delete X:IndexAccess => CheckIndexType(X,X,0) ... </k>
+
+rule 
+    <k> CheckIndexType(#indexAccess(X:IndexAccess,Y),Z,E) => CheckIndexType(X,Z,E) ...</k>
+
+rule
+    <k> CheckIndexType(#indexAccess(X:Id,Y),Z,E) => write(Z,0) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:NotBoolByte ... </ctType>
+        ...
+    </contractInstance>
+
+rule
+    <k> CheckIndexType(#indexAccess(X:Id,Y),Z,E) => write(Z,false) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:SBool ... </ctType>
+        ...
+    </contractInstance>
+
+rule
+    <k> CheckIndexType(#indexAccess(X:Id,Y),Z,E) => write(Z,0) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... (X |-> "struct")(A |-> T:NotBoolByte) ... </ctType>
+        <iivariables> ... E |-> A ... </iivariables>
+        ...
+    </contractInstance>
+
+rule
+    <k> CheckIndexType(#indexAccess(X:Id,Y),Z,E) => write(Z,false) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... (X |-> "struct")(A |-> T:SBool) ... </ctType>
+        <iivariables> ... E |-> A ... </iivariables>
+        ...
+    </contractInstance>
+
+//delete member access
+
+rule 
+    <k> delete X:MemberAccess => CheckMemberType(X,X) ... </k>
+
+rule 
+    <k> CheckMemberType(#memberAccess(X:MemberAccess,Y),Z) => CheckMemberType(X,Z) ...</k>
+
+rule 
+    <k> CheckMemberType(#memberAccess(X:IndexAccess,Y),Z) => CheckIndexType(X,Z,Y) ...</k>
+
+rule
+    <k> CheckMemberType(#memberAccess(X:Id,Y),Z) => write(Z,0) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:NotBoolByte ... </ctType>
+        ...
+    </contractInstance>
+
+rule
+    <k> CheckMemberType(#memberAccess(X:Id,Y),Z) => write(Z,false) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:SBool ... </ctType>
+        ...
+    </contractInstance>
+
+//delete fixed size array
+
+rule 
+    <k> delete X => ArrayReset(X,I) ~> 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> N ... </ctContext>
+        <ctStore> ... N |-> I ... </ctStore>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <ilength> ... X |-> Len ... </ilength>
+        ...
+    </contractInstance>
+    requires Len >Int 0
+
+//delete dynamic array
+
+rule 
+    <k> delete X => DeleteIndexes(X,I,0) ~> 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> N ... </ctContext>
+        <ctStore> ... N |-> I ... </ctStore>
+        <ctType> ... X |-> T:ElementaryTypeName ... </ctType>
+        <ilength> ... X |-> 0 ... </ilength>
+        ...
+    </contractInstance>
+
+rule 
+    <k> DeleteIndexes(X,I,N) => DeleteIndex(X,I,N) ~> DeleteIndexes(X,I,N +Int 1) ...</k>
+    requires I >Int N
+  
+rule
+    <k> DeleteIndex(X,I,N) => . ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ibaseaddress> ... X |-> A ... </ibaseaddress>
+        <idStore> ... (A +Int N |-> V) => .Map ... </idStore>
+        ...
+    </contractInstance>
+
+rule 
+    <k> DeleteIndexes(X,I,I) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ibaseaddress> ... (X |-> A) => .Map ... </ibaseaddress>
+        ...
+    </contractInstance>
+    requires I >Int 0
+
+rule 
+    <k> DeleteIndexes(X,0,0) => . ... </k>
+
+rule 
+    <k> ArrayReset(X,N)=> IndexReset(X,N -Int 1) ~> ArrayReset(X,N -Int 1) ... </k>
+    requires N >=Int 1
+
+rule 
+    <k> ArrayReset(X,0) => . ... </k>
+
+rule 
+    <k> IndexReset(X,N) => X[N]=0; ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:NotBoolByte ... </ctType>
+        ...
+    </contractInstance>
+
+rule 
+    <k> IndexReset(X,N) => X[N]=false; ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:SBool ... </ctType>
+        ...
+    </contractInstance>
+
+rule 
+    <k> IndexReset(X,N) => X[N]=0; ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctType> ... X |-> T:Byte ... </ctType>
+        ...
+    </contractInstance>
+
+//Delete struct instance
+
+//delete fixed size one dimensional struct instance
+
+rule 
+    <k> delete X => DeleteFixedStruct(X,I,0) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> N ... </ctContext>
+        <ctStore> ... N |-> I ... </ctStore>
+        <ctType> ... X |-> "struct" ... </ctType>
+        <ctLocation> ... X |-> String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> 1 ... </ilength>
+        ...
+    </contractInstance>
+
+rule 
+    <k> DeleteFixedStruct(X,I,N) => delete Ins; ~> DeleteFixedStruct(X,I,N +Int 1) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... Var |-> Ins ... </iivariables>
+            <iivariablesId> ... N |-> Var ... </iivariablesId>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance>
+    requires I >Int N
+
+rule 
+    <k> DeleteFixedStruct(X,I,I) => 1 ...</k>
+
+//delete fixed size multi-dimensional struct instance
+
+rule 
+    <k> delete X => DeleteFixedMulDStruct(X,I,0) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... X |-> N ... </ctContext>
+        <ctStore> ... N |-> I ... </ctStore>
+        <ctType> ... X |-> "struct" ... </ctType>
+        <ctLocation> ... X |-> String2Id("Global") ... </ctLocation>
+        <ilength> ... X |-> Len ... </ilength>
+        ...
+     </contractInstance>
+     requires Len >Int 1
+
+rule
+    <k> DeleteFixedMulDStruct(X,I,N) => DeleteFixedMulDStructIns(Ins,Num,0) ~> DeleteFixedMulDStruct(X,I,N +Int 1) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... Ins |-> A ...</ctContext>
+        <ctStore> ... A |-> Num... </ctStore>
+        //<ctvId> ... (_ |-> Ins) => .Map ... </ctvId>
+        <ctType> ... Ins |-> "struct" ... </ctType>
+        <ctLocation> ... Ins |-> String2Id("Global") ... </ctLocation>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... N |-> Ins ... </iivariables>
+            ...
+        </istructInstance>
+        ...
+     </contractInstance> 
+     requires I >Int N
+
+rule
+    <k> DeleteFixedMulDStruct(X,I,I) => 1 ... </k>
+
+rule
+    <k> DeleteFixedMulDStructIns(Ins,Num,N) => delete InsId; ~> DeleteFixedMulDStructIns(Ins,Num,N +Int 1) ...</k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <istructInstance>
+            <iiname> Ins </iiname>
+            <iivariablesId> ... N |-> Var ... </iivariablesId>
+            <iivariables> ... Var |-> InsId ... </iivariables>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance>
+    requires Num >Int N
+
+rule
+    <k> DeleteFixedMulDStructIns(Ins,Num,Num) => . ...</k>
+     
+//delete dynamic struct instance      
+
+rule <k> delete X => DeleteDynamicStruct(X,I,0) ... </k>
+     <contractStack> ListItem(CI:Int) ... </contractStack>
+     <contractInstance>
+         <ctId> CI </ctId>
+         <ctContext> ... X |-> N ... </ctContext>
+         <ctStore> ... (N |-> I) => (N |-> 0)... </ctStore>
+         <ctType> ... X |-> "struct" ... </ctType>
+         <ctLocation> ... X |-> String2Id("Global") ... </ctLocation>
+         <ilength> ... X |-> 0 ... </ilength>
+         ...
+     </contractInstance>
+
+rule 
+    <k> DeleteDynamicStruct(X,I,N) => DeleteDynamicStructStep(X,I,N) ~> DeleteDynamicStruct(X,I,N +Int 1) ... </k>
+    requires I >Int N
+
+rule 
+    <k> DeleteDynamicStructStep(X,I,N) => DeleteDynamicStructIns(Ins,Num,0) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ... (Ins |-> A) => .Map ...</ctContext>
+        <ctStore> ... (A |-> Num)=> .Map ... </ctStore>
+      //<ctvId> ... (_ |-> Ins) => .Map ... </ctvId>
+        <ctType> ... (Ins |-> "struct") => .Map ... </ctType>
+        <ctLocation> ... (Ins |-> String2Id("Global")) => .Map ... </ctLocation>
+        <istructInstance>
+            <iiname> X </iiname>
+            <iivariables> ... (N |-> Ins) => .Map ... </iivariables>
+            ...
+        </istructInstance>
+        ...
+    </contractInstance> 
+
+rule <k> DeleteDynamicStructStep(X,I,N) => DeleteDynamicStructIns(Ins,Num,0) ... </k>
+     <contractStack> ListItem(CI:Int) ... </contractStack>
+     <contractInstance>
+         <ctId> CI </ctId>
+         <ctContext> ... (Ins |-> A) => .Map ...</ctContext>
+         <Memory> ... (A |-> Num)=> .Map ... </Memory>
+         //<ctvId> ... (_ |-> Ins) => .Map ... </ctvId>
+         <ctType> ... (Ins |-> "struct") => .Map ... </ctType>
+         <ctLocation> ... (Ins |-> String2Id("Local")) => .Map ... </ctLocation>
+         <istructInstance>
+             <iiname> X </iiname>
+             <iivariables> ... (N |-> Ins) => .Map ... </iivariables>
+             ...
+         </istructInstance>
+         ...
+     </contractInstance>
+
+rule 
+    <k> DeleteDynamicStruct(X,I,I) => 1 ... </k>
+     
+rule 
+    <k> DeleteDynamicStructIns(Ins,Num,N)=> DeleteDynamicStructInsStep(Ins,Num,N) ~> DeleteDynamicStructIns(Ins,Num,N +Int 1) ...</k>
+    requires Num >Int N
+
+//delete elementary type member in struct instance
+
+rule 
+    <k> DeleteDynamicStructInsStep(Ins,Num,N) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ...(InsId |-> A) => .Map ... </ctContext>
+        <Memory> ...(A |-> V)=> .Map ... </Memory>
+        // <ctvId> ... (Id |-> InsId) => .Map ... </ctvId>
+        <ctType> ... (InsId |-> T) => .Map ... </ctType>
+        <ctLocation> ... (InsId |-> String2Id("Local")) => .Map ... </ctLocation>
+        <istructInstance>
+            <iiname> Ins </iiname>
+            <iivariablesId> ... (N |-> Var) => .Map ... </iivariablesId>
+            <iivariables> ... (Var |-> InsId) => .Map ... </iivariables>
+            ...
+        </istructInstance>
+        <ilength> Rho </ilength>
+        ...
+    </contractInstance> 
+    requires notBool(InsId in keys(Rho))
+
+//delete dynamic array member in struct instance
+
+rule 
+    <k> DeleteDynamicStructInsStep(Ins,Num,N) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ...(InsId |-> A) => .Map ... </ctContext>
+        <ctStore> ...(A |-> V) => (A |-> 0)... </ctStore>
+        // <ctvId> ... (Id |-> InsId) => .Map ... </ctvId>
+        <ctType> ... (InsId |-> T) => .Map ... </ctType>
+        <ctLocation> ... (InsId |-> String2Id("Local")) => .Map ... </ctLocation>
+        <istructInstance>
+            <iiname> Ins </iiname>
+            <iivariablesId> ... (N |-> Var) => .Map ... </iivariablesId>
+            <iivariables> ... (Var |-> InsId) => .Map ... </iivariables>
+            ...
+        </istructInstance>
+        <ibaseaddress> ... (InsId |-> Add) => .Map ... </ibaseaddress>
+        <ilength> ... (InsId |-> 0) => .Map ...</ilength>
+        <ivdim> ...(InsId |-> Dim) => .Map ... </ivdim>
+        ...
+    </contractInstance> 
+
+//delete fixed size array member in struct instance
+
+rule 
+    <k> DeleteDynamicStructInsStep(Ins,Num,N) => . ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> ...(InsId |-> A) => .Map ... </ctContext>
+        <Memory> ...(A |-> V)=> .Map ... </Memory>
+        // <ctvId> ... (Id |-> InsId) => .Map ... </ctvId>
+        <ctType> ... (InsId |-> T) => .Map ... </ctType>
+        <ctLocation> ... (InsId |-> String2Id("Local")) => .Map ... </ctLocation>
+        <istructInstance>
+            <iiname> Ins </iiname>
+            <iivariablesId> ... (N |-> Var) => .Map ... </iivariablesId>
+            <iivariables> ... (Var |-> InsId) => .Map ... </iivariables>
+            ...
+        </istructInstance>
+        <ilength> ... (InsId |-> Len) => .Map ...</ilength>
+        <ibaseaddress> ... (InsId |-> Add) => .Map ... </ibaseaddress>
+        <ivdim> ...(InsId |-> Dim) => .Map ... </ivdim>
+        ...
+    </contractInstance> 
+    requires Len >Int 0
+
+rule 
+    <k> DeleteDynamicStructIns(Ins,Num,Num) => ReduceStructInsNum(CI) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>  
+        <ctId> CI </ctId>
+        <ilength> ... (Ins |-> L) => .Map ... </ilength>
+        <istructinstances>
+            (<istructInstance>
+                <iiname> Ins </iiname>
+                ...
+            </istructInstance>) => .Bag
+            ...
+        </istructinstances>
+        ...
+    </contractInstance> 
+
+rule 
+    <k> ReduceStructInsNum(CI) => . ... </k>
+    <contractInstance>  
+        <ctId> CI </ctId>
+        <icntStructInstance> N1:Int => N1 -Int 1 </icntStructInstance>
+        ...
+    </contractInstance> 
+
+rule 
+    <k> CountByteLength(I,N) => CountByteLength(I /Int 100,N +Int 1) ... </k>
+    requires I >Int 0
+
+rule 
+    <k> CountByteLength(0,N) => N ... </k>
+
+       
 
 endmodule

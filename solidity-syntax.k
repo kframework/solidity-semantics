@@ -102,7 +102,8 @@ syntax Expression ::=  Id |ElementaryTypeName | KResult
                     | enumIns(Id,Id,Identifiers)
                     | enumCheck(Id,Id,Identifiers)
                     | Push [prefer]
-                    | GetByteValue(Id,Int,Int,Int)
+                    | GetByteValue(Id,Int,Int,Expression) [strict(4)]
+                    | CountByteLength(Int,Int)
                                          
 syntax BuiltinParam ::= "msg"	  		   [prefer]
                       | "msg.sender"   [prefer]
@@ -456,14 +457,30 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | readIndexAddress(Int,Int)
                       | Items(Id,Id,Identifiers,Int,Int)
                       | FindEnum(Id,Id,Identifiers,Int,Int)
-                      | BytesAssign(Id,Int,Int,Int)
+                      | BytesAssign(Id,Expression,Int,Int) [strict(2)]
                       | ByteAssign(Id,Int,Int,Int)
                       | GetBytesValue(Id,Int,Int,Expression)    [strict(4)]    
                       | BytesAssignG(Id,Id,Int,Int,Int)
                       | ByteAssignG(Id,Id,Int,Int,Int,Expression) [strict(6)]
                       | CreateStructInstance(Id,Int,Int)
                       | ResetStructSize(Id,Int)
-                      | CopyStructInstance(Id,Id) 
+                      | CheckIndexType(Expression,Expression,Expression)
+                      | CheckMemberType(Expression,Expression)
+                      | ArrayReset(Id,Int)
+                      | IndexReset(Id,Int)
+                      | DeleteIndexes(Id,Int,Int)
+                      | DeleteIndex(Id,Int,Int)
+                      | DeleteDynamicStruct(Id,Int,Expression) [strict(3)]
+                      | DeleteDynamicStructIns(Id,Int,Expression)  [strict(3)]
+                      | DeleteDynamicStructStep(Id,Int,Expression) [strict(3)]
+                      | DeleteDynamicStructInsStep(Id,Int,Expression) [strict(3)]
+                      | ReduceStructInsNum(Int)
+                      | CreateGlobalStructIns(Id,Id,Int,Int)
+                      | CopyGlobalStructIns(Id,Int,Int,Int)
+                      | SetLength(Id,Id,Int)
+                      | DeleteFixedStruct(Id,Int,Int)
+                      | DeleteFixedMulDStruct(Id,Int,Int)
+                      | DeleteFixedMulDStructIns(Id,Int,Int)
          
 syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression) [strict(5)]
                | read(Expression)

@@ -181,7 +181,7 @@ syntax SolidityItem ::=BindParam(FParameters, Values)
 rule BindParam(.FParameters, Values) => .
 
 rule 
-    <k> BindParam(T:TypeName .StorageLocations P:Id, Ps:FParameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
+    <k> BindParam(T:NotByte .StorageLocations P:Id, Ps:FParameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -190,6 +190,19 @@ rule
         <ctType> .Map =>(P |-> T) ... </ctType>
         <ctStore> .Map => (!N |-> E) ... </ctStore>
         <ctLocation> .Map =>( P |-> String2Id("Global")) ...</ctLocation>
+        ...
+    </contractInstance>
+
+rule 
+    <k> BindParam(T:Bytes .StorageLocations P:Id, Ps, E, Es:Values) => P.length = CountByteLength(E,0); ~> BytesAssign(P,CountByteLength(E,0),E,0) ~> BindParam(Ps,Es) ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
+        <ctStore> .Map => (!N:Int |-> 0) ... </ctStore>
+        <ctLocation> .Map => (P |-> String2Id("Global")) ... </ctLocation>
+        <ctType> .Map =>(P |-> T) ... </ctType>
+        <ilength> .Map => (P |-> 0 ) ... </ilength>
         ...
     </contractInstance>
 
@@ -327,13 +340,13 @@ rule
     <functionStack> (.List => ListItem(F)) ... </functionStack>
 
 rule
-    <k> BindParam(T:SBool .StorageLocations P:Id, .Values) => BindParam(T:SBool .StorageLocations P,false) ... </k>
+    <k> BindParam(T:SBool .StorageLocations P:Id, Ps, .Values) => BindParam(T:SBool .StorageLocations P,false) ~> BindParam(Ps,.Values) ... </k>
 
 rule 
-    <k> BindParam(T:NotBoolByte .StorageLocations P:Id, .Values) => BindParam(T .StorageLocations P,0) ... </k>
+    <k> BindParam(T:NotBoolByte .StorageLocations P:Id, Ps, .Values) => BindParam(T .StorageLocations P,0) ~> BindParam(Ps,.Values) ... </k>
 
 rule 
-    <k> BindParam(T:TypeName, .Values) => . ...</k>
+    <k> BindParam(T:TypeName, Ps, .Values) => BindParam(Ps,.Values) ...</k>
 
 rule 
     <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,.Values) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>

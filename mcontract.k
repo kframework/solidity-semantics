@@ -83,7 +83,7 @@ rule
     <typeName> ( .Map => Z |-> X) ... </typeName>
     <cstore> (.Map => !Num |-> I) ... </cstore>
     <cLocation> ( .Map => Z |-> Y) ... </cLocation>
-    <Length> (.Map => Z |-> 0) ... </Length>
+    //<Length> (.Map => Z |-> 0) ... </Length>
     ...
   </Contract>
      
@@ -205,7 +205,14 @@ rule
     </Contract>
 
 rule 
-    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ... </k>
+    <k> pcsContractPart(C:Id, T:ElementaryTypeName[] Y:FunQuantifiers Z:Id;) => allocate(C,T,String2Id("Global"),Z,0) ~> SetLength(C,Z,0)... </k>
+
+rule 
+    <k> SetLength(C,Z,I) => . ...</k>
+    <Contract>
+        <Length> (.Map => Z |-> 0) ... </Length>
+        ...
+    </Contract>
 
 //Multi-dimensional array
 
@@ -611,6 +618,40 @@ rule mapping(E:ElementaryTypeName => T:TypeName) Y:StorageLocations X:Id => T[] 
 //UserDefinedTypeName
 
 rule  
+    <k> T:UserDefinedTypeName[I:Int] Y:StorageLocations X:Id => CreateStructInstance(X,I,0) ~> 1 ... </k>
+    <contractStack> ListItem(CI:Int) ... </contractStack>
+    <contractInstance>
+        <ctId> CI </ctId>
+        <ctName> C </ctName>
+        <ctNum>  N:Int => N +Int 1 </ctNum>
+        <ctVId> (.Map => N |-> X) ... </ctVId>
+        <ctContext> ( .Map => X |-> !Num:Int) ... </ctContext>
+        <ctType> ( .Map => X |-> "struct") ... </ctType>
+        <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
+        <Memory> (.Map => !Num |-> I) ... </Memory>
+        <ilength> ( .Map => X |-> I) ... </ilength>
+        <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
+        (.Bag =>
+            <istructInstance>
+                <istructName> T </istructName>
+                <iiId> N1 </iiId>
+                <iiname> X </iiname>
+                <iisnum> 0 </iisnum>
+                <iivariables> .Map </iivariables>
+                ...
+            </istructInstance>)
+        ...
+    </contractInstance> 
+    <Contract>
+        <cname> C </cname>
+        <Struct>
+            <sname>  T </sname>
+            ...
+        </Struct>
+        ...
+    </Contract>
+
+rule  
     <k> T:UserDefinedTypeName[] Y:StorageLocations X:Id => 1 ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
@@ -622,6 +663,7 @@ rule
         <ctType> ( .Map => X |-> "struct") ... </ctType>
         <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
         <Memory> (.Map => !Num |-> 0) ... </Memory>
+        <ilength> ( .Map => X |-> 0) ... </ilength>
         <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
         (.Bag =>
             <istructInstance>
@@ -655,6 +697,7 @@ rule
         <ctType> ( .Map => X |-> "struct") ... </ctType>
         <ctLocation> (.Map => X |-> String2Id("Local")) ... </ctLocation>
         <Memory> (.Map => !Num |-> !Num +Int 1) ... </Memory>
+        <ilength> ( .Map => X |-> 1) ... </ilength>
         <icntStructInstance> N1:Int => N1 +Int 1 </icntStructInstance>
         (.Bag =>
             <istructInstance>
@@ -1069,6 +1112,7 @@ rule
             <iname> IName </iname>
             <isnum> N1:Int => N1 +Int 1 </isnum>
             <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
+            <ivariablesId> (.Map => N1 |-> Z)...</ivariablesId>
             ...
         </structInstance>
         ...
@@ -1083,6 +1127,7 @@ rule
             <iname> IName </iname>
             <isnum> N1:Int => N1 +Int 1 </isnum>
             <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
+            <ivariablesId> (.Map => N1 |-> Z)...</ivariablesId>
             ...
         </structInstance>
     ...
@@ -1100,6 +1145,7 @@ rule
             <iname> IName </iname>
             <isnum> N1:Int => N1 +Int 1 </isnum>
             <ivariables> (.Map => Z |-> !D:Id)...</ivariables>
+            <ivariablesId> (.Map => N1 |-> Z)...</ivariablesId>
             ...
         </structInstance>
         ...
@@ -1127,6 +1173,7 @@ rule
         <typeName> ( .Map => Y |-> "struct") ... </typeName>
         <cstore> (.Map => !Num |-> 0) ... </cstore>
         <cLocation> ( .Map => Y |-> String2Id("Global")) ... </cLocation>
+        <Length> ( .Map => Y |-> 0) ... </Length>
         <Struct>
             <sname> X </sname>
             ...
@@ -1143,6 +1190,52 @@ rule
             </structInstance>)
             ...
         </Contract> 
+
+rule 
+    <k> pcsContractPart(C:Id, X:Id[I:Int] S:FunQuantifiers Y:Id;) => CreateGlobalStructIns(C,Y,I,0) ... </k>
+    <Contract>
+        <cname> C </cname>
+        <vnum>  N:Int => N +Int 1 </vnum>
+        <vId> (.Map => N |-> Y )... </vId>
+        <variables> ( .Map => Y |-> !Num:Int) ... </variables>
+        <typeName> ( .Map => Y |-> "struct") ... </typeName>
+        <cstore> (.Map => !Num |-> I) ... </cstore>
+        <cLocation> ( .Map => Y |-> String2Id("Global")) ... </cLocation>
+        <Length> ( .Map => Y |-> I) ... </Length>
+        <Struct>
+            <sname> X </sname>
+            <vardec> VarD </vardec>
+            ...
+        </Struct>
+        <cntStructInstance> N1:Int => N1 +Int 1 </cntStructInstance>
+        (.Bag =>
+            <structInstance>
+                <structName> X </structName>
+                <iId> N1 </iId>
+                <iname> Y </iname>
+                <isnum> 0 </isnum>
+                <ivariables> .Map </ivariables>
+                ...
+            </structInstance>)
+        ...
+    </Contract> 
+
+rule 
+    <k> CreateGlobalStructIns(C,X,I,N) => pcsContractPart(C:Id, Str:Id .FunQuantifiers !D:Id;) ~> CreateGlobalStructIns(C,X,I,N +Int 1) ...</k>
+    <Contract>
+        <cname> C </cname>
+        <structInstance>
+            <structName> Str </structName>
+            <iname> X </iname>
+            <ivariables> (.Map => N |-> !D)... </ivariables>
+            ...
+        </structInstance>
+        ...
+    </Contract>
+    requires I >Int N
+
+rule
+    <k> CreateGlobalStructIns(C,X,N,N) => . ... </k>
         
 rule 
     <k> pcsContractPart(C:Id, X:Id S:FunQuantifiers Y:Id;) => pcsStateVariableDeclarations(C,X,VarD,Y) ~> SetStructSize(C,X,Y) ... </k>
@@ -1153,6 +1246,8 @@ rule
         <variables> ( .Map => Y |-> !Num:Int) ... </variables>
         <typeName> ( .Map => Y |-> "struct") ... </typeName>
         <cstore> (.Map => !Num |-> !Num +Int 1) ... </cstore>
+        <cLocation> ( .Map => Y |-> String2Id("Global")) ... </cLocation>
+        <Length> ( .Map => Y |-> 1) ... </Length>
         <Struct>
             <sname> X </sname>
             <vardec> VarD </vardec>
