@@ -172,3 +172,23 @@ expected: 720
 ```
 
 which makes them perfectly general and usable in other projects.
+
+## Suggestions from Everett
+
+If you want a more generic way of doing tests, you might consider "building them in", for instance, have your main look something like this (forgive the non-solidity psuedo-code):
+
+```
+main() {
+   return call1() == result1 && call2() == result2 && call3() == result3;
+}
+```
+
+This will let you test multiple things at once, and now you only need to check "does it return True or False" as the test result, which is fairly easy to adapt to other test frameworks as well.
+
+### Pros
+
+* simple to check (only `true`/`false`)
+
+### Cons
+
+* when a test fail, we don't know which of the multiple calls failed, we need to check manually
