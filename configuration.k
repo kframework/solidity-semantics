@@ -179,5 +179,6 @@ module CONFIGURATION
             uint248 |-> 248
             uint256 |-> 256
         </uintSize>
+        <outputLog stream="stdout"> .List </outputLog>
     </T>
 endmodule
