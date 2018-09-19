@@ -467,4 +467,9 @@ rule
     <k> return; => . ... </k>
     <exeCon> _ => false </exeCon>
 
+// TODO: move in correct place
+rule 
+    <k> logValue(V:Int); => . ... </k>
+    <outputLog> ... .List => ListItem(V) </outputLog>
+
 endmodule

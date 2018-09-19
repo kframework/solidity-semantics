@@ -329,6 +329,8 @@ syntax OtherStatements ::= DoWhileStatement
                          | EndLoop(Statements)
                          | "revert" "(" ExpressionList ")" ";"
                          | ExeCounters(SimpleStatements)
+                          // TODO: move to correct place (if needed)
+                         | "logValue" "(" Expression ")" ";" [strict] 
                                                                 
 //syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
 //  syntax FunctionDefinitions ::= List{FunctionDefinition,"" }
