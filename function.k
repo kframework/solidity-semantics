@@ -27,7 +27,6 @@ rule
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
-            <Return> 0 </Return>
         </Function>)
     requires Id2String(C) =/=String "main"
 
@@ -47,7 +46,6 @@ rule
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
-            <Return> 0 </Return>
         </Function>)
     requires Id2String(F) =/=String "main" andBool
              Id2String(F) =/=String Id2String(C)
@@ -69,8 +67,7 @@ rule
             <outputParameters> .FParameters </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>
-            <Return> 0 </Return>                     
+            <FunCon> true </FunCon>                    
             </Function>)
     requires Id2String(C) =/=String "main"     
 
@@ -89,8 +86,7 @@ rule
             <outputParameters> .FParameters </outputParameters>
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>
-            <Return> 0 </Return>                     
+            <FunCon> true </FunCon>                   
         </Function>)
     requires Id2String(F) =/=String "main" andBool
              Id2String(F) =/=String Id2String(C)
@@ -111,7 +107,6 @@ rule
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
-            <Return> 0 </Return>
         </Function>)
                
 rule 
@@ -130,7 +125,6 @@ rule
             <body> B </body>
             <FunQuantifiers> FQ </FunQuantifiers>
             <FunCon> true </FunCon>
-            <Return> 0 </Return>
         </Function>)
     
 rule 
@@ -149,6 +143,13 @@ rule
             <body> B </body>
             ...                    
         </Function>)
+    (.Bag =>
+    <contractInstance>
+        <ctId> -1 </ctId>
+        <ctContext> .Map </ctContext>
+        <ctStore> .Map </ctStore>
+        ...
+    </contractInstance>)
     requires Id2String(F) ==String "main" 
 
 rule 
@@ -167,6 +168,13 @@ rule
             <body> B </body>
             ...
         </Function>)
+     (.Bag =>
+    <contractInstance>
+        <ctId> -1 </ctId>
+        <ctContext> .Map </ctContext>
+        <ctStore> .Map </ctStore>
+        ...
+    </contractInstance>)
     requires Id2String(F) ==String "main" 
 
 // rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters);) => . ... </k>
@@ -186,8 +194,8 @@ rule
     <contractInstance>
         <ctId> CI </ctId>
         <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
-        <ctStore> .Map => (!N:Int |-> E) ... </ctStore>
-        <ctLocation> .Map =>( P |-> String2Id("Global")) ...</ctLocation>
+        <Memory> .Map => (!N:Int |-> E) ... </Memory>
+        <ctLocation> .Map =>( P |-> String2Id("Local")) ...</ctLocation>
         <ctType> .Map =>(P |-> T) ... </ctType>
         ...
     </contractInstance>
@@ -290,8 +298,8 @@ rule
 
 // Functioncall
 
-rule [function-call-local]:
-    <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es) ... </k>
+rule [function-call]:
+    <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -315,7 +323,7 @@ rule [function-call-local]:
         ...
     </Function>
 
-rule [function-call-external]:
+rule
     <k> functionCall(Sender:Int ; C:Int ; F:Id ; Es:Values ; M:Msg) => 
             createTransaction(L) ~> 
             functionCall(F ; Es) ~> 
@@ -323,10 +331,16 @@ rule [function-call-external]:
     <contractStack> (.List => ListItem(C)) L:List </contractStack>
     <Msg> M1 => M </Msg>
     <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-    <functionStack> (.List => ListItem(F)) ... </functionStack>
+    <functionStack> (.List => ListItem(#state(RhoC,F,0))) ... </functionStack>
+    <contractInstance>
+        <ctId> Sender </ctId>
+        <globalContext> RhoG </globalContext>
+        <ctContext> RhoC => RhoG </ctContext>
+        ...
+    </contractInstance>
 
 rule 
-    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI) ... </k>
+    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
     <contractStack> ListItem(CI:Int) ... </contractStack>
     <contractInstance>
         <ctId> CI </ctId>
@@ -423,60 +437,30 @@ rule
     createTransaction(L ListItem(-1)) => . 
     requires L =/=K .List
 
-// TODO: move in correct place
 rule 
-    <k> logValue(V:Int); => . ... </k>
-    <outputLog> ... .List => ListItem(V) </outputLog>
-
-rule 
-    <k> returnContext(C:Int) => E ... </k>
-    <contractStack> ListItem(C) => .List ... </contractStack>
+    <k> returnContext(C:Int) => E:Value ... </k>
+    <contractStack> ListItem(C) ListItem(S) => ListItem(S) ... </contractStack>
     <Msg> M => M1 </Msg>
     <MsgStack> ListItem(M1) => .List ... </MsgStack>
     <vposition> _ => 1 </vposition>
-    <functionStack> ListItem(F) => .List ... </functionStack>
+    <functionStack> ListItem(#state(Rho:Map,F,E)) => .List ... </functionStack>
     <newStack>  L => .List </newStack>
     <contractInstance>
         <ctId> C </ctId>
         <ctName> Cn:Id </ctName>
+        <ctContext> _ => RhoG </ctContext>
+        <globalContext> RhoG </globalContext>
         ...
     </contractInstance>
-    <contracts>
-        <Contract>
-            <cname> Cn </cname>
-            <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-            ...
-        </Contract>
+    <contractInstance>
+        <ctId> S </ctId>
+        <ctContext> _ => Rho </ctContext>
         ...
-    </contracts>
-    <Function>
-        <fId> CT </fId>
-        <Return> E </Return>
-        ...
-    </Function> 
+    </contractInstance>
 
 rule 
     <k> return E:Int; => . ...</k>
-    <functionStack> ListItem(F:Id) ... </functionStack>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Cn:Id </ctName>
-        ...
-    </contractInstance>
-    <contracts>
-        <Contract>
-            <cname> Cn </cname>
-            <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-            ...
-        </Contract>
-        ...
-    </contracts>
-    <Function>
-        <fId> CT </fId>
-        <Return> _ => E </Return>
-        ...
-    </Function> 
+    <functionStack> ListItem(#state(_,_,_=>E)) ... </functionStack>
     <exeCon> _ => false </exeCon>
 
 rule 

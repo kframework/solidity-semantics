@@ -285,6 +285,7 @@ rule
             <ctNum> Num </ctNum>
             <ctVId> V </ctVId>
             <ctContext> Rho </ctContext>
+            <globalContext> Rho </globalContext>
             <ctType> Type </ctType>
             <ctStore> S </ctStore>
             <ctLocation> CL </ctLocation>
