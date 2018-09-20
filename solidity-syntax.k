@@ -56,7 +56,7 @@ syntax Expression ::= Bool | Int | String | Id |Value |ElementaryTypeName
                     | NewExpression
                     | IndexAccess    
                     | MemberAccess   
-                    | FunctionCall // TODO: this is an "internal" op. Should be made clear. 
+                    | FunctionCall 
                     | MemOp
                     | "(" Expression ")"	   [bracket]
                     > SimpleExpression1 
@@ -321,16 +321,16 @@ syntax OtherStatements ::= DoWhileStatement
                          | "throw" ";"
                          | SimpleStatement ";" [strict]
                          | "require" "(" Expression ")" ";" 
-                         | "_;" // Why not "_" ";"? Is this needed anyways?
+                         | "_;"
                          | FunExe(Statements)
-                         //| FunctionCall ";" [strict] // TODO: should probably not be here (handle as Expression Statement instead)
+                         | FunctionCall ";" [strict]
                          | ExeWhile(Statements)
                          | InitStmts(SimpleStatements) 
                          | EndLoop(Statements)
                          | "revert" "(" ExpressionList ")" ";"
                          | ExeCounters(SimpleStatements)
-                         // TODO: move to correct place (if needed)
-                         | "logValue" "(" Expression ")" ";" [strict]      
+                          // TODO: move to correct place (if needed)
+                         | "logValue" "(" Expression ")" ";" [strict] 
                                                                 
 //syntax StateVariableDeclarations ::= List{StateVariableDeclaration,"" }
 //  syntax FunctionDefinitions ::= List{FunctionDefinition,"" }
@@ -402,9 +402,9 @@ syntax SolidityItem ::=  pcsContractParts(Id,ContractParts)
                       | writeIndexToAddress(Int,Expression,Int)
                       | readIndexAddress(Int,Int)
          
-syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression)
+syntax MemOp ::= allocate(Expression,TypeName,Id,Expression,Expression) [strict(5)]
                | read(Expression)
-               | write(Expression,Expression)
+               | write(Expression,Expression) [strict(2)]
 
 syntax Param ::= Int | Id 
 
@@ -421,7 +421,7 @@ syntax KResult ::=  Values | AllValues
   
 syntax SimpleStatement ::= VariableDefinition 
                          | SimpleExpression3 
-                         | FunctionCall 
+                       //| FunctionCall 
                          | IncDecExpression 
                          | NewExpression 
                          | AllValues
@@ -552,11 +552,13 @@ syntax FunctionItem ::= returnValue(Statements)	[strict]
                       | UpdateContext(Int)
                       | createTransaction(List)
                       | Call(Id,Values)
-                      
+
 syntax Id ::= "returns" [reject]
 
 syntax HexNumber ::= r"0x[0-9a-fA-F]+" [token]
 syntax HexLiteral ::= r"hex(\"([0-9a-fA-F]{2})*\"|\\'([0-9a-fA-F]{2})*\\')" [token]
 syntax DecimalNumber ::= Int | Float
+
+syntax State ::= #state(Map,Id,Value)
 
 endmodule
