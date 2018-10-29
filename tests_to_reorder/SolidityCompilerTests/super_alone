@@ -1,5 +1,0 @@
-	char const* sourceCode = R"(
-		contract A { function f() { super; } }
-	)";
-	compileAndRun(sourceCode, 0, "A");
-	ABI_CHECK(callContractFunction("f()"), encodeArgs());

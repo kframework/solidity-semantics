@@ -1,9 +1,0 @@
-char const* sourceCode = R"(
-	contract C {
-		function f() returns (bytes20) {
-			return ripemd160();
-		}
-	}
-)";
-compileAndRun(sourceCode);
-ABI_CHECK(callContractFunction("f()"), vector<bytes>(1, fromHex("0x009c1185a5c5e9fc54612808977ee8f548b2258d31")));

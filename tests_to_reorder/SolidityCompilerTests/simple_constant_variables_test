@@ -1,8 +1,0 @@
-char const* sourceCode = R"(
-	contract Foo {
-		function getX() returns (uint r) { return x; }
-		uint constant x = 56;
-	}
-)";
-compileAndRun(sourceCode);
-ABI_CHECK(callContractFunction("getX()"), encodeArgs(56));

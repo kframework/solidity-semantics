@@ -1,9 +1,0 @@
-char const* sourceCode = R"(
-	contract C {
-		function getOne() payable nonFree returns (uint r) { return 1; }
-		modifier nonFree { if (msg.value > 0) _; }
-	}
-)";
-compileAndRun(sourceCode);
-ABI_CHECK(callContractFunction("getOne()"), encodeArgs(0));
-ABI_CHECK(callContractFunctionWithValue("getOne()", 1), encodeArgs(1));

@@ -1,7 +1,0 @@
-char const* sourceCode = R"(
-	contract A {
-	}
-)";
-compileAndRun(sourceCode);
-ABI_CHECK(callFallback(), encodeArgs());
-BOOST_CHECK_EQUAL(m_status, 1);
