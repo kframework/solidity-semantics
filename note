@@ -1,0 +1,21 @@
+
+1. in the configuration, the cell <contract/> is modified as <Contract/> due to
+   "contract" is a key word in the syntax definition.
+
+2. the function cell is modified in the same way as contract
+3. the returns cell is modified in the same way as contract
+
+4. add mode and result cell to the configuration
+
+5. where to put state variable declaration in the configuration?
+   I add it the contract cell
+
+6. add currentAccount cell to the configuration
+7. add cntAccount cell to the configuration
+
+8. rename name cell in both contract and function cell
+
+------------------------note 16-10-2018-----------------------
+
+1. In the configuration, some cells are labeled with type="Map", but
+   in fact, it is a bag
