@@ -23,7 +23,7 @@ rule #exeStmt(S:IfStatement) => S
 rule _:Value ; => . 
 
 rule
-    <k> #exeStmt(S) => S ...</k>
+    <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
     <callStack> .List </callStack>
     <localCalls> .List </localCalls>
 
