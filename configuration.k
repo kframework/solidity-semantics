@@ -112,11 +112,11 @@ configuration
             // (see the <account> cell below for more notes about this)
 
             <contracts>
-                <Contract multiplicity = "*">
+                <Contract multiplicity = "*" type="Map">
                     <cname> .K </cname>
                     
                     <functions>
-                        <Function multiplicity="*">
+                        <Function multiplicity="*" type="Map">
                             <fname>         .K         </fname>
                             <inputParams>  .K         </inputParams> 
                             <Returns>      .K         </Returns>
@@ -144,7 +144,7 @@ configuration
             // ---------------
 
             <activeAccounts> .Set </activeAccounts>
-	        <cntAccount> 0:Int </cntAccount>
+	        <numOfAccounts> 0:Int </numOfAccounts>
             <accounts>
                 <account multiplicity="*">
                     
@@ -152,6 +152,15 @@ configuration
                     
                     <acctID>  .K                      </acctID>
                     <balance> 0                      </balance>
+
+
+
+                    // The <context> cell refers to the environment, mapping variable names to logical 
+                    // storage references. Actually, <context> is equivalent to the <env> cell in <execEngine>.
+
+                    // I would like to change the name to <env> to be consistent with <env> 
+                    // in <execEngine>, but failed. It seems that K-framework complains about 
+                    // having the same name. Could someone help to check? Thanks.
 		            <context> .Map		     </context>
                     
                     // When a contract is deployed, its <contract> data structure will be copied here.
@@ -183,8 +192,7 @@ configuration
                     // https://github.com/gnosis/safe-contracts/blob/d279480b0be2562aab7dd0a751113ba8681e816e/contracts/proxies/Proxy.sol
                     //
 
-                    // not needed, maybe?
-                    <nonce>   .K             </nonce>
+                    <nonce>   0:Int             </nonce>
                 
                 </account>
             </accounts>

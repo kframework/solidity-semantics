@@ -72,7 +72,7 @@ rule [New-Contract-Instance]:
          <stateVar> SV:List </stateVar>
       ...
      </Contract>
-     <cntAccount> N:Int => N +Int 1 </cntAccount>
+     <numOfAccounts> N:Int => N +Int 1 </numOfAccounts>
      (.Bag =>
        <account>
 	  <acctID> #account(N,C) </acctID>
@@ -83,7 +83,7 @@ rule [New-Contract-Instance]:
 		<availableContracts> .K </availableContracts>
 	  </code>
 	  <Storage> .Map </Storage>
-	  <nonce> .K </nonce>
+	  <nonce> 0 </nonce>
 	  ...
        </account>)
 
