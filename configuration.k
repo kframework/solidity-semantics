@@ -146,7 +146,7 @@ configuration
             <activeAccounts> .Set </activeAccounts>
 	        <numOfAccounts> 0:Int </numOfAccounts>
             <accounts>
-                <account multiplicity="*">
+                <account multiplicity="*" type="Map">
                     
                     // Same as in KEVM / IELE
                     

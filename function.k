@@ -181,8 +181,8 @@ rule
      <k> #InitParams(.FParameters, .Values) => . ...</k>
 
 rule 
-     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C:Int, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
-     <currentAccount> #account(C:Int,N:Id) </currentAccount>
+     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C:Int, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
+     <currentAccount> #account(C:Int,CN:Id) </currentAccount>
 
 rule 
      <k> #InitParam(T:TypeName, V) => . ...</k>

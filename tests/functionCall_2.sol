@@ -23,10 +23,10 @@ contract C {
 
 "Test1" : {
 	"exec" : {
-	    "code" : #solidity( functionCall(new C();f;1, 1); )
+	    "code" : #solidity( functionCall(new C();f;1, 1); int sum; sum = 3 + 8;)
 	},
 	"post" : {
-	    "mem" :  #exists("sum",7) 
+	    "mem" :  #exists("sum", 11) 
 	}
    }
 }

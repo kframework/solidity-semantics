@@ -191,7 +191,7 @@ syntax IfStatement ::= "if" "(" Expression ")" Statement "else" Statement [stric
 
 syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
-syntax Identifiers ::= List{Id, ","}
+syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
 
 syntax Int
        ::= "#undef_Int"
@@ -211,9 +211,9 @@ syntax VarInfo
          | #storedVar(Int, TypeName, MemFlag)
 
 syntax MemOperation
-       ::= #read(Id)
-         | #write(Id, Expression) [strict(2)]
-	 | #allocate(Int,VarInfo)	
+        ::= #read(Id)
+          | #write(Id, Expression) [strict(2)]
+          | #allocate(Int, Id, VarInfo)	
 
 syntax MemFlag
        ::= "#mem"

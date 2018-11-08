@@ -53,19 +53,19 @@ rule
      </Contract>
 
 rule [VariableDeclaration]:
-    <k> T:TypeName S:StorageLocations X:Id => #allocate(C, #varInfo(X:Id, #undef_Value,T:TypeName, #mem)) ~> #end_Exp ...</k>
-    <currentAccount> #account(C,_) </currentAccount>
+    <k> T:TypeName S:StorageLocations X:Id => #allocate(C, CN, #varInfo(X:Id, #undef_Value,T:TypeName, #mem)) ~> #end_Exp ...</k>
+    <currentAccount> #account(C:Int, CN:Id) </currentAccount>
 
 rule
-    <k> T:TypeName S:StorageLocations X:Id = E => #allocate(C, #varInfo(X:Id, E,T:TypeName, #mem)) ~> #end_Exp ...</k>
-    <currentAccount> #account(C,_) </currentAccount>
+    <k> T:TypeName S:StorageLocations X:Id = E => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem)) ~> #end_Exp ...</k>
+    <currentAccount> #account(C:Int, CN:Id) </currentAccount>
 
 syntax SolidityItem
-       ::= #createStateVars(Int,List) 
+       ::= #createStateVars(Int, Id, List) 
          | #exeConstructor(Id,Int,ExpressionList) [strict(3)]
 
 rule [New-Contract-Instance]:
-     <k> new C:Id ( Es:ExpressionList )  =>  #createStateVars(N,SV)
+     <k> new C:Id ( Es:ExpressionList )  =>  #createStateVars(N, C, SV)
                         ~> #exeConstructor(C,N,Es) ~>  N ...</k>
      <Contract>
          <cname> C </cname>
@@ -87,9 +87,9 @@ rule [New-Contract-Instance]:
 	  ...
        </account>)
 
-rule #createStateVars(N,ListItem(VInfo) L:List) => #allocate(N, VInfo) ~> #createStateVars(N,L)
+rule #createStateVars(N:Int, CN:Id, ListItem(VInfo) L:List) => #allocate(N, CN, VInfo) ~> #createStateVars(N, CN, L)
 
-rule #createStateVars(N,.List) => .
+rule #createStateVars(N:Int, CN:Id, .List) => .
 
 rule 
      <k> #exeConstructor(C:Id,N:Int,Es:Values) => functionCall(N;String2Id("constructor"); Es); ... </k>
