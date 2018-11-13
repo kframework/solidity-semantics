@@ -57,7 +57,7 @@ rule [VariableDeclaration]:
     <currentAccount> #account(C:Int, CN:Id) </currentAccount>
 
 rule
-    <k> T:TypeName S:StorageLocations X:Id = E => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem)) ~> #end_Exp ...</k>
+    <k> T:TypeName S:StorageLocations X:Id = E:Value => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem)) ~> #end_Exp ...</k>
     <currentAccount> #account(C:Int, CN:Id) </currentAccount>
 
 syntax SolidityItem

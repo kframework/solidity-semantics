@@ -154,7 +154,7 @@ syntax Assignment ::= Expression "=" Expression  [strict(2), klabel(#assign)]
 
 syntax VariableDefinition ::= "var" Id
                             | VariableDeclaration
-                            | VariableDeclaration "=" Expression    
+                            | VariableDeclaration "=" Expression    [strict(2)]
 
 syntax KResult ::= Value | Values    
 
