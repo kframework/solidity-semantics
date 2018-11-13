@@ -33,7 +33,7 @@ contract C {
 			sum = 0;
 		}
 		else {
-			sum = x + functionCall(f ; x - 1);
+			sum = x + f(x - 1);
             b = b + 1;
 		}
 		

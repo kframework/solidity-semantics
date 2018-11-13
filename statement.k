@@ -27,4 +27,8 @@ rule
     <callStack> .List </callStack>
     <localCalls> .List </localCalls>
 
+
+rule
+   #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]
+   
 endmodule

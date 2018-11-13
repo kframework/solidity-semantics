@@ -136,10 +136,11 @@ syntax Statement ::= IfStatement
 
 syntax SimpleStatement ::= FunctionCall | Assignment | Value | VariableDefinition | Return | NewExpression
 
-syntax FunctionCall ::= Expression "(" FunctionCallArguments ")" [strict(2),klabel(#functionCall)]
+syntax FunctionCall ::= Id "(" FunctionCallArguments ")" [strict(2),klabel(#localFunctionCall)]
+                      | MemberAccess "(" FunctionCallArguments ")" [strict(2),klabel(#externalFunctionCall)]
                       | "functionCall" "(" Expression ";" Id ";" ExpressionList ")" [strict(1,3)]
                       | "functionCall" "(" Id ";" ExpressionList ")" [strict(2)] 
-              
+
 
 syntax FunctionCallArguments ::= ExpressionList		
                                | "{" NameValueList "}" [strict]
@@ -173,7 +174,7 @@ syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 
 syntax Expression ::= Id | Value
                     | NewExpression   
-                    | FunctionCall 
+                    | FunctionCall  
                     > left:
 	              Expression "*" Expression			[klabel(#multexp),strict,left]
 	            | Expression "/" Expression			[klabel(#divtexp),strict,left]
@@ -192,6 +193,8 @@ syntax IfStatement ::= "if" "(" Expression ")" Statement "else" Statement [stric
 syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
 syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
+
+syntax MemberAccess ::= Expression "." Id		[klabel(#memberAccess)]
 
 syntax Int
        ::= "#undef_Int"
