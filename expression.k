@@ -14,7 +14,7 @@ rule [Allocate-State-Variables]:
     <account>
         <acctID> #account(N, CN) </acctID>
         <context> CONTEXT:Map => CONTEXT[X <- #storedVar(!N:Int, T, #storage)] </context>
-        <Storage> STORAGE:Map => STORAGE[!N <- E] </Storage>
+        <acctStorage> STORAGE:Map => STORAGE[!N <- E] </acctStorage>
         ...
     </account>
 
@@ -41,7 +41,7 @@ rule [Read-State-Variables]:
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
         <acctID> #account(C, CN) </acctID>
-        <Storage> ... N |-> I:Value ...</Storage>
+        <acctStorage> ... N |-> I:Value ...</acctStorage>
         ...
     </account>
 
@@ -56,7 +56,7 @@ rule [Write-State-Variables]:
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
         <acctID> #account(C, CN) </acctID>
-        <Storage> ... ((N |-> _:Value) => (N |-> I)) ...</Storage>
+        <acctStorage> ... ((N |-> _:Value) => (N |-> I)) ...</acctStorage>
         ...
     </account>
 

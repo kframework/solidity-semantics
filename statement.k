@@ -25,8 +25,6 @@ rule _:Value ; => .
 rule
     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
     <callStack> .List </callStack>
-    <localCalls> .List </localCalls>
-
 
 rule
    #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]

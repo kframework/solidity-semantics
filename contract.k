@@ -82,7 +82,7 @@ rule [New-Contract-Instance]:
 		<associatedContract> .K </associatedContract>
 		<availableContracts> .K </availableContracts>
 	  </code>
-	  <Storage> .Map </Storage>
+	  <acctStorage> .Map </acctStorage>
 	  <nonce> 0 </nonce>
 	  ...
        </account>)

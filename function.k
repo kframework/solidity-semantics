@@ -11,7 +11,6 @@ imports CONTRACT
 
 syntax State
        ::= #state(ContractInstanceSig,Map,ControlFlag)
-         | #state(Map,ControlFlag)
 
 syntax ControlFlag
        ::= #return(Bool,Value)
@@ -144,8 +143,9 @@ rule [External-Function-Call]:
 
 rule [Internal-Function-Call]:
      <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
+     <currentAccount> #account(C,N) </currentAccount>
      <env> ENV:Map  </env>
-     <localCalls> .List => ListItem(#state(ENV,#return(false,#undef_Value))) ... </localCalls> 
+     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value))) ... </callStack> 
 
 rule 
      <k> #Call(F:Id, Vs:Values) => #BindInputParams(Ps, Vs) ~> #BindReturnParams(OPs, .Values) ~> #CallBody(Ss) ...</k>
@@ -194,26 +194,16 @@ rule
      <k> #CallBody(.Statements) => . ...</k>
 
 rule
-    <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
-    <localCalls> ListItem(#state(_:Map,#return(false,_:Value))) ... </localCalls>
-
-rule
-     <k> #exeStmt(S:SimpleStatement;) => . ...</k>
-     <localCalls> ListItem(#state(_:Map,#return(true,_:Value))) ... </localCalls>
-
-rule
      <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
-     <localCalls> .List </localCalls>
      <callStack> ListItem(#state(#account(_:Int,_:Id), _:Map, #return(false,_:Value))) ... </callStack>
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
-     <localCalls> .List </localCalls>
      <callStack> ListItem(#state(#account(_:Int,_:Id), _:Map, #return(true,_:Value))) ... </callStack>
 
 rule [Local-Call-Return]:
      <k> #return  => V  ... </k>
-     <localCalls> ListItem(#state(Rho,#return(_:Bool,V:Value))) => .List ... </localCalls> 
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value))) => .List ... </callStack> 
      <env> _ => Rho </env>
 
 rule [External-Call-Return]:
@@ -223,23 +213,13 @@ rule [External-Call-Return]:
      <currentAccount> _ => C  </currentAccount>
      <callDepth> Depth => Depth -Int 1 </callDepth>
 
-rule [ReturnValue-In-ExternalCall]:
+rule [ReturnValue]:
      <k> return V:Value  => #end_Exp ... </k>
-     <localCalls> .List </localCalls>
      <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value => V))) ... </callStack>
 
-rule [ReturnValue-In-LocalCall]:
-     <k> return V:Value  => #end_Exp ... </k>
-     <localCalls> ListItem(#state(Rho,#return(_:Bool => true, _:Value => V))) ... </localCalls>
-
-rule [Return-In-ExternalCall]:
+rule [Return]:
      <k> return  => #end_Exp ... </k>
-     <localCalls> .List </localCalls>
      <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value))) ... </callStack>
-
-rule [Return-In-LocalCall]:
-     <k> return  => #end_Exp ... </k>
-     <localCalls> ListItem(#state(Rho,#return(_:Bool => true, _:Value))) ... </localCalls>
 
 
 

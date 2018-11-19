@@ -67,7 +67,7 @@ configuration
                     // Not sure we need them, let's keep them around until figure it out. 
                     <static>    .K     </static>
                     <callDepth>   0    </callDepth>
-                    <localCalls> .List </localCalls>
+                    //<localCalls> .List </localCalls>
                 </callState>
 
                 // A_* (execution substate)
@@ -180,7 +180,7 @@ configuration
                     // so that the storage usage of solidity program and evm bytecode have
                     // the same effect on the storage.
                     
-                    <Storage> .Map  </Storage>
+                    <acctStorage> .Map  </acctStorage>
 
                     // Q. Why include allocation rules in solidity semantics?
                     // A. 
