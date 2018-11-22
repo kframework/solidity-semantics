@@ -26,7 +26,7 @@ configuration
                 <output>          .K  </output>
                 <statusCode>      .K  </statusCode>
                 <callStack>     .List  </callStack>
-                <interimStates>   .K  </interimStates>
+                <interimStates>   .List  </interimStates>
                 <touchedAccounts> .K  </touchedAccounts>
                 <currentAccount>  #account(#undef_Int,#undef_Id)  </currentAccount>
 		        <result> .K </result>
@@ -59,13 +59,13 @@ configuration
                     <localMem> .Map </localMem> 
                     
                     // Gas: not sure how, but I think we need it. 
-                    <gas>         .K          </gas>
-                    <memoryUsed>  .K          </memoryUsed>
-                    <previousGas> .K          </previousGas>
+                    <gas>         0:Int          </gas>
+                    <memoryUsed>  0:Int          </memoryUsed>
+                    <previousGas> 0:Int          </previousGas>
 
                     // Those are present in both KEVM and IELE. 
                     // Not sure we need them, let's keep them around until figure it out. 
-                    <static>    .K     </static>
+                    <static>    false:Bool     </static>
                     <callDepth>   0    </callDepth>
                     //<localCalls> .List </localCalls>
                 </callState>
@@ -144,7 +144,9 @@ configuration
             // ---------------
 
             <activeAccounts> .Set </activeAccounts>
-	        <numOfAccounts> 0:Int </numOfAccounts>
+	        
+            <numOfAccounts> 0:Int </numOfAccounts>
+            
             <accounts>
                 <account multiplicity="*" type="Map">
                     
@@ -155,13 +157,10 @@ configuration
 
 
 
-                    // The <context> cell refers to the environment, mapping variable names to logical 
-                    // storage references. Actually, <context> is equivalent to the <env> cell in <execEngine>.
+                    // The <acctEnv> cell refers to the environment, mapping variable names to logical 
+                    // storage references. Actually, <acctEnv> is equivalent to the <env> cell in <execEngine>.
 
-                    // I would like to change the name to <env> to be consistent with <env> 
-                    // in <execEngine>, but failed. It seems that K-framework complains about 
-                    // having the same name. Could someone help to check? Thanks.
-		            <context> .Map		     </context>
+		            <acctEnv> .Map		     </acctEnv>
                     
                     // When a contract is deployed, its <contract> data structure will be copied here.
                     // Because contracts can create other contracts (via "new") we need to also keep the 

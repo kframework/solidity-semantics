@@ -10,10 +10,12 @@ imports CONFIGURATION
 imports CONTRACT
 
 syntax State
-       ::= #state(ContractInstanceSig,Map,ControlFlag)
+       ::= #state(ContractInstanceSig, Map, ControlFlag, FunctionFlag)
 
 syntax ControlFlag
        ::= #return(Bool,Value)
+
+syntax FunctionFlag ::= "#external" | "#internal"
 
 rule [function-definition]:
     <k> #pcsContractPart(Ct:Id, function F:Id (Ps:FParameters) FQ:FunQuantifiers returns (Rs:FParameters) {B})
@@ -132,11 +134,11 @@ rule [External-Function-Call]:
      <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
      <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
      <env> Rho:Map => CRho </env>
-     <callStack> .List => ListItem(#state(#account(C1,N1), Rho, #return(false,#undef_Value))) ... </callStack>
+     <callStack> .List => ListItem(#state(#account(C1,N1), Rho, #return(false,#undef_Value), #external)) ... </callStack>
      <callDepth> Dep => Dep +Int 1 </callDepth>
      <account>
-         <acctID> #account(C,N:Id) </acctID>
-         <context> CRho:Map </context>
+         <acctID> #account(C,N) </acctID>
+         <acctEnv> CRho:Map </acctEnv>
          ...
      </account>
 
@@ -145,13 +147,13 @@ rule [Internal-Function-Call]:
      <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
      <currentAccount> #account(C,N) </currentAccount>
      <env> ENV:Map  </env>
-     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value))) ... </callStack> 
+     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value), #internal)) ... </callStack> 
 
 rule 
      <k> #Call(F:Id, Vs:Values) => #BindInputParams(Ps, Vs) ~> #BindReturnParams(OPs, .Values) ~> #CallBody(Ss) ...</k>
-     <currentAccount> #account(C:Int,N:Id) </currentAccount>
+     <currentAccount> #account(C:AccountInt,N:AccountId) </currentAccount>
      <Contract>
-         <cname> N:Id </cname>
+         <cname> N </cname>
          <Function>
              <fname> F </fname>
              <inputParams> Ps:FParameters </inputParams>
@@ -181,8 +183,8 @@ rule
      <k> #InitParams(.FParameters, .Values) => . ...</k>
 
 rule 
-     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C:Int, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
-     <currentAccount> #account(C:Int,CN:Id) </currentAccount>
+     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
+     <currentAccount> #account(C:AccountInt,CN:AccountId) </currentAccount>
 
 rule 
      <k> #InitParam(T:TypeName, V) => . ...</k>
@@ -195,31 +197,31 @@ rule
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
-     <callStack> ListItem(#state(#account(_:Int,_:Id), _:Map, #return(false,_:Value))) ... </callStack>
+     <callStack> ListItem(#state(#account(_:AccountInt,_:AccountId), _:Map, #return(false,_:Value), _:FunctionFlag)) ... </callStack>
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
-     <callStack> ListItem(#state(#account(_:Int,_:Id), _:Map, #return(true,_:Value))) ... </callStack>
+     <callStack> ListItem(#state(#account(_:AccountInt,_:AccountId), _:Map, #return(true,_:Value), _:FunctionFlag)) ... </callStack>
 
 rule [Local-Call-Return]:
      <k> #return  => V  ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value))) => .List ... </callStack> 
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #internal)) => .List ... </callStack> 
      <env> _ => Rho </env>
 
 rule [External-Call-Return]:
      <k> #returnContract => V ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value))) => .List ... </callStack>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #external)) => .List ... </callStack>
      <env> _ => Rho </env>
      <currentAccount> _ => C  </currentAccount>
      <callDepth> Depth => Depth -Int 1 </callDepth>
 
 rule [ReturnValue]:
      <k> return V:Value  => #end_Exp ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value => V))) ... </callStack>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value => V), _:FunctionFlag)) ... </callStack>
 
 rule [Return]:
      <k> return  => #end_Exp ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value))) ... </callStack>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value), _:FunctionFlag)) ... </callStack>
 
 
 

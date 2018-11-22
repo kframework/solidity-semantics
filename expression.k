@@ -10,16 +10,16 @@ imports SOLIDITY-SYNTAX
 imports CONFIGURATION
 
 rule [Allocate-State-Variables]:
-    <k> #allocate(N:Int, CN:Id, #varInfo(X:Id,E:Value,T:TypeName, #storage)) => . ...</k>
+    <k> #allocate(N, CN, #varInfo(X:Id,E:Value,T:TypeName, #storage)) => . ...</k>
     <account>
         <acctID> #account(N, CN) </acctID>
-        <context> CONTEXT:Map => CONTEXT[X <- #storedVar(!N:Int, T, #storage)] </context>
+        <acctEnv> CONTEXT:Map => CONTEXT[X <- #storedVar(!N:Int, T, #storage)] </acctEnv>
         <acctStorage> STORAGE:Map => STORAGE[!N <- E] </acctStorage>
         ...
     </account>
 
 rule [Allocate-Local-Variables]:
-    <k> #allocate(C:Int, CN:Id, #varInfo(X:Id, E:Value, T:TypeName, #mem)) => . ...</k>
+    <k> #allocate(C, CN, #varInfo(X:Id, E:Value, T:TypeName, #mem)) => . ...</k>
     <env> ENV:Map => ENV[X <- #storedVar(!N:Int, T, #mem)] </env>
     <currentAccount> #account(C, CN) </currentAccount>
     <localMem> MEM:Map => MEM[!N <- E] </localMem>

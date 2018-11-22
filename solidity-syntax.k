@@ -196,14 +196,14 @@ syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
 
 syntax MemberAccess ::= Expression "." Id		[klabel(#memberAccess)]
 
-syntax Int
-       ::= "#undef_Int"
+syntax AccountInt
+       ::= Int | "#undef_Int"
 
-syntax Id
-       ::= "#undef_Id"
+syntax AccountId
+       ::=  Id | "#undef_Id"
 
 syntax ContractInstanceSig
-       ::= #account(Int,Id)
+       ::= #account(AccountInt,AccountId)
 
 syntax Value
        ::= "#undef_Value"
@@ -216,7 +216,7 @@ syntax VarInfo
 syntax MemOperation
         ::= #read(Id)
           | #write(Id, Expression) [strict(2)]
-          | #allocate(Int, Id, VarInfo)	
+          | #allocate(AccountInt, AccountId, VarInfo)	
 
 syntax MemFlag
        ::= "#mem"
