@@ -145,7 +145,8 @@ configuration
 
             <activeAccounts> .Set </activeAccounts>
 	        
-            <numOfAccounts> 0:Int </numOfAccounts>
+            // removed becuase we can get this number by size(activeAccounts).
+            //<numOfAccounts> 0:Int </numOfAccounts>
             
             <accounts>
                 <account multiplicity="*" type="Map">

@@ -65,27 +65,31 @@ syntax SolidityItem
          | #exeConstructor(Id,Int,ExpressionList) [strict(3)]
 
 rule [New-Contract-Instance]:
-     <k> new C:Id ( Es:ExpressionList )  =>  #createStateVars(N, C, SV)
-                        ~> #exeConstructor(C,N,Es) ~>  N ...</k>
-     <Contract>
-         <cname> C </cname>
-         <stateVar> SV:List </stateVar>
+    <k> new C:Id ( Es:ExpressionList )  =>  #createStateVars(size(AA), C, SV)
+                        ~> #exeConstructor(C, size(AA), Es) ~>  size(AA) ...</k>
+    <Contract>
+        <cname> C </cname>
+        <stateVar> SV:List </stateVar>
       ...
-     </Contract>
-     <numOfAccounts> N:Int => N +Int 1 </numOfAccounts>
-     (.Bag =>
-       <account>
-	  <acctID> #account(N,C) </acctID>
-	  <balance> 0 </balance>
-	  <acctEnv> .Map </acctEnv>
-	  <code>
-		<associatedContract> .K </associatedContract>
-		<availableContracts> .K </availableContracts>
-	  </code>
-	  <acctStorage> .Map </acctStorage>
-	  <nonce> 0 </nonce>
-	  ...
-       </account>)
+    </Contract>
+    <activeAccounts> AA:Set (.Set => SetItem(#account(size(AA), C))) </activeAccounts>
+    <accounts>
+    ...
+    (.Bag =>
+        <account>
+	        <acctID> #account(size(AA),C) </acctID>
+	        <balance> 0 </balance>
+            <acctEnv> .Map </acctEnv>
+            <code>
+	        <associatedContract> .K </associatedContract>
+	        <availableContracts> .K </availableContracts>
+	        </code>
+	        <acctStorage> .Map </acctStorage>
+	        <nonce> 0 </nonce>
+	        ...
+        </account>
+    )
+    </accounts>
 
 rule #createStateVars(N:Int, CN:Id, ListItem(VInfo) L:List) => #allocate(N, CN, VInfo) ~> #createStateVars(N, CN, L)
 
