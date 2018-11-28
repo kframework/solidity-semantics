@@ -151,7 +151,7 @@ rule [Internal-Function-Call]:
 
 rule 
      <k> #Call(F:Id, Vs:Values) => #BindInputParams(Ps, Vs) ~> #BindReturnParams(OPs, .Values) ~> #CallBody(Ss) ...</k>
-     <currentAccount> #account(C:AccountInt,N:AccountId) </currentAccount>
+     <currentAccount> #account(C:Int,N:AccountId) </currentAccount>
      <Contract>
          <cname> N </cname>
          <Function>
@@ -184,7 +184,7 @@ rule
 
 rule 
      <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
-     <currentAccount> #account(C:AccountInt,CN:AccountId) </currentAccount>
+     <currentAccount> #account(C:Int,CN:AccountId) </currentAccount>
 
 rule 
      <k> #InitParam(T:TypeName, V) => . ...</k>
@@ -197,11 +197,11 @@ rule
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
-     <callStack> ListItem(#state(#account(_:AccountInt,_:AccountId), _:Map, #return(false,_:Value), _:FunctionFlag)) ... </callStack>
+     <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(false,_:Value), _:FunctionFlag)) ... </callStack>
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
-     <callStack> ListItem(#state(#account(_:AccountInt,_:AccountId), _:Map, #return(true,_:Value), _:FunctionFlag)) ... </callStack>
+     <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(true,_:Value), _:FunctionFlag)) ... </callStack>
 
 rule [Local-Call-Return]:
      <k> #return  => V  ... </k>

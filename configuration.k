@@ -9,7 +9,7 @@ syntax START
 
 configuration
     <k> $PGM:START </k>
-    <exit-code exit=""> 1 </exit-code>
+    <exit-code exit=""> 0 </exit-code>
     // ... 
     
     <ethereum>
@@ -28,7 +28,7 @@ configuration
                 <callStack>     .List  </callStack>
                 <interimStates>   .List  </interimStates>
                 <touchedAccounts> .K  </touchedAccounts>
-                <currentAccount>  #account(#undef_Int,#undef_Id)  </currentAccount>
+                <currentAccount>  #account(-1, #Testing-Engine#)  </currentAccount>
 		        <result> .K </result>
 		        <mode> .K </mode>
 

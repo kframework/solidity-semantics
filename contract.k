@@ -54,11 +54,11 @@ rule
 
 rule [VariableDeclaration]:
     <k> T:TypeName S:StorageLocations X:Id => #allocate(C, CN, #varInfo(X:Id, #undef_Value,T:TypeName, #mem)) ~> #end_Exp ...</k>
-    <currentAccount> #account(C:AccountInt, CN:AccountId) </currentAccount>
+    <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
 
 rule
     <k> T:TypeName S:StorageLocations X:Id = E:Value => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem)) ~> #end_Exp ...</k>
-    <currentAccount> #account(C:AccountInt, CN:AccountId) </currentAccount>
+    <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
 
 syntax SolidityItem
        ::= #createStateVars(Int, Id, List) 
@@ -81,9 +81,9 @@ rule [New-Contract-Instance]:
 	        <balance> 0 </balance>
             <acctEnv> .Map </acctEnv>
             <code>
-	        <associatedContract> .K </associatedContract>
-	        <availableContracts> .K </availableContracts>
-	        </code>
+	            <associatedContract> .K </associatedContract>
+	            <availableContracts> .K </availableContracts>
+            </code>
 	        <acctStorage> .Map </acctStorage>
 	        <nonce> 0 </nonce>
 	        ...
