@@ -130,6 +130,20 @@ syntax SolidityItem
          | #BindInputParams(FParameters, Values)
          | #BindReturnParams(FParameters, Values)
 
+/*
+rule [External-Function-Call]:
+     <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
+     <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
+     <env> Rho:Map => CRho </env>
+     <callStack> .List => ListItem(#state(#account(C1,N1), Rho, #return(false,#undef_Value), #external)) ... </callStack>
+     <callDepth> Dep => Dep +Int 1 </callDepth>
+     <account>
+         <acctID> #account(C,N) </acctID>
+         <acctEnv> CRho:Map </acctEnv>
+         ...
+     </account>
+*/
+
 rule [External-Function-Call]:
      <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
      <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>

@@ -67,7 +67,10 @@ configuration
                     // Not sure we need them, let's keep them around until figure it out. 
                     <static>    false:Bool     </static>
                     <callDepth>   0    </callDepth>
-                    //<localCalls> .List </localCalls>
+
+                    <returnFlag> false:Bool </returnFlag>
+                    <returnValue> 0:Int </returnValue>
+                    <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
 
                 // A_* (execution substate)
