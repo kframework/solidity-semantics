@@ -39,7 +39,7 @@ configuration
 
                     // I_*
                     <id>        0          </id>         // Currently executing contract
-                    <caller>    0          </caller>     // Contract that called current contract
+                    <caller>    .K          </caller>     // Contract that called current contract
                     <callData>  .K         </callData>   // .WordStack Copy of register arguments (?)
                     <callValue>  0          </callValue>  // Value in funds passed to contract
 
@@ -69,7 +69,7 @@ configuration
                     <callDepth>   0    </callDepth>
 
                     <returnFlag> false:Bool </returnFlag>
-                    <returnValue> 0:Int </returnValue>
+                    <returnValue> 0:Value </returnValue>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
 
