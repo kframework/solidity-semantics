@@ -9,17 +9,6 @@ imports SOLIDITY-SYNTAX
 imports CONFIGURATION
 imports CONTRACT
 
-/*
-syntax State
-       ::= #state(ContractInstanceSig, Map, ControlFlag, FunctionFlag)
-
-
-syntax ControlFlag
-       ::= #return(Bool,Value)
-
-syntax FunctionFlag ::= "#external" | "#internal"
-*/
-
 rule [function-definition]:
     <k> #pcsContractPart(Ct:Id, function F:Id (Ps:FParameters) FQ:FunQuantifiers returns (Rs:FParameters) {B})
             => . ... </k>
@@ -133,20 +122,6 @@ syntax SolidityItem
          | #BindInputParams(FParameters, Values)
          | #BindReturnParams(FParameters, Values)
 
-/*
-rule [External-Function-Call]:
-     <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
-     <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
-     <env> Rho:Map => CRho </env>
-     <callStack> .List => ListItem(#state(#account(C1,N1), Rho, #return(false,#undef_Value), #external)) ... </callStack>
-     <callDepth> Dep => Dep +Int 1 </callDepth>
-     <account>
-         <acctID> #account(C,N) </acctID>
-         <acctEnv> CRho:Map </acctEnv>
-         ...
-     </account>
-*/
-
 rule [External-Function-Call]:
      <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
      <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
@@ -195,14 +170,6 @@ rule [External-Function-Call]:
          <acctEnv> CRho:Map </acctEnv>
          ...
      </account>
-
-/*
-rule [Internal-Function-Call]:
-     <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
-     <currentAccount> #account(C,N) </currentAccount>
-     <env> ENV:Map  </env>
-     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value), #internal)) ... </callStack>
-*/
 
 rule [Internal-Function-Call]:
      <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
@@ -296,12 +263,6 @@ rule [Call-Function-Body]:
 rule
      <k> #CallBody(.Statements) => . ...</k>
 
-/*
-rule
-     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
-     <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(false,_:Value), _:FunctionFlag)) ... </callStack>
-*/
-
 rule
      <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
      <callState>
@@ -309,25 +270,12 @@ rule
         <returnFlag> false </returnFlag>
      </callState>
 
-/*
-rule
-     <k> #exeStmt(S:SimpleStatement;) => . ...</k>
-     <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(true,_:Value), _:FunctionFlag)) ... </callStack>
-*/
-
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
      <callState>
         ...
         <returnFlag> true </returnFlag>
      </callState>
-
-/*
-rule [Local-Call-Return]:
-     <k> #return  => V  ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #internal)) => .List ... </callStack>
-     <env> _ => Rho </env>
-*/
 
 rule [Local-Call-Return]:
      <k> #return  => V  ... </k>
@@ -372,15 +320,6 @@ rule [Local-Call-Return]:
         <returnValue> V => RETURNVALUE </returnValue>
         <isExternalFunctionCall> false => EXFUNCALL </isExternalFunctionCall>
      </callState>
-
-/*
-rule [External-Call-Return]:
-     <k> #returnContract => V ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #external)) => .List ... </callStack>
-     <env> _ => Rho </env>
-     <currentAccount> _ => C  </currentAccount>
-     <callDepth> Depth => Depth -Int 1 </callDepth>
-*/
 
 rule [External-Call-Return]:
      <k> #returnContract => V ... </k>
@@ -428,12 +367,6 @@ rule [External-Call-Return]:
      </callState>
 
 
-/*
-rule [ReturnValue]:
-     <k> return V:Value  => #end_Exp ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value => V), _:FunctionFlag)) ... </callStack>
-*/
-
 rule [ReturnValue]:
      <k> return V:Value  => #end_Exp ... </k>
      <callState>
@@ -441,12 +374,6 @@ rule [ReturnValue]:
         <returnFlag> _:Bool => true </returnFlag>
         <returnValue> _:Value => V </returnValue>
      </callState>
-
-/*
-rule [Return]:
-     <k> return  => #end_Exp ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value), _:FunctionFlag)) ... </callStack>
-*/
 
 rule [Return]:
      <k> return  => #end_Exp ... </k>
