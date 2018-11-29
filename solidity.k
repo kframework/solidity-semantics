@@ -15,7 +15,7 @@ imports CONTRACT
 imports EXPRESSION
 imports STATEMENT
 
-rule 
+rule
     <k> #execute => P ... </k>
     <program> P:K </program>
 

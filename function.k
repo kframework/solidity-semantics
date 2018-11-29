@@ -27,12 +27,12 @@ rule [function-definition]:
         <cname> Ct </cname>
         (.Bag =>
             <Function>
-	        <fname> F </fname>
-	        <inputParams> Ps </inputParams>
-	        <Returns> Rs </Returns>
-	        <quantifiers> FQ </quantifiers>
-	        <visibility> .K </visibility>
-	        <body> B </body>
+            <fname> F </fname>
+            <inputParams> Ps </inputParams>
+            <Returns> Rs </Returns>
+            <quantifiers> FQ </quantifiers>
+            <visibility> .K </visibility>
+            <body> B </body>
             </Function>)
          ...
     </Contract>
@@ -44,12 +44,12 @@ rule
         <cname> Ct </cname>
         (.Bag =>
             <Function>
-	        <fname> F </fname>
-	        <inputParams> Ps </inputParams>
-	        <Returns> .FParameters </Returns>
-	        <quantifiers> FQ </quantifiers>
-	        <visibility> .K </visibility>
-	        <body> B </body>
+            <fname> F </fname>
+            <inputParams> Ps </inputParams>
+            <Returns> .FParameters </Returns>
+            <quantifiers> FQ </quantifiers>
+            <visibility> .K </visibility>
+            <body> B </body>
             </Function>)
          ...
     </Contract>
@@ -61,12 +61,12 @@ rule
         <cname> Ct </cname>
         (.Bag =>
             <Function>
-	        <fname> F </fname>
-	        <inputParams> Ps </inputParams>
-	        <Returns> Rs </Returns>
-	        <quantifiers> FQ </quantifiers>
-	        <visibility> .K </visibility>
-	        <body> .Statements </body>
+            <fname> F </fname>
+            <inputParams> Ps </inputParams>
+            <Returns> Rs </Returns>
+            <quantifiers> FQ </quantifiers>
+            <visibility> .K </visibility>
+            <body> .Statements </body>
             </Function>)
          ...
     </Contract>
@@ -78,28 +78,28 @@ rule
         <cname> Ct </cname>
         (.Bag =>
             <Function>
-	        <fname> F </fname>
-	        <inputParams> Ps </inputParams>
-	        <Returns> .FParameters </Returns>
-	        <quantifiers> FQ </quantifiers>
-	        <visibility> .K </visibility>
-	        <body> .Statements </body>
+            <fname> F </fname>
+            <inputParams> Ps </inputParams>
+            <Returns> .FParameters </Returns>
+            <quantifiers> FQ </quantifiers>
+            <visibility> .K </visibility>
+            <body> .Statements </body>
             </Function>)
          ...
     </Contract>
 
-rule 
+rule
     <k> #pcsContractPart(Ct:Id, constructor (Ps:FParameters) FQ:FunQuantifiers {B}) => . ... </k>
     <Contract>
         <cname> Ct </cname>
         (.Bag =>
             <Function>
-	        <fname> String2Id("constructor") </fname>
-	        <inputParams> Ps </inputParams>
-	        <Returns> .FParameters </Returns>
-	        <quantifiers> FQ   </quantifiers>
-	        <visibility>  .K </visibility>
-	        <body> B </body>
+            <fname> String2Id("constructor") </fname>
+            <inputParams> Ps </inputParams>
+            <Returns> .FParameters </Returns>
+            <quantifiers> FQ   </quantifiers>
+            <visibility>  .K </visibility>
+            <body> B </body>
             </Function>)
          <Constructor> _ => true </Constructor>
          ...
@@ -112,19 +112,19 @@ rule
          <cname> Ct </cname>
          (.Bag =>
              <Function>
-	         <fname> String2Id("fallback") </fname>
-	         <inputParams> Ps </inputParams>
-	         <Returns> .FParameters </Returns>
-	         <quantifiers> FQ </quantifiers>
-	         <visibility> .K </visibility>
-	         <body> B </body>
+             <fname> String2Id("fallback") </fname>
+             <inputParams> Ps </inputParams>
+             <Returns> .FParameters </Returns>
+             <quantifiers> FQ </quantifiers>
+             <visibility> .K </visibility>
+             <body> B </body>
              </Function>)
           ...
     </Contract>
 
 
-syntax SolidityItem 
-       ::= #CallBody(Statements)  
+syntax SolidityItem
+       ::= #CallBody(Statements)
          | #Call(Id,Values)
          | #InitParams(FParameters, Values)
          | #InitParam(FParameter, Value)
@@ -150,16 +150,16 @@ rule [External-Function-Call]:
 rule [External-Function-Call]:
      <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
      <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
-     <callStack> .List => 
+     <callStack> .List =>
         ListItem(
             <callState>
-                <program> PROGRAM </program> 
-                <id> ID </id>         
-                <caller> CALLER </caller>     
-                <callData> CALLDATA </callData>   
-                <callValue> CALLVALUE </callValue> 
+                <program> PROGRAM </program>
+                <id> ID </id>
+                <caller> CALLER </caller>
+                <callData> CALLDATA </callData>
+                <callValue> CALLVALUE </callValue>
                 <env> Rho </env>
-                <tenv> TENV </tenv> 
+                <tenv> TENV </tenv>
                 <localMem> LOCALMEM </localMem>
                 <gas> GAS </gas>
                 <memoryUsed>  MEMUSED </memoryUsed>
@@ -170,16 +170,16 @@ rule [External-Function-Call]:
                 <returnValue> RETURNVALUE </returnValue>
                 <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
             </callState>
-        ) ... 
+        ) ...
      </callStack>
      <callState>
-        <program> PROGRAM </program> 
-        <id> ID </id>         
-        <caller> CALLER => #account(C1,N1) </caller>     
-        <callData> CALLDATA </callData>   
-        <callValue> CALLVALUE </callValue> 
+        <program> PROGRAM </program>
+        <id> ID </id>
+        <caller> CALLER => #account(C1,N1) </caller>
+        <callData> CALLDATA </callData>
+        <callValue> CALLVALUE </callValue>
         <env> Rho:Map => CRho </env>
-        <tenv> TENV </tenv> 
+        <tenv> TENV </tenv>
         <localMem> LOCALMEM </localMem>
         <gas> GAS </gas>
         <memoryUsed>  MEMUSED </memoryUsed>
@@ -195,29 +195,29 @@ rule [External-Function-Call]:
          <acctEnv> CRho:Map </acctEnv>
          ...
      </account>
-     
-/* 
+
+/*
 rule [Internal-Function-Call]:
      <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
      <currentAccount> #account(C,N) </currentAccount>
      <env> ENV:Map  </env>
-     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value), #internal)) ... </callStack> 
+     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value), #internal)) ... </callStack>
 */
 
 rule [Internal-Function-Call]:
      <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
      <currentAccount> #account(C,N) </currentAccount>
      //<env> ENV:Map  </env>
-     <callStack> .List => 
+     <callStack> .List =>
         ListItem(
             <callState>
-                <program> PROGRAM </program> 
-                <id> ID </id>         
-                <caller> CALLER </caller>     
-                <callData> CALLDATA </callData>   
-                <callValue> CALLVALUE </callValue> 
+                <program> PROGRAM </program>
+                <id> ID </id>
+                <caller> CALLER </caller>
+                <callData> CALLDATA </callData>
+                <callValue> CALLVALUE </callValue>
                 <env> Rho </env>
-                <tenv> TENV </tenv> 
+                <tenv> TENV </tenv>
                 <localMem> LOCALMEM </localMem>
                 <gas> GAS </gas>
                 <memoryUsed>  MEMUSED </memoryUsed>
@@ -228,16 +228,16 @@ rule [Internal-Function-Call]:
                 <returnValue> RETURNVALUE </returnValue>
                 <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
             </callState>
-        ) ... 
-     </callStack> 
+        ) ...
+     </callStack>
      <callState>
-        <program> PROGRAM </program> 
-        <id> ID </id>         
-        <caller> CALLER => #account(C,N) </caller>     
-        <callData> CALLDATA </callData>   
-        <callValue> CALLVALUE </callValue> 
+        <program> PROGRAM </program>
+        <id> ID </id>
+        <caller> CALLER => #account(C,N) </caller>
+        <callData> CALLDATA </callData>
+        <callValue> CALLVALUE </callValue>
         <env> Rho </env>
-        <tenv> TENV </tenv> 
+        <tenv> TENV </tenv>
         <localMem> LOCALMEM </localMem>
         <gas> GAS </gas>
         <memoryUsed>  MEMUSED </memoryUsed>
@@ -250,7 +250,7 @@ rule [Internal-Function-Call]:
      </callState>
 
 
-rule 
+rule
      <k> #Call(F:Id, Vs:Values) => #BindInputParams(Ps, Vs) ~> #BindReturnParams(OPs, .Values) ~> #CallBody(Ss) ...</k>
      <currentAccount> #account(C:Int,N:AccountId) </currentAccount>
      <Contract>
@@ -271,29 +271,29 @@ rule
 rule
      <k> #BindReturnParams(OPs, Vs) => #InitParams(OPs, Vs) ...</k>
 
-     
-rule 
+
+rule
      <k> #InitParams(P:FParameter, Ps:FParameters, V:Value,Vs:Values)
-     	    => #InitParam(P, V) ~> #InitParams(Ps, Vs) ...</k>
+                => #InitParam(P, V) ~> #InitParams(Ps, Vs) ...</k>
 
-rule 
+rule
      <k> #InitParams(P:FParameter, Ps:FParameters, .Values)
-     	    => #InitParam(P, #undef_Value) ~> #InitParams(Ps, .Values) ...</k>
+                => #InitParam(P, #undef_Value) ~> #InitParams(Ps, .Values) ...</k>
 
-rule 
+rule
      <k> #InitParams(.FParameters, .Values) => . ...</k>
 
-rule 
+rule
      <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
      <currentAccount> #account(C:Int,CN:AccountId) </currentAccount>
 
-rule 
+rule
      <k> #InitParam(T:TypeName, V) => . ...</k>
 
 rule [Call-Function-Body]:
      <k> #CallBody(S:Statement Ss:Statements) => #exeStmt(S) ~> #CallBody(Ss) ...</k>
 
-rule 
+rule
      <k> #CallBody(.Statements) => . ...</k>
 
 /*
@@ -304,12 +304,12 @@ rule
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
-     <callState> 
-        ... 
-        <returnFlag> false </returnFlag> 
+     <callState>
+        ...
+        <returnFlag> false </returnFlag>
      </callState>
 
-/* 
+/*
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
      <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(true,_:Value), _:FunctionFlag)) ... </callStack>
@@ -317,30 +317,30 @@ rule
 
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
-     <callState> 
-        ... 
-        <returnFlag> true </returnFlag> 
+     <callState>
+        ...
+        <returnFlag> true </returnFlag>
      </callState>
 
 /*
 rule [Local-Call-Return]:
      <k> #return  => V  ... </k>
-     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #internal)) => .List ... </callStack> 
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #internal)) => .List ... </callStack>
      <env> _ => Rho </env>
 */
 
 rule [Local-Call-Return]:
      <k> #return  => V  ... </k>
-     <callStack> 
+     <callStack>
         ListItem(
             <callState>
-                <program> PROGRAM </program> 
-                <id> ID </id>         
-                <caller> CALLER </caller>     
-                <callData> CALLDATA </callData>   
-                <callValue> CALLVALUE </callValue> 
+                <program> PROGRAM </program>
+                <id> ID </id>
+                <caller> CALLER </caller>
+                <callData> CALLDATA </callData>
+                <callValue> CALLVALUE </callValue>
                 <env> Rho </env>
-                <tenv> TENV </tenv> 
+                <tenv> TENV </tenv>
                 <localMem> LOCALMEM </localMem>
                 <gas> GAS </gas>
                 <memoryUsed>  MEMUSED </memoryUsed>
@@ -351,17 +351,17 @@ rule [Local-Call-Return]:
                 <returnValue> RETURNVALUE </returnValue>
                 <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
             </callState>
-        ) 
-        => .List ... 
-     </callStack> 
+        )
+        => .List ...
+     </callStack>
      <callState>
-        <program> _ => PROGRAM </program> 
-        <id> _ => ID </id>         
-        <caller> _ => CALLER </caller>     
-        <callData> _ => CALLDATA </callData>   
-        <callValue> _ => CALLVALUE </callValue> 
+        <program> _ => PROGRAM </program>
+        <id> _ => ID </id>
+        <caller> _ => CALLER </caller>
+        <callData> _ => CALLDATA </callData>
+        <callValue> _ => CALLVALUE </callValue>
         <env> _ => Rho </env>
-        <tenv> _ => TENV </tenv> 
+        <tenv> _ => TENV </tenv>
         <localMem> _ => LOCALMEM </localMem>
         <gas> _ => GAS </gas>
         <memoryUsed> _ => MEMUSED </memoryUsed>
@@ -373,7 +373,7 @@ rule [Local-Call-Return]:
         <isExternalFunctionCall> false => EXFUNCALL </isExternalFunctionCall>
      </callState>
 
-/* 
+/*
 rule [External-Call-Return]:
      <k> #returnContract => V ... </k>
      <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #external)) => .List ... </callStack>
@@ -385,16 +385,16 @@ rule [External-Call-Return]:
 rule [External-Call-Return]:
      <k> #returnContract => V ... </k>
      <currentAccount> _ => C  </currentAccount>
-     <callStack> 
+     <callStack>
         ListItem(
             <callState>
-                <program> PROGRAM </program> 
-                <id> ID </id>         
-                <caller> CALLER </caller>     
-                <callData> CALLDATA </callData>   
-                <callValue> CALLVALUE </callValue> 
+                <program> PROGRAM </program>
+                <id> ID </id>
+                <caller> CALLER </caller>
+                <callData> CALLDATA </callData>
+                <callValue> CALLVALUE </callValue>
                 <env> Rho </env>
-                <tenv> TENV </tenv> 
+                <tenv> TENV </tenv>
                 <localMem> LOCALMEM </localMem>
                 <gas> GAS </gas>
                 <memoryUsed>  MEMUSED </memoryUsed>
@@ -405,17 +405,17 @@ rule [External-Call-Return]:
                 <returnValue> RETURNVALUE </returnValue>
                 <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
             </callState>
-        ) 
-        => .List ... 
-     </callStack> 
+        )
+        => .List ...
+     </callStack>
      <callState>
-        <program> _ => PROGRAM </program> 
-        <id> _ => ID </id>         
-        <caller> C => CALLER </caller>     
-        <callData> _ => CALLDATA </callData>   
-        <callValue> _ => CALLVALUE </callValue> 
+        <program> _ => PROGRAM </program>
+        <id> _ => ID </id>
+        <caller> C => CALLER </caller>
+        <callData> _ => CALLDATA </callData>
+        <callValue> _ => CALLVALUE </callValue>
         <env> _ => Rho </env>
-        <tenv> _ => TENV </tenv> 
+        <tenv> _ => TENV </tenv>
         <localMem> _ => LOCALMEM </localMem>
         <gas> _ => GAS </gas>
         <memoryUsed> _ => MEMUSED </memoryUsed>
@@ -428,7 +428,7 @@ rule [External-Call-Return]:
      </callState>
 
 
-/* 
+/*
 rule [ReturnValue]:
      <k> return V:Value  => #end_Exp ... </k>
      <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value => V), _:FunctionFlag)) ... </callStack>
@@ -436,13 +436,13 @@ rule [ReturnValue]:
 
 rule [ReturnValue]:
      <k> return V:Value  => #end_Exp ... </k>
-     <callState> 
+     <callState>
         ...
         <returnFlag> _:Bool => true </returnFlag>
         <returnValue> _:Value => V </returnValue>
      </callState>
 
-/*      
+/*
 rule [Return]:
      <k> return  => #end_Exp ... </k>
      <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value), _:FunctionFlag)) ... </callStack>
@@ -450,9 +450,9 @@ rule [Return]:
 
 rule [Return]:
      <k> return  => #end_Exp ... </k>
-     <callState> 
-        ... 
-        <returnFlag> _:Bool => true </returnFlag> 
+     <callState>
+        ...
+        <returnFlag> _:Bool => true </returnFlag>
      </callState>
 
 

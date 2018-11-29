@@ -6,7 +6,7 @@ import DOMAINS-SYNTAX
 import DOMAINS
 
 syntax SourceUnit ::=  PragmaDirectives ContractDefinitions
-                    
+
 syntax PragmaDirectives ::= List{PragmaDirective, ""}
 syntax PragmaDirective ::= "pragma" Id "^" Int "." Int "." Int ";"
 
@@ -89,49 +89,49 @@ syntax SolidityUint ::= "uint"
 syntax StateVariableDeclaration ::= TypeName FunQuantifiers Id ";"  [klabel(#stateVarDecl)]
                                   | TypeName FunQuantifiers Id "=" Expression ";"  [klabel(#stateVarDeclWithAssignment)]
 
-syntax FunQuantifier ::= ModifierInvocation 
+syntax FunQuantifier ::= ModifierInvocation
                        | Specifier
 
-syntax ModifierInvocation ::= Id 
-                            | FunctionCall 
+syntax ModifierInvocation ::= Id
+                            | FunctionCall
 
-syntax Specifier ::= "public" 
-                   | "internal" 
-                   | "private" 
+syntax Specifier ::= "public"
+                   | "internal"
+                   | "private"
                    | "constant"
-                   | "pure" 
-                   | "view" 
-                   | "payable" 
+                   | "pure"
+                   | "view"
+                   | "payable"
                    | "external"
 
 syntax FunQuantifiers ::= List{FunQuantifier," "}
 
 syntax FunctionDefinition ::= "function" IdentifierOrNone "(" FParameters ")" FunQuantifiers "returns" "(" FParameters ")"   Block  [prefer]
                             | "function" IdentifierOrNone "(" FParameters ")" FunQuantifiers "returns" "(" FParameters ")"  ";"    [prefer]
-                            | "function" IdentifierOrNone "(" FParameters ")" FunQuantifiers Block 
-                            | "function" IdentifierOrNone "(" FParameters ")" FunQuantifiers ";" 
-                            | "constructor" "(" FParameters ")" FunQuantifiers Block 
+                            | "function" IdentifierOrNone "(" FParameters ")" FunQuantifiers Block
+                            | "function" IdentifierOrNone "(" FParameters ")" FunQuantifiers ";"
+                            | "constructor" "(" FParameters ")" FunQuantifiers Block
 
 syntax IdentifierOrNone
-       ::= Id						
-         | ""	 [klabel(#none), onlyLabel]
-         
+          ::= Id
+            | ""	 [klabel(#none), onlyLabel]
+
 syntax FParameter ::= VariableDeclaration
-                    | TypeName  
+                    | TypeName
 
 syntax FParameters ::= List{FParameter, ","}   [klabel(#fParameters)]
 
 syntax VariableDeclaration ::= TypeName StorageLocations Id   [klabel(#varDeclaration)]
 
 syntax StorageLocations ::= List{StorageLocation, " "}
-syntax StorageLocation ::= "memory" | "storage"  
+syntax StorageLocation ::= "memory" | "storage"
 
 syntax Block ::= "{" Statements "}"   [klabel(#block)]
 syntax Statements ::= List{Statement, ""}   [klabel(#statements)]
 
-syntax Statement ::= IfStatement 
-                   | WhileStatement 
-                   | Block 
+syntax Statement ::= IfStatement
+                   | WhileStatement
+                   | Block
                    | SimpleStatement ";" [strict,klabel(#simpleStmt)]
 
 syntax SimpleStatement ::= FunctionCall | Assignment | Value | VariableDefinition | Return | NewExpression
@@ -139,62 +139,62 @@ syntax SimpleStatement ::= FunctionCall | Assignment | Value | VariableDefinitio
 syntax FunctionCall ::= Id "(" FunctionCallArguments ")" [strict(2),klabel(#localFunctionCall)]
                       | MemberAccess "(" FunctionCallArguments ")" [strict(2),klabel(#externalFunctionCall)]
                       | "functionCall" "(" Expression ";" Id ";" ExpressionList ")" [strict(1,3)]
-                      | "functionCall" "(" Id ";" ExpressionList ")" [strict(2)] 
+                      | "functionCall" "(" Id ";" ExpressionList ")" [strict(2)]
 
 
-syntax FunctionCallArguments ::= ExpressionList		
+    yntax FunctionCallArguments ::= ExpressionList
                                | "{" NameValueList "}" [strict]
 
 syntax ExpressionList ::= List{Expression, ","}    [strict]
 
 syntax NameValue ::= Id ":" Expression        [strict(2)]
 syntax NameValueList ::= List{NameValue, ","} [strict]
-   
-syntax Assignment ::= Expression "=" Expression  [strict(2), klabel(#assign)]     
+
+syntax Assignment ::= Expression "=" Expression  [strict(2), klabel(#assign)]
 
 syntax VariableDefinition ::= "var" Id
                             | VariableDeclaration
                             | VariableDeclaration "=" Expression    [strict(2)]
 
-syntax KResult ::= Value | Values    
+syntax KResult ::= Value | Values
 
 syntax Value
-       ::= Bool | Int | String 
+       ::= Bool | Int | String
 
 syntax Values
        ::= List{Value, ","}
 
-syntax ExpressionList ::= Values 
+syntax ExpressionList ::= Values
 
 syntax Return ::= "return" Expression [strict]
                 | "return"
-              
-       
-syntax NewExpression ::= "new" Id "(" ExpressionList ")"   
+
+
+syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 
 syntax Expression ::= Id | Value
-                    | NewExpression   
-                    | FunctionCall  
+                    | NewExpression
+                    | FunctionCall
                     > left:
-	              Expression "*" Expression			[klabel(#multexp),strict,left]
-	            | Expression "/" Expression			[klabel(#divtexp),strict,left]
-	            > left:
-	              Expression "+" Expression			[klabel(#addexp),strict,left]
-	            | Expression "-" Expression			[klabel(#subexp),strict,left]
-	            > left:
-	              Expression "<" Expression			[klabel(#less),seqstrict,left]
-	            | Expression "<=" Expression			[klabel(#leq),seqstrict,left]
-	            | Expression ">" Expression			[klabel(#great),seqstrict,left]
-	            | Expression ">=" Expression			[klabel(#geq),seqstrict,left]
-     
-syntax IfStatement ::= "if" "(" Expression ")" Statement "else" Statement [strict(1)] 
+                  Expression "*" Expression			[klabel(#multexp),strict,left]
+                | Expression "/" Expression			[klabel(#divtexp),strict,left]
+                > left:
+                  Expression "+" Expression			[klabel(#addexp),strict,left]
+                | Expression "-" Expression			[klabel(#subexp),strict,left]
+                > left:
+                  Expression "<" Expression			[klabel(#less),seqstrict,left]
+                | Expression "<=" Expression			[klabel(#leq),seqstrict,left]
+                | Expression ">" Expression			[klabel(#great),seqstrict,left]
+                | Expression ">=" Expression			[klabel(#geq),seqstrict,left]
+
+syntax IfStatement ::= "if" "(" Expression ")" Statement "else" Statement [strict(1)]
                      | "if" "(" Expression ")" Statement [strict(1)]
 
 syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
 syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
 
-syntax MemberAccess ::= Expression "." Id		[klabel(#memberAccess)]
+    yntax MemberAccess ::= Expression "." Id		[klabel(#memberAccess)]
 
 syntax AccountId
        ::=  Id | "#Testing-Engine#"
@@ -213,7 +213,7 @@ syntax VarInfo
 syntax MemOperation
         ::= #read(Id)
           | #write(Id, Expression) [strict(2)]
-          | #allocate(Int, AccountId, VarInfo)	
+             | #allocate(Int, AccountId, VarInfo)
 
 syntax MemFlag
        ::= "#mem"
@@ -222,7 +222,7 @@ syntax MemFlag
 syntax Exec
        ::= "#execute"
 
-syntax SolidityItem 
+syntax SolidityItem
        ::= #exeStmt(Statement)
 
 endmodule
