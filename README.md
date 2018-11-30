@@ -1,45 +1,20 @@
-# solidity-semantics
 
-A K semantics of the Solidity programming language.
 
-## Dependencies
+# How to run test cases
 
-[Install the K Framework from the official repository](https://github.com/kframework/k)
+1. compile the code by running:
 
-## Usage
+   make
 
-### Build
 
-```
-make kompile
-```
+2. run the test case in the folder tests, for example running the test case t1.so in the folder "tests"
 
-### Run all tests
+   krun tests/t1.sol
 
-```
-make tests
-```
 
-This will run all test cases in the `tests` subfolders. 
+3. If the test case is passed then the cell <mode/> in the configuation is success else
+   the cell <k/> is stuck at some unfinished term.
 
-### Run individual test
 
-For example:
 
-```
-make tests/CompilerTests/for_loop_empty.sol
-```
 
-### Build and run tests
-
-Simply...
-
-```
-make
-```
-
-### Run an arbitrary Solidity program 
-
-```
-krun --backend java myProgram.sol
-```

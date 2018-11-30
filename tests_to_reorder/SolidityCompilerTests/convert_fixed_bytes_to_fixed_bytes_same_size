@@ -1,9 +1,0 @@
-char const* sourceCode = R"(
-	contract Test {
-		function bytesToBytes(bytes4 input) returns (bytes4 ret) {
-			return bytes4(input);
-		}
-	}
-)";
-compileAndRun(sourceCode);
-ABI_CHECK(callContractFunction("bytesToBytes(bytes4)", "abcd"), encodeArgs("abcd"));

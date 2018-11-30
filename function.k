@@ -1,475 +1,462 @@
+
 requires "solidity-syntax.k"
 requires "configuration.k"
+requires "contract.k"
 
 module FUNCTION
 
 imports SOLIDITY-SYNTAX
 imports CONFIGURATION
+imports CONTRACT
 
-/*****************************@
-       FunctionDefinition
-*******************************/
+/*
+syntax State
+       ::= #state(ContractInstanceSig, Map, ControlFlag, FunctionFlag)
 
-rule 
-    <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
+
+syntax ControlFlag
+       ::= #return(Bool,Value)
+
+syntax FunctionFlag ::= "#external" | "#internal"
+*/
+
+rule [function-definition]:
+    <k> #pcsContractPart(Ct:Id, function F:Id (Ps:FParameters) FQ:FunQuantifiers returns (Rs:FParameters) {B})
+            => . ... </k>
     <Contract>
-        <cname> C </cname>
-        <cfunction> (.Map => C |-> CF) ... </cfunction>
-        <constructor> _ => 1 </constructor>
-        ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters>
-            <outputParameters> Ps2 </outputParameters>
-            <body> B </body>
-            <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>
-        </Function>)
-    requires Id2String(C) =/=String "main"
-
-rule 
-    <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters){B}) => . ... </k>
-    <Contract>
-        <cname> C </cname>
-        <cfunction> (.Map => F |-> CF) ... </cfunction>
-        ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters>
-            <outputParameters> Ps2 </outputParameters>
-            <body> B </body>
-            <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>
-        </Function>)
-    requires Id2String(F) =/=String "main" andBool
-             Id2String(F) =/=String Id2String(C)
-
-rule 
-    <k> pcsContractPart(C:Id, function C:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
-    <Contract>
-        <cname> C </cname>
-        <cfunction> (.Map => C |-> CF) ... </cfunction>
-        // <constructor> Cons:Int => Cons +Int 1  </constructor>
-        <constructor> _ => 1 </constructor>
-        ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1 </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters>
-            <outputParameters> .FParameters </outputParameters>
-            <body> B </body>
-            <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>                    
+        <cname> Ct </cname>
+        (.Bag =>
+            <Function>
+	        <fname> F </fname>
+	        <inputParams> Ps </inputParams>
+	        <Returns> Rs </Returns>
+	        <quantifiers> FQ </quantifiers>
+	        <visibility> .K </visibility>
+	        <body> B </body>
             </Function>)
-    requires Id2String(C) =/=String "main"     
-
-rule  
-    <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters)  FQ:FunQuantifiers  {B}) => . ... </k>
-    <Contract>
-        <cname> C </cname>	      
-        <cfunction> (.Map => F |-> CF) ... </cfunction>
-        ...
+         ...
     </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters>
-            <outputParameters> .FParameters </outputParameters>
-            <body> B </body>
-            <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>                   
-        </Function>)
-    requires Id2String(F) =/=String "main" andBool
-             Id2String(F) =/=String Id2String(C)
-
-rule 
-    <k> pcsContractPart(C:Id, function .Identifiers (Ps1:FParameters) FQ:FunQuantifiers   {B}) => . ... </k>
-    <Contract>
-        <cname> C </cname>
-        <cfunction> (.Map => String2Id("fallback")  |-> CF) ... </cfunction>
-        ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters>
-            <outputParameters> .FParameters </outputParameters>
-            <body> B </body>
-            <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>
-        </Function>)
-               
-rule 
-    <k> pcsContractPart(C:Id, function .Identifiers (Ps1:FParameters) FQ:FunQuantifiers returns (Ps2:FParameters) {B}) => . ... </k>
-    <Contract>
-        <cname> C </cname>
-            <cfunction> (.Map => String2Id("fallback")  |-> CF) ... </cfunction>
-            ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters> 
-            <outputParameters> Ps2 </outputParameters>
-            <body> B </body>
-            <FunQuantifiers> FQ </FunQuantifiers>
-            <FunCon> true </FunCon>
-        </Function>)
-    
-rule 
-    <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) .FunQuantifiers   {B}) => B ... </k>
-    <Contract>
-        <cname> C </cname>
-        <cfunction> (.Map => F |-> CF) ... </cfunction>
-        ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> Ps1 </inputParameters>
-            <outputParameters> .FParameters </outputParameters>
-            <body> B </body>
-            ...                    
-        </Function>)
-    (.Bag =>
-    <contractInstance>
-        <ctId> -1 </ctId>
-        <ctContext> .Map </ctContext>
-        <ctStore> .Map </ctStore>
-        ...
-    </contractInstance>)
-    requires Id2String(F) ==String "main" 
-
-rule 
-    <k> pcsContractPart(C:Id, function F:Id (P1:FParameters) .FunQuantifiers returns (Ps2:FParameters) {B}) => B ... </k>
-    <Contract>  
-        <cname> C </cname>
-        <cfunction> (.Map => F |-> CF) ... </cfunction>
-        ...
-    </Contract>
-    <cntFunction> CF:Int => CF +Int 1  </cntFunction>
-    (.Bag =>
-        <Function>
-            <fId> CF </fId>
-            <inputParameters> P1 </inputParameters>
-            <outputParameters> Ps2 </outputParameters>
-            <body> B </body>
-            ...
-        </Function>)
-     (.Bag =>
-    <contractInstance>
-        <ctId> -1 </ctId>
-        <ctContext> .Map </ctContext>
-        <ctStore> .Map </ctStore>
-        ...
-    </contractInstance>)
-    requires Id2String(F) ==String "main" 
-
-// rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters);) => . ... </k>
-rule pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers returns  (Ps2:FParameters);) => .
-// rule <k> pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers;) => . ... </k>
-rule pcsContractPart(C:Id, function F:Id (Ps1:FParameters) FQ:FunQuantifiers;) => .
-     
-//BindParam
-
-syntax SolidityItem ::=BindParam(FParameters, Values)
-      
-rule BindParam(.FParameters, Values) => .
-
-rule 
-    <k> BindParam(T:TypeName .StorageLocations P:Id, Ps:FParameters, E:Value, Es:Values) => BindParam(Ps,Es) ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> .Map => (P |-> !N:Int) ... </ctContext>
-        <Memory> .Map => (!N:Int |-> E) ... </Memory>
-        <ctLocation> .Map =>( P |-> String2Id("Local")) ...</ctLocation>
-        <ctType> .Map =>(P |-> T) ... </ctType>
-        ...
-    </contractInstance>
-
-// FunQuantifiers
-       
-rule FunQs(FQ:FunQuantifier FQs:FunQuantifiers,F:Param) => FunQ(FQ,F) ~> FunQs(FQs,F)
-rule FunQs(.FunQuantifiers,F:Param) => .
-      
-// Specifier
-
-rule FunQ(FQ:Specifier,F:Param) => .
-      
-// ModifierInvocation
-
-rule 
-    <k> FunQ(X:Id, F:Param) => . ... </k>
-    <Contract>
-        ...
-        <mname> X </mname>
-        <condition> Con:Expression </condition>
-        <cfunction> ... (F |-> CF:Int) ... </cfunction>
-    </Contract>            
-    <fId> CF </fId>
-    <inputParameters> Ps1 </inputParameters>
-    <outputParameters> Ps2 </outputParameters>
-    <body> B:K </body>
-    <FunQuantifiers> FQ </FunQuantifiers>
-    <FunCon> FC:Expression => (FC && Con) </FunCon>
-       
-rule 
-    <k> FunQ(X:Id (MIPs:Values), F:Param) => BindParam(Ps,MIPs) ... </k>
-    <Contract>
-        ...
-        <mname> X </mname>
-        <mparameters> Ps:FParameters </mparameters>
-        <condition> Con:Expression </condition>
-        <cfunction> ... (F |-> CF:Int) ... </cfunction>
-    </Contract>            
-    <fId> CF </fId>
-    <inputParameters> Ps1 </inputParameters>
-    <outputParameters> Ps2 </outputParameters>
-    <body> B:K </body>
-    <FunQuantifiers> FQ </FunQuantifiers>
-    <FunCon> (FC:Expression => (FC && Con)) </FunCon>
-
-// ModifierDefinition
-
-rule 
-    <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {require(C:Expression); _;}) => . ... </k>
-    <Contract>
-        <cname> CN </cname>
-        (.Bag => 
-            <Modifier>
-                <mname> X </mname>
-                <mparameters> Ps </mparameters>
-                <condition> C </condition>
-            </Modifier>)
-        ...
-    </Contract> 
-
-rule 
-    <k> pcsContractPart(CN:Id, modifier X:Id {require(C:Expression); _;}) => . ... </k>
-    <Contract>
-        <cname> CN </cname>
-        (.Bag => 
-            <Modifier>
-                <mname> X </mname>
-                <mparameters> .K </mparameters>
-                <condition> C </condition>
-            </Modifier>)
-        ...
-    </Contract> 
-
-rule 
-    <k> pcsContractPart(CN:Id, modifier X:Id {if(Con:Expression) {throw;} _;}) => . ... </k>
-        <Contract>
-            <cname> CN </cname>
-            (.Bag => 
-                <Modifier>
-                    <mname> X </mname>
-                    <mparameters> .K </mparameters>
-                    <condition> ! Con </condition>
-                </Modifier>)
-            ...
-        </Contract> 
-
-rule 
-    <k> pcsContractPart(CN:Id, modifier X:Id (Ps:FParameters ) {if(Con:Expression) {throw;} _;}) => . ... </k>
-    <Contract>
-        <cname> CN </cname>
-        (.Bag => 
-            <Modifier>
-                <mname> X </mname>
-                <mparameters> .K </mparameters>
-                <condition> ! Con </condition>
-            </Modifier>)
-        ...
-    </Contract> 
-
-// Functioncall
-
-rule [function-call]:
-    <k> functionCall(F:Id ; Es:Values) => FunQs(FQ,F) ~> Call(F,Es)  ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Cn:Id </ctName>
-        ...
-    </contractInstance>
-    <contracts>
-        <Contract>
-            <cname> Cn </cname>
-            <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-            ...
-        </Contract>
-        ...
-    </contracts>
-    <Function>
-        <fId> CT </fId>
-        <inputParameters> Ps:FParameters </inputParameters>
-        <body> B:Statements </body>
-        <FunQuantifiers> FQ </FunQuantifiers>
-        <FunCon> Con </FunCon>
-        ...
-    </Function>
 
 rule
-    <k> functionCall(Sender:Int ; C:Int ; F:Id ; Es:Values ; M:Msg) => 
-            createTransaction(L) ~> 
-            functionCall(F ; Es) ~> 
-            returnContext(C) ... </k>
-    <contractStack> (.List => ListItem(C)) L:List </contractStack>
-    <Msg> M1 => M </Msg>
-    <MsgStack> (.List => ListItem(M1)) ... </MsgStack>
-    <functionStack> (.List => ListItem(#state(RhoC,F,0))) ... </functionStack>
-    <contractInstance>
-        <ctId> Sender </ctId>
-        <globalContext> RhoG </globalContext>
-        <ctContext> RhoC => RhoG </ctContext>
-        ...
-    </contractInstance>
+    <k> #pcsContractPart(Ct:Id, function F:Id (Ps:FParameters) FQ:FunQuantifiers {B})
+            => . ... </k>
+    <Contract>
+        <cname> Ct </cname>
+        (.Bag =>
+            <Function>
+	        <fname> F </fname>
+	        <inputParams> Ps </inputParams>
+	        <Returns> .FParameters </Returns>
+	        <quantifiers> FQ </quantifiers>
+	        <visibility> .K </visibility>
+	        <body> B </body>
+            </Function>)
+         ...
+    </Contract>
+
+rule
+    <k> #pcsContractPart(Ct:Id, function F:Id (Ps:FParameters) FQ:FunQuantifiers returns (Rs:FParameters);)
+            => . ... </k>
+    <Contract>
+        <cname> Ct </cname>
+        (.Bag =>
+            <Function>
+	        <fname> F </fname>
+	        <inputParams> Ps </inputParams>
+	        <Returns> Rs </Returns>
+	        <quantifiers> FQ </quantifiers>
+	        <visibility> .K </visibility>
+	        <body> .Statements </body>
+            </Function>)
+         ...
+    </Contract>
+
+rule
+    <k> #pcsContractPart(Ct:Id, function F:Id (Ps:FParameters) FQ:FunQuantifiers;)
+            => . ... </k>
+    <Contract>
+        <cname> Ct </cname>
+        (.Bag =>
+            <Function>
+	        <fname> F </fname>
+	        <inputParams> Ps </inputParams>
+	        <Returns> .FParameters </Returns>
+	        <quantifiers> FQ </quantifiers>
+	        <visibility> .K </visibility>
+	        <body> .Statements </body>
+            </Function>)
+         ...
+    </Contract>
 
 rule 
-    <k> Call(F:Id,Es:Values) => BindParam(Ps,Es) ~> BindParam(OPs,0) ~> funBody(Con,B) ~> UpdateTemp(CI)  ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctName> Cn:Id </ctName>
-        <ctContext> Rho </ctContext>
-        <ctStore> S </ctStore>
-        <idStore> Ds </idStore>
-        <Memory> M </Memory>
-        <tempContext> _=> Rho </tempContext>
-        <tempStore> _=>S </tempStore>
-        <tempIdStore> _=>Ds </tempIdStore>
-        <tempMemory> _=>M </tempMemory>
-        ...
-    </contractInstance>
-    <contracts>
-        <Contract>
-            <cname> Cn </cname>
-            <cfunction> ... (F |-> CT:Int) ...  </cfunction>
-            ...
-        </Contract>
-        ...
-    </contracts>
-    <Function>
-        <fId> CT </fId>
-        <inputParameters> Ps:FParameters </inputParameters>
-        <outputParameters> OPs:FParameters </outputParameters>
-        <body> B:Statements </body>
-        <FunQuantifiers> FQ </FunQuantifiers>
-        <FunCon> Con </FunCon>
-        ...
-    </Function>
+    <k> #pcsContractPart(Ct:Id, constructor (Ps:FParameters) FQ:FunQuantifiers {B}) => . ... </k>
+    <Contract>
+        <cname> Ct </cname>
+        (.Bag =>
+            <Function>
+	        <fname> String2Id("constructor") </fname>
+	        <inputParams> Ps </inputParams>
+	        <Returns> .FParameters </Returns>
+	        <quantifiers> FQ   </quantifiers>
+	        <visibility>  .K </visibility>
+	        <body> B </body>
+            </Function>)
+         <Constructor> _ => true </Constructor>
+         ...
+    </Contract>
+
+rule
+    <k> #pcsContractPart(Ct:Id, function (Ps:FParameters) FQ:FunQuantifiers {B})
+            => . ... </k>
+    <Contract>
+         <cname> Ct </cname>
+         (.Bag =>
+             <Function>
+	         <fname> String2Id("fallback") </fname>
+	         <inputParams> Ps </inputParams>
+	         <Returns> .FParameters </Returns>
+	         <quantifiers> FQ </quantifiers>
+	         <visibility> .K </visibility>
+	         <body> B </body>
+             </Function>)
+          ...
+    </Contract>
+
+
+syntax SolidityItem 
+       ::= #CallBody(Statements)  
+         | #Call(Id,Values)
+         | #InitParams(FParameters, Values)
+         | #InitParam(FParameter, Value)
+         | "#return"
+         | "#returnContract"
+         | #BindInputParams(FParameters, Values)
+         | #BindReturnParams(FParameters, Values)
+
+/*
+rule [External-Function-Call]:
+     <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
+     <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
+     <env> Rho:Map => CRho </env>
+     <callStack> .List => ListItem(#state(#account(C1,N1), Rho, #return(false,#undef_Value), #external)) ... </callStack>
+     <callDepth> Dep => Dep +Int 1 </callDepth>
+     <account>
+         <acctID> #account(C,N) </acctID>
+         <acctEnv> CRho:Map </acctEnv>
+         ...
+     </account>
+*/
+
+rule [External-Function-Call]:
+     <k> functionCall(C:Int; F:Id; Vs:Values) => #Call(F,Vs)  ~> #returnContract ...</k>
+     <currentAccount> #account(C1,N1) => #account(C,N) </currentAccount>
+     <callStack> .List => 
+        ListItem(
+            <callState>
+                <program> PROGRAM </program> 
+                <id> ID </id>         
+                <caller> CALLER </caller>     
+                <callData> CALLDATA </callData>   
+                <callValue> CALLVALUE </callValue> 
+                <env> Rho </env>
+                <tenv> TENV </tenv> 
+                <localMem> LOCALMEM </localMem>
+                <gas> GAS </gas>
+                <memoryUsed>  MEMUSED </memoryUsed>
+                <previousGas> PGAS </previousGas>
+                <static> STATIC </static>
+                <callDepth> Dep </callDepth>
+                <returnFlag> RETURNFLAG </returnFlag>
+                <returnValue> RETURNVALUE </returnValue>
+                <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
+            </callState>
+        ) ... 
+     </callStack>
+     <callState>
+        <program> PROGRAM </program> 
+        <id> ID </id>         
+        <caller> CALLER => #account(C1,N1) </caller>     
+        <callData> CALLDATA </callData>   
+        <callValue> CALLVALUE </callValue> 
+        <env> Rho:Map => CRho </env>
+        <tenv> TENV </tenv> 
+        <localMem> LOCALMEM </localMem>
+        <gas> GAS </gas>
+        <memoryUsed>  MEMUSED </memoryUsed>
+        <previousGas> PGAS </previousGas>
+        <static> STATIC </static>
+        <callDepth> Dep => Dep +Int 1 </callDepth>
+        <returnFlag> RETURNFLAG => false </returnFlag>
+        <returnValue> RETURNVALUE => #undef_Value </returnValue>
+        <isExternalFunctionCall> EXFUNCALL => true </isExternalFunctionCall>
+     </callState>
+     <account>
+         <acctID> #account(C,N) </acctID>
+         <acctEnv> CRho:Map </acctEnv>
+         ...
+     </account>
+     
+/* 
+rule [Internal-Function-Call]:
+     <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
+     <currentAccount> #account(C,N) </currentAccount>
+     <env> ENV:Map  </env>
+     <callStack> .List => ListItem(#state(#account(C,N),ENV,#return(false,#undef_Value), #internal)) ... </callStack> 
+*/
+
+rule [Internal-Function-Call]:
+     <k> functionCall(F:Id; Vs:Values) => #Call(F,Vs) ~> #return ... </k>
+     <currentAccount> #account(C,N) </currentAccount>
+     //<env> ENV:Map  </env>
+     <callStack> .List => 
+        ListItem(
+            <callState>
+                <program> PROGRAM </program> 
+                <id> ID </id>         
+                <caller> CALLER </caller>     
+                <callData> CALLDATA </callData>   
+                <callValue> CALLVALUE </callValue> 
+                <env> Rho </env>
+                <tenv> TENV </tenv> 
+                <localMem> LOCALMEM </localMem>
+                <gas> GAS </gas>
+                <memoryUsed>  MEMUSED </memoryUsed>
+                <previousGas> PGAS </previousGas>
+                <static> STATIC </static>
+                <callDepth> Dep </callDepth>
+                <returnFlag> RETURNFLAG </returnFlag>
+                <returnValue> RETURNVALUE </returnValue>
+                <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
+            </callState>
+        ) ... 
+     </callStack> 
+     <callState>
+        <program> PROGRAM </program> 
+        <id> ID </id>         
+        <caller> CALLER => #account(C,N) </caller>     
+        <callData> CALLDATA </callData>   
+        <callValue> CALLVALUE </callValue> 
+        <env> Rho </env>
+        <tenv> TENV </tenv> 
+        <localMem> LOCALMEM </localMem>
+        <gas> GAS </gas>
+        <memoryUsed>  MEMUSED </memoryUsed>
+        <previousGas> PGAS </previousGas>
+        <static> STATIC </static>
+        <callDepth> Dep => Dep +Int 1 </callDepth>
+        <returnFlag> RETURNFLAG => false </returnFlag>
+        <returnValue> RETURNVALUE => #undef_Value </returnValue>
+        <isExternalFunctionCall> EXFUNCALL => false </isExternalFunctionCall>
+     </callState>
+
 
 rule 
-    <k> UpdateTemp(CI) => . ... </k>   
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> Rho </ctContext>
-        <ctStore> S </ctStore>
-        <idStore> Ds </idStore>
-        <Memory> M </Memory>
-        <tempContext> Rho1=>Rho </tempContext>
-        <tempStore> S1=>S </tempStore>
-        <tempIdStore> Ds1 => Ds </tempIdStore>
-        <tempMemory> M1 => M </tempMemory>
-        ...
-    </contractInstance>  
-    <exeCon> _=> true </exeCon>
-    <forInit> _=> true </forInit>
+     <k> #Call(F:Id, Vs:Values) => #BindInputParams(Ps, Vs) ~> #BindReturnParams(OPs, .Values) ~> #CallBody(Ss) ...</k>
+     <currentAccount> #account(C:Int,N:AccountId) </currentAccount>
+     <Contract>
+         <cname> N </cname>
+         <Function>
+             <fname> F </fname>
+             <inputParams> Ps:FParameters </inputParams>
+             <Returns> OPs:FParameters </Returns>
+             <body> Ss:Statements </body>
+             ...
+         </Function>
+         ...
+     </Contract>
 
-rule 
-    <k> throw; => . ... </k>
-    <contractStack> ListItem(CI:Int) ... </contractStack>
-    <contractInstance>
-        <ctId> CI </ctId>
-        <ctContext> Rho => Rho1 </ctContext>
-        <ctStore> S => S1 </ctStore>
-        <idStore> Ds => Ds1 </idStore>
-        <Memory> M => M1 </Memory>
-        <tempContext> Rho1 </tempContext>
-        <tempStore> S1 </tempStore>
-        <tempIdStore> Ds1 </tempIdStore>
-        <tempMemory> M1 </tempMemory>
-        ...
-    </contractInstance>
-    <exeCon> _ => false </exeCon>
-  
-rule 
-    funBody(Con,S:Statement Ss:Statements) => funStmt(if(Con){S}) ~> funBody(Con,Ss)
+rule
+     <k> #BindInputParams(Ps, Vs) => #InitParams(Ps, Vs) ...</k>
 
-rule 
-    funBody(Con,.Statements) => .
+rule
+     <k> #BindReturnParams(OPs, Vs) => #InitParams(OPs, Vs) ...</k>
 
-rule 
-    <k> funStmt(S) => S ... </k>
-    <exeCon> true </exeCon>
-           
-rule 
-    <k> funStmt(S) => . ... </k>
-    <exeCon> false </exeCon>
      
 rule 
-    <k> createTransaction(ListItem(-1)) => . ... </k>
-    <newStack> .List </newStack>
-    <cnttran> I:Int => I +Int 1 </cnttran>
-    <tranComputation> (.Map => I |-> "functioncall" ) ... </tranComputation>  
+     <k> #InitParams(P:FParameter, Ps:FParameters, V:Value,Vs:Values)
+     	    => #InitParam(P, V) ~> #InitParams(Ps, Vs) ...</k>
 
 rule 
-    <k> createTransaction(ListItem(-1)) => . ... </k> 
-    <newStack> L </newStack>
-    requires L =/=K .List
+     <k> #InitParams(P:FParameter, Ps:FParameters, .Values)
+     	    => #InitParam(P, #undef_Value) ~> #InitParams(Ps, .Values) ...</k>
 
 rule 
-    createTransaction(L ListItem(-1)) => . 
-    requires L =/=K .List
+     <k> #InitParams(.FParameters, .Values) => . ...</k>
 
 rule 
-    <k> returnContext(C:Int) => E:Value ... </k>
-    <contractStack> ListItem(C) ListItem(S) => ListItem(S) ... </contractStack>
-    <Msg> M => M1 </Msg>
-    <MsgStack> ListItem(M1) => .List ... </MsgStack>
-    <vposition> _ => 1 </vposition>
-    <functionStack> ListItem(#state(Rho:Map,F,E)) => .List ... </functionStack>
-    <newStack>  L => .List </newStack>
-    <contractInstance>
-        <ctId> C </ctId>
-        <ctName> Cn:Id </ctName>
-        <ctContext> _ => RhoG </ctContext>
-        <globalContext> RhoG </globalContext>
+     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
+     <currentAccount> #account(C:Int,CN:AccountId) </currentAccount>
+
+rule 
+     <k> #InitParam(T:TypeName, V) => . ...</k>
+
+rule [Call-Function-Body]:
+     <k> #CallBody(S:Statement Ss:Statements) => #exeStmt(S) ~> #CallBody(Ss) ...</k>
+
+rule 
+     <k> #CallBody(.Statements) => . ...</k>
+
+/*
+rule
+     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
+     <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(false,_:Value), _:FunctionFlag)) ... </callStack>
+*/
+
+rule
+     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
+     <callState> 
+        ... 
+        <returnFlag> false </returnFlag> 
+     </callState>
+
+/* 
+rule
+     <k> #exeStmt(S:SimpleStatement;) => . ...</k>
+     <callStack> ListItem(#state(#account(_:Int,_:AccountId), _:Map, #return(true,_:Value), _:FunctionFlag)) ... </callStack>
+*/
+
+rule
+     <k> #exeStmt(S:SimpleStatement;) => . ...</k>
+     <callState> 
+        ... 
+        <returnFlag> true </returnFlag> 
+     </callState>
+
+/*
+rule [Local-Call-Return]:
+     <k> #return  => V  ... </k>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #internal)) => .List ... </callStack> 
+     <env> _ => Rho </env>
+*/
+
+rule [Local-Call-Return]:
+     <k> #return  => V  ... </k>
+     <callStack> 
+        ListItem(
+            <callState>
+                <program> PROGRAM </program> 
+                <id> ID </id>         
+                <caller> CALLER </caller>     
+                <callData> CALLDATA </callData>   
+                <callValue> CALLVALUE </callValue> 
+                <env> Rho </env>
+                <tenv> TENV </tenv> 
+                <localMem> LOCALMEM </localMem>
+                <gas> GAS </gas>
+                <memoryUsed>  MEMUSED </memoryUsed>
+                <previousGas> PGAS </previousGas>
+                <static> STATIC </static>
+                <callDepth> Dep </callDepth>
+                <returnFlag> RETURNFLAG </returnFlag>
+                <returnValue> RETURNVALUE </returnValue>
+                <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
+            </callState>
+        ) 
+        => .List ... 
+     </callStack> 
+     <callState>
+        <program> _ => PROGRAM </program> 
+        <id> _ => ID </id>         
+        <caller> _ => CALLER </caller>     
+        <callData> _ => CALLDATA </callData>   
+        <callValue> _ => CALLVALUE </callValue> 
+        <env> _ => Rho </env>
+        <tenv> _ => TENV </tenv> 
+        <localMem> _ => LOCALMEM </localMem>
+        <gas> _ => GAS </gas>
+        <memoryUsed> _ => MEMUSED </memoryUsed>
+        <previousGas> _ => PGAS </previousGas>
+        <static> _ => STATIC </static>
+        <callDepth> _ => Dep </callDepth>
+        <returnFlag> _ => RETURNFLAG </returnFlag>
+        <returnValue> V => RETURNVALUE </returnValue>
+        <isExternalFunctionCall> false => EXFUNCALL </isExternalFunctionCall>
+     </callState>
+
+/* 
+rule [External-Call-Return]:
+     <k> #returnContract => V ... </k>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool,V:Value), #external)) => .List ... </callStack>
+     <env> _ => Rho </env>
+     <currentAccount> _ => C  </currentAccount>
+     <callDepth> Depth => Depth -Int 1 </callDepth>
+*/
+
+rule [External-Call-Return]:
+     <k> #returnContract => V ... </k>
+     <currentAccount> _ => C  </currentAccount>
+     <callStack> 
+        ListItem(
+            <callState>
+                <program> PROGRAM </program> 
+                <id> ID </id>         
+                <caller> CALLER </caller>     
+                <callData> CALLDATA </callData>   
+                <callValue> CALLVALUE </callValue> 
+                <env> Rho </env>
+                <tenv> TENV </tenv> 
+                <localMem> LOCALMEM </localMem>
+                <gas> GAS </gas>
+                <memoryUsed>  MEMUSED </memoryUsed>
+                <previousGas> PGAS </previousGas>
+                <static> STATIC </static>
+                <callDepth> Dep </callDepth>
+                <returnFlag> RETURNFLAG </returnFlag>
+                <returnValue> RETURNVALUE </returnValue>
+                <isExternalFunctionCall> EXFUNCALL </isExternalFunctionCall>
+            </callState>
+        ) 
+        => .List ... 
+     </callStack> 
+     <callState>
+        <program> _ => PROGRAM </program> 
+        <id> _ => ID </id>         
+        <caller> C => CALLER </caller>     
+        <callData> _ => CALLDATA </callData>   
+        <callValue> _ => CALLVALUE </callValue> 
+        <env> _ => Rho </env>
+        <tenv> _ => TENV </tenv> 
+        <localMem> _ => LOCALMEM </localMem>
+        <gas> _ => GAS </gas>
+        <memoryUsed> _ => MEMUSED </memoryUsed>
+        <previousGas> _ => PGAS </previousGas>
+        <static> _ => STATIC </static>
+        <callDepth> _ => Dep </callDepth>
+        <returnFlag> _ => RETURNFLAG </returnFlag>
+        <returnValue> V => RETURNVALUE </returnValue>
+        <isExternalFunctionCall> true => EXFUNCALL </isExternalFunctionCall>
+     </callState>
+
+
+/* 
+rule [ReturnValue]:
+     <k> return V:Value  => #end_Exp ... </k>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value => V), _:FunctionFlag)) ... </callStack>
+*/
+
+rule [ReturnValue]:
+     <k> return V:Value  => #end_Exp ... </k>
+     <callState> 
         ...
-    </contractInstance>
-    <contractInstance>
-        <ctId> S </ctId>
-        <ctContext> _ => Rho </ctContext>
-        ...
-    </contractInstance>
+        <returnFlag> _:Bool => true </returnFlag>
+        <returnValue> _:Value => V </returnValue>
+     </callState>
 
-rule 
-    <k> return E:Int; => . ...</k>
-    <functionStack> ListItem(#state(_,_,_=>E)) ... </functionStack>
-    <exeCon> _ => false </exeCon>
+/*      
+rule [Return]:
+     <k> return  => #end_Exp ... </k>
+     <callStack> ListItem(#state(C, Rho, #return(_:Bool => true, _:Value), _:FunctionFlag)) ... </callStack>
+*/
 
-rule 
-    <k> return; => . ... </k>
-    <exeCon> _ => false </exeCon>
+rule [Return]:
+     <k> return  => #end_Exp ... </k>
+     <callState> 
+        ... 
+        <returnFlag> _:Bool => true </returnFlag> 
+     </callState>
 
-// TODO: move in correct place
-rule 
-    <k> logValue(V:Int); => . ... </k>
-    <outputLog> ... .List => ListItem(V) </outputLog>
 
 endmodule
+
+
+

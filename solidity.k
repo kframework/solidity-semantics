@@ -1,20 +1,24 @@
+
 requires "solidity-syntax.k"
 requires "configuration.k"
-requires "mcontract.k"
 requires "function.k"
+requires "contract.k"
+requires "expression.k"
 requires "statement.k"
 
 module SOLIDITY
-  imports SOLIDITY-SYNTAX
-  imports CONFIGURATION
-  imports MCONTRACT
-  imports FUNCTION
-  imports STATEMENT
 
-rule  Ps:PragmaDirectives Cs:ContractDefinitions => Cs
+imports SOLIDITY-SYNTAX
+imports CONFIGURATION
+imports FUNCTION
+imports CONTRACT
+imports EXPRESSION
+imports STATEMENT
 
-rule C:ContractDefinition Cs:ContractDefinitions => C ~> Cs
+rule 
+    <k> #execute => P ... </k>
+    <program> P:K </program>
 
-rule .ContractDefinitions => .
-    
+rule V:Value ~> .Statements => V
+
 endmodule
