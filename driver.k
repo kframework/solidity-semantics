@@ -58,7 +58,7 @@ rule #sortJSONList(.JSONList, LS)            => LS
 rule #sortJSONList(((KEY : VAL) , REST), LS)
      => #insertJSONKey((KEY : VAL), #sortJSONList(REST, LS))
 
-    yntax JSONList ::= #insertJSONKey ( JSON , JSONList )        [function]
+syntax JSONList ::= #insertJSONKey ( JSON , JSONList )        [function]
 rule #insertJSONKey( JS , .JSONList ) => JS , .JSONList
 rule #insertJSONKey( (KEY : VAL) , ((KEY' : VAL') , REST) )
      => (KEY : VAL)   , (KEY' : VAL'), REST
@@ -102,7 +102,7 @@ rule <k> #run {TESTID : { TEST:JSONList }, TESTS}
       ~> #run {TESTS} ...
      </k>
 
-    yntax Set ::= "#execKeys"        [function]
+syntax Set ::= "#execKeys"        [function]
 
 rule #execKeys => (SetItem("exec"))
 
@@ -110,12 +110,12 @@ rule #run TESTID : {KEY:(VAL:JSON), NEXT , REST:JSONList}
               => #run TESTID : { NEXT, KEY:VAL , REST}
      requires KEY in #execKeys
 
-    yntax Set ::= "#postKeys"        [function]
+syntax Set ::= "#postKeys"        [function]
 
 rule #run TESTID : {KEY : VAL:JSON, REST} => #run TESTID : {REST} ~> #check TESTID : {KEY:VAL}
      requires KEY in #postKeys
 
-    ule #postKeys => (SetItem("post"))
+rule #postKeys => (SetItem("post"))
 
 rule <k> #load DATA : { .JSONList } => .  ... </k>
     rule <k> #load DATA : { KEY : VALUE , REST } => #load DATA : { KEY : VALUE } ~> #load DATA : { REST } ... </k>

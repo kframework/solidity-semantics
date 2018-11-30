@@ -114,7 +114,7 @@ syntax FunctionDefinition ::= "function" IdentifierOrNone "(" FParameters ")" Fu
 
 syntax IdentifierOrNone
           ::= Id
-            | ""	 [klabel(#none), onlyLabel]
+            | ""     [klabel(#none), onlyLabel]
 
 syntax FParameter ::= VariableDeclaration
                     | TypeName
@@ -142,7 +142,7 @@ syntax FunctionCall ::= Id "(" FunctionCallArguments ")" [strict(2),klabel(#loca
                       | "functionCall" "(" Id ";" ExpressionList ")" [strict(2)]
 
 
-    yntax FunctionCallArguments ::= ExpressionList
+syntax FunctionCallArguments ::= ExpressionList
                                | "{" NameValueList "}" [strict]
 
 syntax ExpressionList ::= List{Expression, ","}    [strict]
@@ -176,16 +176,16 @@ syntax Expression ::= Id | Value
                     | NewExpression
                     | FunctionCall
                     > left:
-                  Expression "*" Expression			[klabel(#multexp),strict,left]
-                | Expression "/" Expression			[klabel(#divtexp),strict,left]
+                  Expression "*" Expression            [klabel(#multexp),strict,left]
+                | Expression "/" Expression            [klabel(#divtexp),strict,left]
                 > left:
-                  Expression "+" Expression			[klabel(#addexp),strict,left]
-                | Expression "-" Expression			[klabel(#subexp),strict,left]
+                  Expression "+" Expression            [klabel(#addexp),strict,left]
+                | Expression "-" Expression            [klabel(#subexp),strict,left]
                 > left:
-                  Expression "<" Expression			[klabel(#less),seqstrict,left]
-                | Expression "<=" Expression			[klabel(#leq),seqstrict,left]
-                | Expression ">" Expression			[klabel(#great),seqstrict,left]
-                | Expression ">=" Expression			[klabel(#geq),seqstrict,left]
+                  Expression "<" Expression            [klabel(#less),seqstrict,left]
+                | Expression "<=" Expression            [klabel(#leq),seqstrict,left]
+                | Expression ">" Expression            [klabel(#great),seqstrict,left]
+                | Expression ">=" Expression            [klabel(#geq),seqstrict,left]
 
 syntax IfStatement ::= "if" "(" Expression ")" Statement "else" Statement [strict(1)]
                      | "if" "(" Expression ")" Statement [strict(1)]
@@ -194,7 +194,7 @@ syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
 syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
 
-    yntax MemberAccess ::= Expression "." Id		[klabel(#memberAccess)]
+syntax MemberAccess ::= Expression "." Id        [klabel(#memberAccess)]
 
 syntax AccountId
        ::=  Id | "#Testing-Engine#"
