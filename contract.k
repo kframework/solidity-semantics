@@ -18,9 +18,9 @@ rule [ContractDefinition]:
      <k> contract C:Id { Cs:ContractParts } => #pcsContractParts(C,Cs) ...  </k>
      (.Bag =>
        <Contract>
-	  <cname> C </cname>
-	  <functions> .Bag </functions>
-	  <stateVar> .List </stateVar>
+      <cname> C </cname>
+      <functions> .Bag </functions>
+      <stateVar> .List </stateVar>
           ...
        </Contract>
      )
@@ -32,20 +32,20 @@ syntax SolidityItem
 
 rule #pcsContractParts(Ct:Id, .ContractParts) => .
 rule #pcsContractParts(Ct:Id, C:ContractPart Cs:ContractParts) =>
-     	   #pcsContractPart(Ct, C) ~> #pcsContractParts(Ct,Cs)
+               #pcsContractPart(Ct, C) ~> #pcsContractParts(Ct,Cs)
 
 rule [StateVariableDeclaration]:
      <k> #pcsContractPart(C:Id, T:TypeName F:FunQuantifiers V:Id;) =>
-     	  . ...</k>
+              . ...</k>
      <Contract>
          <cname> C </cname>
          <stateVar> ... .List => ListItem(#varInfo(V, #undef_Value, T, #storage)) </stateVar>
          ...
      </Contract>
 
-rule 
+rule
      <k> #pcsContractPart(C:Id, T:TypeName F:FunQuantifiers V:Id = E;) =>
-     	  . ...</k>
+              . ...</k>
      <Contract>
          <cname> C </cname>
          <stateVar> ... .List => ListItem(#varInfo(V, E, T, #storage)) </stateVar>
@@ -61,7 +61,7 @@ rule
     <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
 
 syntax SolidityItem
-       ::= #createStateVars(Int, Id, List) 
+       ::= #createStateVars(Int, Id, List)
          | #exeConstructor(Id,Int,ExpressionList) [strict(3)]
 
 rule [New-Contract-Instance]:
@@ -77,16 +77,16 @@ rule [New-Contract-Instance]:
     ...
     (.Bag =>
         <account>
-	        <acctID> #account(size(AA),C) </acctID>
-	        <balance> 0 </balance>
+            <acctID> #account(size(AA),C) </acctID>
+            <balance> 0 </balance>
             <acctEnv> .Map </acctEnv>
             <code>
-	            <associatedContract> .K </associatedContract>
-	            <availableContracts> .K </availableContracts>
+                <associatedContract> .K </associatedContract>
+                <availableContracts> .K </availableContracts>
             </code>
-	        <acctStorage> .Map </acctStorage>
-	        <nonce> 0 </nonce>
-	        ...
+            <acctStorage> .Map </acctStorage>
+            <nonce> 0 </nonce>
+            ...
         </account>
     )
     </accounts>
@@ -95,7 +95,7 @@ rule #createStateVars(N:Int, CN:Id, ListItem(VInfo) L:List) => #allocate(N, CN, 
 
 rule #createStateVars(N:Int, CN:Id, .List) => .
 
-rule 
+rule
      <k> #exeConstructor(C:Id,N:Int,Es:Values) => functionCall(N;String2Id("constructor"); Es); ... </k>
      <Contract>
          <cname> C </cname>
@@ -103,7 +103,7 @@ rule
          ...
      </Contract>
 
-rule 
+rule
      <k> #exeConstructor(C:Id,N:Int,Es:Values) => . ... </k>
      <Contract>
          <cname> C </cname>
