@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -eu
+base="$(cd "$(dirname "$0")"; pwd)"
+type -t ninja > /dev/null || fail "`ninja-build` not available. Giving up."
+git submodule update --init $base/ext/
+export PYTHONPATH="$base/ext/"
+python3 lib/build.py
+exec ninja -f .build/generated.ninja "$@"
