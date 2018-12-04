@@ -1,20 +1,52 @@
+K-Solidity
+==========
 
+Semantics of Solidity in K
 
-# How to run test cases
+Prerequisites
+-------------
 
-1. compile the code by running:
+With the new Makefile, K is now a submodule of this project.
 
-   make
+In order to obtain and build K (if not done already) use:
 
+```sh
+make deps
+```
 
-2. run the test case in the folder tests, for example running the test case t1.so in the folder "tests"
+This will clone and build the k repository into `.build/k`.
 
-   krun tests/t1.sol
+Building the K definition
+-------------------------
 
+For now, only the Java backend is supported.
+To build the definition, use:
 
-3. If the test case is passed then the cell <mode/> in the configuation is success else
-   the cell <k/> is stuck at some unfinished term.
+```sh
+make build
+```
 
+In order to clean the current build, just use
 
+```sh
+make clean
+```
 
+Notice that the kompiled definition is now saved in `.build/java`.
 
+How to run test programs
+------------------------
+
+Once the prerequisites are in place and the definition is kompiled, it is possible to run Solidity test cases using the supplied `./ksol` script.
+For instructions on use, call:
+
+```sh
+./ksol help
+```
+
+More info
+---------
+
+For more information about building, please consult the `Makefile`.
+For information about running, please consult the `ksol` script.
+For a more fleshed out example of semantics, see <https://github.com/kframework/evm-semantics>.

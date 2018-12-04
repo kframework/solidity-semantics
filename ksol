@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+set -e      # Exit immediately if any command fails
+set -u      # Using undefined variables is an error. Exit immediately
+
+# https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+ksol_script="$0"
+while [[ -h "$ksol_script" ]]; do
+    ksol_dir="$(cd -P "$(dirname "$ksol_script")" && pwd)"
+    ksol_script="$(readlink "$ksol_script")"
+    [[ "$ksol_script" != /* ]] && ksol_script="$ksol_dir/$ksol_script"
+done
+ksol_dir="$(cd -P "$(dirname "$ksol_script")" && pwd)"
+build_dir="$ksol_dir/.build"
+
+# For now, hardcode the backend
+backend="java"
+
+test_logs="$build_dir/logs"
+mkdir -p "$test_logs"
+now_passing="$test_logs/passing.lastrun"
+now_failing="$test_logs/failing.lastrun"
+run_times="$test_logs/runtime"
+
+# Utilities
+# ---------
+
+progress() { echo "== $@" ; }
+warning()  { echo -e "WARNING:" "$@" >&2 ; }
+die()      { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
+
+pretty_diff() {
+    git --no-pager diff --no-index "$@"
+}
+
+# Environment Setup
+# -----------------
+
+run_env() {
+    local run_file=$1
+    local release_dir="${K_BIN:-$build_dir/k/k-distribution/target/release/k}"
+    export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+}
+
+# Runners
+# -------
+
+# User Commands
+
+run_krun() {
+    local run_file=$1 ; shift
+    run_env "$run_file"
+    export K_OPTS=-Xss500m
+    krun --directory "$build_dir/$backend/" "$run_file" "$@"
+}
+
+# Main
+# ----
+
+run_command="$1" ; shift
+
+case "$run_command" in
+
+    run)  run_krun "$@" ;;
+
+    *) echo "
+    normal usage
+    ============
+
+        $0 run <pgm> <K args>*
+
+    -   run: Run a single EVM program
+
+    Note: <pgm> is a path to a Solidity source file.
+
+    <K args> are any options you want to pass directly to K.
+    Useful <K args> are:
+
+    -   --debug: output more debugging information when running/proving.
+
+    Examples:
+
+        $ $0 run tests/t1.sol
+" ; exit ;;
+esac

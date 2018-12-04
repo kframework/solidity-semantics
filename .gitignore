@@ -1,2 +1,5 @@
 driver-kompiled
 .DS_Store
+
+/.build/*
+!/.build/k
