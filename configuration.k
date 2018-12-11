@@ -69,7 +69,7 @@ configuration
                     <callDepth> 0          </callDepth>
 
                     <returnFlag>             false:Bool </returnFlag>
-                    <returnValue>            0:Value    </returnValue>
+                    //<returnValue>            0:Value    </returnValue>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
 
