@@ -5,7 +5,7 @@ contract C {
 
 	function f (int x, int m) public returns (int y)  {
 		int sum;
-		
+
 		if (x < 0 ) {
 			sum = 0;
 		}
@@ -13,9 +13,9 @@ contract C {
 			sum = x + f(x - 1, m);
             b = b + 1;
 		}
-		
+
 		return sum;
-             
+
 	}
 }
 
@@ -23,10 +23,10 @@ contract C {
 
 "Test1" : {
 	"exec" : {
-	    "code" : #solidity( int sum = functionCall(new C();f;2, 1); )
+	    "code" : #solidity( int sum = functionCall(new C();f;3, 1); )
 	},
 	"post" : {
-	    "mem" :  #exists("sum",3) 
+	    "mem" :  #exists("sum",6)
 	}
    }
 }
