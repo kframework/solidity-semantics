@@ -129,29 +129,28 @@ syntax SolidityItem
 
 
 rule [External-Function-Call]:
-     <k> ( functionCall(C:Int; F:Id; Vs:Values) => 
-             #pushCallStack ~> 
-             #upDateCallStateBeforeExternalCall(C) ~> 
-             #Call(F,Vs) ~> 
+     <k> ( functionCall(C:Int; F:Id; Vs:Values) =>
+             #pushCallStack ~>
+             #upDateCallStateBeforeExternalCall(C) ~>
+             #Call(F,Vs) ~>
              #upDateCallStateAfterExternalCall ~>
-             #popCallStack ~> 
-             #returnContract 
+             #popCallStack ~>
+             #returnContract
          ) ...
      </k>
      [structural]
 
 
 rule [Internal-Function-Call]:
-     <k> (functionCall(F:Id; Vs:Values) => 
-            #pushCallStack ~> 
-            #upDateCallStateBeforeInternalCall ~> 
-            #Call(F,Vs) ~> 
-            #popCallStack ~> 
-            #return 
-         ) ... 
+     <k> (functionCall(F:Id; Vs:Values) =>
+            #pushCallStack ~>
+            #upDateCallStateBeforeInternalCall ~>
+            #Call(F,Vs) ~>
+            #popCallStack ~>
+            #return
+         ) ...
      </k>
      [structural]
-     
 
 rule [Push-CallStack]:
      <k> #pushCallStack => . ... </k>
