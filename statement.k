@@ -16,17 +16,22 @@ rule if (false) S:Statement => .
 rule if (true) S:Statement else S1:Statement => #exeStmt(S)
 rule if (false) S:Statement else S1:Statement => #exeStmt(S1)
 
-rule #exeStmt({ Ss:Statements }) =>  Ss 
+rule #exeStmt({ Ss:Statements }) =>  Ss
 
-rule #exeStmt(S:IfStatement) => S 
+rule #exeStmt(S:IfStatement) => S
 
-rule _:Value ; => . 
+rule #exeStmt(S:WhileStatement) => S
+
+rule _:Value ; => .
 
 rule
     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
     <callStack> .List </callStack>
 
 rule
-   #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]
-   
+    #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]
+
+rule
+    while (E:Expression) S:Statement => if(E) { S while (E) S }       [structural]
+
 endmodule

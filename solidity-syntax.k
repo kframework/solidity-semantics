@@ -173,9 +173,9 @@ syntax Return ::= "return" Expression [strict]
 syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 
 syntax Expression ::= Id | Value
-                    | NewExpression
-                    | FunctionCall
-                    > left:
+                | NewExpression
+                | FunctionCall
+                > left:
                   Expression "*" Expression            [klabel(#multexp),strict,left]
                 | Expression "/" Expression            [klabel(#divtexp),strict,left]
                 > left:
@@ -213,7 +213,7 @@ syntax VarInfo
 syntax MemOperation
         ::= #read(Id)
           | #write(Id, Expression) [strict(2)]
-             | #allocate(Int, AccountId, VarInfo)
+          | #allocate(Int, AccountId, VarInfo)
 
 syntax MemFlag
        ::= "#mem"
