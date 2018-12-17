@@ -68,7 +68,13 @@ configuration
                     <static>    false:Bool </static>
                     <callDepth> 0          </callDepth>
 
-                    <returnFlag>             false:Bool </returnFlag>
+                    // <exceptionMode> and <exceptionCode> are used to handle abnormal terminations
+                    // E.g., the "break" and "continue" statements
+                    // The exceptionCode could be: #continue#, #break#, etc. (defined in function.k)
+                    <exceptionMode>     false:Bool      </exceptionMode>
+                    <exceptionCode>     .K              </exceptionCode>
+
+                    <returnFlag>        false:Bool      </returnFlag>
                     //<returnValue>            0:Value    </returnValue>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>

@@ -133,8 +133,16 @@ syntax Statement ::= IfStatement
                    | WhileStatement
                    | Block
                    | SimpleStatement ";" [strict,klabel(#simpleStmt)]
+                   | Break
+                   | Continue
+                   | "#loop_mark"
 
-syntax SimpleStatement ::= FunctionCall | Assignment | Value | VariableDefinition | Return | NewExpression
+syntax SimpleStatement ::= FunctionCall
+                         | Assignment
+                         | Value
+                         | VariableDefinition
+                         | Return
+                         | NewExpression
 
 syntax FunctionCall ::= Id "(" FunctionCallArguments ")" [strict(2),klabel(#localFunctionCall)]
                       | MemberAccess "(" FunctionCallArguments ")" [strict(2),klabel(#externalFunctionCall)]
@@ -169,6 +177,9 @@ syntax ExpressionList ::= Values
 syntax Return ::= "return" Expression [strict]
                 | "return"
 
+syntax Break ::= "break" ";"
+
+syntax Continue ::= "continue" ";"
 
 syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 
