@@ -10,7 +10,7 @@ imports CONFIGURATION
 
 
 syntax SolidityItem ::= "#continue#"
-                       | "#beak#"
+                       | "#break#"
 
 rule S:Statement Ss:Statements => #exeStmt(S) ~> Ss
 rule .Statements => .
@@ -37,7 +37,6 @@ rule
     #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]
 
 rule [While]:
-    //while (E:Expression) S:Statement => ifAux(E, S ~> #loop_mark ~> while (E) S, .K)      [structural]
     while (E:Expression) S:Statement => if (E) { S #loop_mark while (E) S }      [structural]
 
 rule [Normal-Loop-Mark]:
@@ -45,6 +44,13 @@ rule [Normal-Loop-Mark]:
     <callState>
         ...
         <exceptionMode> false </exceptionMode>
+    </callState>
+
+rule [Exception-Skip]:
+    <k> S:Statement => . ... </k>
+    <callState>
+        ...
+        <exceptionMode> true </exceptionMode>
     </callState>
 
 rule [Exception-Continue-Loop-Mark]:
@@ -63,14 +69,20 @@ rule [Continue]:
         <exceptionCode> _ => #continue# </exceptionCode>
     </callState>
 
-
-rule [Exception-Continue]:
-    <k> S:Statement => . ... </k>
+rule [Break]:
+    <k> #exeStmt(S:Break) => . ... </k>
     <callState>
         ...
-        <exceptionMode> true </exceptionMode>
-        <exceptionCode> #continue# </exceptionCode>
+        <exceptionMode> _:Bool => true </exceptionMode>
+        <exceptionCode> _ => #break# </exceptionCode>
     </callState>
 
+rule [Exception-Break-Loop-Mark]:
+    <k> ( #exeStmt(#loop_mark) ~> S:WhileStatement .Statements) => . ... </k>
+    <callState>
+        ...
+        <exceptionMode> true => false </exceptionMode>
+        <exceptionCode> #break# => .K </exceptionCode>
+    </callState>
 
 endmodule
