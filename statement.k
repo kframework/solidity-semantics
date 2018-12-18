@@ -9,9 +9,6 @@ imports SOLIDITY-SYNTAX
 imports CONFIGURATION
 
 
-syntax SolidityItem ::= "#continue#"
-                       | "#break#"
-
 rule S:Statement Ss:Statements => #exeStmt(S) ~> Ss
 rule .Statements => .
 
@@ -83,6 +80,14 @@ rule [Exception-Break-Loop-Mark]:
         ...
         <exceptionMode> true => false </exceptionMode>
         <exceptionCode> #break# => .K </exceptionCode>
+    </callState>
+
+rule [Exception-Return-Loop-Mark]:
+    <k> ( #exeStmt(#loop_mark) ~> S:WhileStatement .Statements) => . ... </k>
+    <callState>
+        ...
+        <exceptionMode> true </exceptionMode>
+        <exceptionCode> #return# </exceptionCode>
     </callState>
 
 endmodule

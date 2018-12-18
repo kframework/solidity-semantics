@@ -235,5 +235,8 @@ syntax Exec
 
 syntax SolidityItem
        ::= #exeStmt(Statement)
+         | "#continue#"
+         | "#break#"
+         | "#return#"
 
 endmodule

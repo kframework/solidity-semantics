@@ -70,7 +70,7 @@ configuration
 
                     // <exceptionMode> and <exceptionCode> are used to handle abnormal terminations
                     // E.g., the "break" and "continue" statements
-                    // The exceptionCode could be: #continue#, #break#, etc. (defined in function.k)
+                    // The exceptionCode could be: #continue#, #break#, #return#, etc. (defined in solidity-syntax.k)
                     <exceptionMode>     false:Bool      </exceptionMode>
                     <exceptionCode>     .K              </exceptionCode>
 

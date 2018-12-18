@@ -277,6 +277,8 @@ rule [ReturnValue]:
      <result> _ => V </result>
      <callState>
         ...
+        <exceptionMode> _:Bool => true </exceptionMode>
+        <exceptionCode> _ => #return# </exceptionCode>
         <returnFlag> _:Bool => true </returnFlag>
      </callState>
 
@@ -284,6 +286,8 @@ rule [Return]:
      <k> return  => #end_Exp ... </k>
      <callState>
         ...
+        <exceptionMode> _:Bool => true </exceptionMode>
+        <exceptionCode> _ => #return# </exceptionCode>
         <returnFlag> _:Bool => true </returnFlag>
      </callState>
 
