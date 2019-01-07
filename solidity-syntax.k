@@ -33,7 +33,6 @@ syntax FunQuantifier ::= ModifierInvocation
                        | Specifier
 
 syntax ModifierInvocation ::= Id
-                            
 
 syntax Specifier ::= "public"
                    | "internal"
@@ -45,8 +44,6 @@ syntax Specifier ::= "public"
                    | "external"
 
 syntax FunQuantifiers ::= List{FunQuantifier," "}
-
-
 
 syntax IdentifierOrNone
           ::= Id
