@@ -23,7 +23,7 @@ syntax JSON
      | MemStatusList
 
 syntax MemStatusList
-       ::= List{MemStatus, ""}
+       ::= List{MemStatus, ""} 
 
 syntax MemStatus
        ::= #exists(String,Value)
@@ -110,6 +110,10 @@ rule #run TESTID : {KEY:(VAL:JSON), NEXT , REST:JSONList}
               => #run TESTID : { NEXT, KEY:VAL , REST}
      requires KEY in #execKeys
 
+rule #run TESTID : {KEY:(VAL:JSON), REST:JSONList}
+        => #run TESTID : { KEY:VAL }
+requires KEY in #execKeys
+
 syntax Set ::= "#postKeys"        [function]
 
 rule #run TESTID : {KEY : VAL:JSON, REST} => #run TESTID : {REST} ~> #check TESTID : {KEY:VAL}
@@ -125,7 +129,7 @@ rule <k> #load DATA : { .JSONList } => .  ... </k>
 rule <k> #run TESTID : { "exec" : EXEC:JSON} =>
              #load "exec" : EXEC ~> #execute ... </k>
 
-rule <k> #load "exec" : {"code" : #solidity(EXEC:Statements)} => . ... </k>
+rule <k> #load "exec" : {"code" : #solidity(EXEC:Statements), .JSONList} => . ... </k>
      <program> _ => EXEC </program>
 
 
@@ -201,6 +205,12 @@ rule <k> #check "post" : {.JSONList} => . ... </k>
 
 rule <k> #check "post" : {"mem" : #exists(S:String, V:Value) Ms:MemStatusList, REST:JSONList}
                  => #check "post" : {"mem" : Ms} ~> #check "post" : {REST} ... </k>
+     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _)... </env>
+     <localMem> ... I |-> V ... </localMem>
+
+// This shouldn't be needed I think... But it gets stuck if removed. 
+rule <k> #check "post" : {"mem" : #exists(S:String, V:Value) Ms:MemStatusList, .MemStatusList}
+                 => #check "post" : {"mem" : Ms} ... </k>
      <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _)... </env>
      <localMem> ... I |-> V ... </localMem>
 
