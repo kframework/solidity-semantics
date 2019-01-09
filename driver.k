@@ -23,7 +23,7 @@ syntax JSON
      | MemStatusList
 
 syntax MemStatusList
-       ::= List{MemStatus, ""} 
+       ::= List{MemStatus, ""}
 
 syntax MemStatus
        ::= #exists(String,Value)
@@ -90,8 +90,6 @@ rule <k> SC   SCs:SoliditySimulation => SC ~> SCs </k>
 
 rule <k> JOSNINPUT:JSON => #run JOSNINPUT ... </k>
 
-rule #failure _ => .
-
 /************************
     running tests
 *************************/
@@ -106,13 +104,11 @@ syntax Set ::= "#execKeys"        [function]
 
 rule #execKeys => (SetItem("exec"))
 
-rule #run TESTID : {KEY:(VAL:JSON), NEXT , REST:JSONList}
-              => #run TESTID : { NEXT, KEY:VAL , REST}
+rule <k> #run TESTID : {KEY:(VAL:JSON), NEXT , REST:JSONList} => #run TESTID : { NEXT, KEY:VAL , REST } ... </k>
      requires KEY in #execKeys
 
-rule #run TESTID : {KEY:(VAL:JSON), REST:JSONList}
-        => #run TESTID : { KEY:VAL }
-requires KEY in #execKeys
+rule <k> #run TESTID : {KEY:(VAL:JSON), .JSONList} => #run TESTID : { KEY:VAL } ... </k>
+     requires KEY in #execKeys
 
 syntax Set ::= "#postKeys"        [function]
 
@@ -195,28 +191,21 @@ syntax Int ::= #parseHexWord ( String ) [function]
 
 // -----  Rules for check --------
 
-rule #check TESTID : {"post" : POST} => #check "post" : POST ~> #failure TESTID
+rule <k> #check TESTID : {"post" : POST} => #check "post" : POST ~> #success ... </k>
 
-rule <k> #check "post" : {"result" : #solidity(V:Value), REST:JSONList} => #check "post" : {REST}  ... </k>
-     <result> V </result>
-
-rule <k> #check "post" : {.JSONList} => . ... </k>
+rule <k> #success => . ... </k>
      <mode> _ => "SUCCESS" </mode>
 
-rule <k> #check "post" : {"mem" : #exists(S:String, V:Value) Ms:MemStatusList, REST:JSONList}
-                 => #check "post" : {"mem" : Ms} ~> #check "post" : {REST} ... </k>
+rule <k> #check "post" : {.JSONList} => . ... </k>
+rule <k> #check "post" : { K1 : V1 , REST } => #check "post" : { K1 : V1 } ~> #check "post" : { REST } ... </k>
+
+rule <k> #check "post" : {"result" : #solidity(V:Value) } => . ... </k>
+     <result> V </result>
+
+rule <k> #check "post" : { "mem" : .MemStatusList } => . ... </k>
+rule <k> #check "post" : { "mem" : MS MSL } => #check "post" : { "mem" : MS } ~> #check "post" : { "mem" : MSL } ... </k>
+rule <k> #check "post" : { "mem" : #exists(S:String, V:Value) } => . ... </k>
      <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _)... </env>
      <localMem> ... I |-> V ... </localMem>
-
-// This shouldn't be needed I think... But it gets stuck if removed. 
-rule <k> #check "post" : {"mem" : #exists(S:String, V:Value) Ms:MemStatusList, .MemStatusList}
-                 => #check "post" : {"mem" : Ms} ... </k>
-     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _)... </env>
-     <localMem> ... I |-> V ... </localMem>
-
-rule #check "post" : {"mem" : .MemStatusList} => .
 
 endmodule
-
-
-
