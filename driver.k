@@ -191,9 +191,9 @@ syntax Int ::= #parseHexWord ( String ) [function]
 
 // -----  Rules for check --------
 
-rule <k> #check TESTID : {"post" : POST} => #check "post" : POST ~> #success ... </k>
+rule <k> #check TESTID : {"post" : POST} => #check "post" : POST ~> #failure TESTID ... </k>
 
-rule <k> #success => . ... </k>
+rule <k> #failure _ => . ... </k>
      <mode> _ => "SUCCESS" </mode>
 
 rule <k> #check "post" : {.JSONList} => . ... </k>
