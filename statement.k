@@ -34,60 +34,62 @@ rule
     #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]
 
 rule [While]:
-    while (E:Expression) S:Statement => if (E) { S #loop_mark while (E) S }      [structural]
+    <k> while (E:Expression) S:Statement => if (E) { S #loop_mark while (E) S } ... </k>        [structural]
 
 rule [Normal-Loop-Mark]:
     <k> #exeStmt(#loop_mark) => . ... </k>
     <callState>
         ...
-        <exceptionMode> false </exceptionMode>
+        <abnormalMode> false </abnormalMode>
     </callState>
 
 rule [Exception-Skip]:
     <k> S:Statement => . ... </k>
     <callState>
         ...
-        <exceptionMode> true </exceptionMode>
+        <abnormalMode> true </abnormalMode>
     </callState>
 
 rule [Exception-Continue-Loop-Mark]:
     <k> #exeStmt(#loop_mark) => . ... </k>
     <callState>
         ...
-        <exceptionMode> true => false </exceptionMode>
-        <exceptionCode> #continue# => .K </exceptionCode>
+        <abnormalMode> true => false </abnormalMode>
+        <abnormalCode> #continue# => .K </abnormalCode>
     </callState>
 
 rule [Continue]:
     <k> #exeStmt(S:Continue) => . ... </k>
     <callState>
         ...
-        <exceptionMode> _:Bool => true </exceptionMode>
-        <exceptionCode> _ => #continue# </exceptionCode>
+        <abnormalMode> _:Bool => true </abnormalMode>
+        <abnormalCode> _ => #continue# </abnormalCode>
     </callState>
 
 rule [Break]:
     <k> #exeStmt(S:Break) => . ... </k>
     <callState>
         ...
-        <exceptionMode> _:Bool => true </exceptionMode>
-        <exceptionCode> _ => #break# </exceptionCode>
+        <abnormalMode> _:Bool => true </abnormalMode>
+        <abnormalCode> _ => #break# </abnormalCode>
     </callState>
 
 rule [Exception-Break-Loop-Mark]:
     <k> ( #exeStmt(#loop_mark) ~> S:WhileStatement .Statements) => . ... </k>
     <callState>
         ...
-        <exceptionMode> true => false </exceptionMode>
-        <exceptionCode> #break# => .K </exceptionCode>
+        <abnormalMode> true => false </abnormalMode>
+        <abnormalCode> #break# => .K </abnormalCode>
     </callState>
 
+/*
 rule [Exception-Return-Loop-Mark]:
     <k> ( #exeStmt(#loop_mark) ~> S:WhileStatement .Statements) => . ... </k>
     <callState>
         ...
-        <exceptionMode> true </exceptionMode>
-        <exceptionCode> #return# </exceptionCode>
+        <abnormalMode> true </abnormalMode>
+        <abnormalCode> #return# </abnormalCode>
     </callState>
+*/
 
 endmodule

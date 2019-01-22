@@ -256,8 +256,18 @@ rule
         <returnFlag> false </returnFlag>
      </callState>
 
+
+/*
 rule
      <k> #exeStmt(S:SimpleStatement;) => . ...</k>
+     <callState>
+        ...
+        <returnFlag> true </returnFlag>
+     </callState>
+*/
+
+rule
+     <k> #exeStmt(S:Statement) => . ...</k>
      <callState>
         ...
         <returnFlag> true </returnFlag>
@@ -277,8 +287,8 @@ rule [ReturnValue]:
      <result> _ => V </result>
      <callState>
         ...
-        <exceptionMode> _:Bool => true </exceptionMode>
-        <exceptionCode> _ => #return# </exceptionCode>
+        //<abnormalMode> _:Bool => true </abnormalMode>
+        //<abnormalCode> _ => #return# </abnormalCode>
         <returnFlag> _:Bool => true </returnFlag>
      </callState>
 
@@ -286,8 +296,8 @@ rule [Return]:
      <k> return  => #end_Exp ... </k>
      <callState>
         ...
-        <exceptionMode> _:Bool => true </exceptionMode>
-        <exceptionCode> _ => #return# </exceptionCode>
+        //<abnormalMode> _:Bool => true </abnormalMode>
+        //<abnormalCode> _ => #return# </abnormalCode>
         <returnFlag> _:Bool => true </returnFlag>
      </callState>
 

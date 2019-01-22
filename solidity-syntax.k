@@ -233,10 +233,8 @@ syntax MemFlag
 syntax Exec
        ::= "#execute"
 
-syntax SolidityItem
-       ::= #exeStmt(Statement)
-         | "#continue#"
-         | "#break#"
-         | "#return#"
+syntax SolidityItem ::= #exeStmt(Statement) | AbnormalTerminationCode
+
+syntax AbnormalTerminationCode ::= "#continue#" | "#break#" | "#return#"
 
 endmodule

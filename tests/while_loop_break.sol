@@ -27,7 +27,33 @@ contract Test {
     "post" : {
         "mem" :  #exists("sum", 21)
     }
-}
+},
 
+"Test2" : {
+    "exec" : {
+        "code" : #solidity( int sum = functionCall(new Test(); whileTest; 20, 0);)
+    },
+    "post" : {
+        "mem" :  #exists("sum", 1)
+    }
+},
+
+"Test3" : {
+    "exec" : {
+        "code" : #solidity( int sum = functionCall(new Test(); whileTest; 20, 30);)
+    },
+    "post" : {
+        "mem" :  #exists("sum", 36)
+    }
+},
+
+"Test4" : {
+    "exec" : {
+        "code" : #solidity( int sum = functionCall(new Test(); whileTest; 30, 400);)
+    },
+    "post" : {
+        "mem" :  #exists("sum", 406)
+    }
+}
 
 }

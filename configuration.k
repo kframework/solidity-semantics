@@ -68,11 +68,11 @@ configuration
                     <static>    false:Bool </static>
                     <callDepth> 0          </callDepth>
 
-                    // <exceptionMode> and <exceptionCode> are used to handle abnormal terminations
+                    // <abnormalMode> and <abnormalCode> are used to handle abnormal terminations
                     // E.g., the "break" and "continue" statements
-                    // The exceptionCode could be: #continue#, #break#, #return#, etc. (defined in solidity-syntax.k)
-                    <exceptionMode>     false:Bool      </exceptionMode>
-                    <exceptionCode>     .K              </exceptionCode>
+                    // The abnormalCode could be: #continue#, #break#, #return#, etc. (defined in solidity-syntax.k)
+                    <abnormalMode>     false:Bool      </abnormalMode>
+                    <abnormalCode>     .K              </abnormalCode>
 
                     <returnFlag>        false:Bool      </returnFlag>
                     //<returnValue>            0:Value    </returnValue>

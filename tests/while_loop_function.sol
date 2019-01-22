@@ -37,6 +37,24 @@ contract Test {
     "post" : {
         "mem" :  #exists("result", 34)
     }
+},
+
+"Test2" : {
+    "exec" : {
+        "code" : #solidity( int result = functionCall(new Test(); whileTest; 0);)
+    },
+    "post" : {
+        "mem" :  #exists("result", 1)
+    }
+},
+
+"Test3" : {
+    "exec" : {
+        "code" : #solidity( int result = functionCall(new Test(); whileTest; -10);)
+    },
+    "post" : {
+        "mem" :  #exists("result", 0)
+    }
 }
 
 
