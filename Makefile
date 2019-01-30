@@ -21,7 +21,7 @@ $(K_SUBMODULE)/make.timestamp:
 	@echo "== submodule: $@"
 	git submodule update --init -- $(K_SUBMODULE)
 	cd $(K_SUBMODULE) \
-		&& mvn package -q -DskipTests -U
+		&& mvn package -q -DskipTests -U -Dllvm.backend.skip -Dhaskell.backend.skip
 	touch $(K_SUBMODULE)/make.timestamp
 
 K_BIN=$(K_SUBMODULE)/k-distribution/target/release/k/bin
