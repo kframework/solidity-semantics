@@ -9,29 +9,43 @@ imports SOLIDITY-SYNTAX
 imports CONFIGURATION
 
 
-rule S:Statement Ss:Statements => #exeStmt(S) ~> Ss
-rule .Statements => .
+rule
+    <k> S:Statement Ss:Statements => #exeStmt(S) ~> Ss ... </k>
 
-rule if (true) S:Statement => #exeStmt(S)
-rule if (false) S:Statement => .
-rule if (true) S:Statement else S1:Statement => #exeStmt(S)
-rule if (false) S:Statement else S1:Statement => #exeStmt(S1)
+rule
+    <k> .Statements => . ... </k>
 
-rule #exeStmt({ Ss:Statements }) =>  Ss
+rule
+    <k> if (true) S:Statement => #exeStmt(S) ... </k>
 
-rule #exeStmt(S:IfStatement) => S
+rule
+    <k> if (false) S:Statement => . ... </k>
 
-rule #exeStmt(S:WhileStatement) => S
+rule
+    <k> if (true) S:Statement else S1:Statement => #exeStmt(S) ... </k>
+
+rule
+    <k> if (false) S:Statement else S1:Statement => #exeStmt(S1) ... </k>
+
+rule
+    <k> #exeStmt({ Ss:Statements }) =>  Ss ... </k>
+
+rule
+    <k> #exeStmt(S:IfStatement) => S ... </k>
+
+rule
+    <k> #exeStmt(S:WhileStatement) => S ... </k>
 
 
-rule _:Value ; => .
+rule
+    <k> _:Value ; => . ... </k>
 
 rule
     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
     <callStack> .List </callStack>
 
 rule
-    #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS)      [structural]
+    <k> #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS) ... </k>     [structural]
 
 rule [While]:
     <k> while (E:Expression) S:Statement => if (E) { S #loop_mark while (E) S } ... </k>        [structural]
@@ -81,15 +95,5 @@ rule [Exception-Break-Loop-Mark]:
         <abnormalMode> true => false </abnormalMode>
         <abnormalCode> #break# => .K </abnormalCode>
     </callState>
-
-/*
-rule [Exception-Return-Loop-Mark]:
-    <k> ( #exeStmt(#loop_mark) ~> S:WhileStatement .Statements) => . ... </k>
-    <callState>
-        ...
-        <abnormalMode> true </abnormalMode>
-        <abnormalCode> #return# </abnormalCode>
-    </callState>
-*/
 
 endmodule

@@ -75,7 +75,6 @@ configuration
                     <abnormalCode>     .K              </abnormalCode>
 
                     <returnFlag>        false:Bool      </returnFlag>
-                    //<returnValue>            0:Value    </returnValue>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
 
