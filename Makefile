@@ -69,7 +69,7 @@ $(java_kompiled): $(java_defn)
 $(ocaml_kompiled): $(ocaml_defn)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
-	    $(K_BIN)/kompile --debug -O3 --non-strict --backend ocaml --directory $(ocaml_dir) \
+	    $(K_BIN)/kompile -O3 --non-strict --backend ocaml --directory $(ocaml_dir) \
 	                     --syntax-module DRIVER --main-module DRIVER $<
 
 # Tests
