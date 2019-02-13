@@ -38,6 +38,7 @@ syntax SolidityCommand
 syntax SolidityCommand
        ::= "#success"
          | "#failure" String
+         | "#clear"
 
 syntax SolidityCommand
        ::= "#load" JSON
@@ -81,6 +82,83 @@ module DRIVER
 
 imports DRIVER-SYNTAX
 imports SOLIDITY
+
+
+rule
+    <k> #clear => . ... </k>
+    <ethereum>
+        <solidity>
+            <execEngine>
+                <output>          _ => .K                             </output>
+                <statusCode>      _ => .K                             </statusCode>
+                <callStack>       _ => .List                          </callStack>
+                <interimStates>   _ => .List                          </interimStates>
+                <touchedAccounts> _ => .K                             </touchedAccounts>
+                <currentAccount>  _ => #account(-1, #Testing-Engine#) </currentAccount>
+                <result>          _ => .K                             </result>
+                <mode>            _ => .K                             </mode>
+
+                <callState>
+                    <program> _ => .K </program>
+                    <id>        _ =>  0 </id>
+                    <caller>    _ => .K </caller>
+                    <callData>  _ => .K </callData>
+                    <callValue> _ =>  0 </callValue>
+
+                    <env>  _ => .Map </env>
+                    <tenv> _ => .Map </tenv>
+                    <localMem> _ => .Map </localMem>
+
+                    <gas>         _ => 0:Int </gas>
+                    <memoryUsed>  _ => 0:Int </memoryUsed>
+                    <previousGas> _ => 0:Int </previousGas>
+
+                    <static>    _ => false:Bool </static>
+                    <callDepth> _ => 0          </callDepth>
+
+                    <returnFlag>             false:Bool </returnFlag>
+                    <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
+                </callState>
+
+                <substate>
+                    <selfDestruct> _ => .Set  </selfDestruct>
+                    <log>          _ => .List </log>
+                    <refund>       _ => 0     </refund>
+                </substate>
+
+                <gasPrice> _ => 0 </gasPrice>
+                <origin>   _ => 0 </origin>
+
+                <block>
+                    <hashes>     _ => .List </hashes>
+                    <coinbase>   _ => 0     </coinbase>
+                    <difficulty> _ => 0     </difficulty>
+                    <number>     _ => 0     </number>
+                    <gasLimit>   _ => 0     </gasLimit>
+                    <timestamp>  _ => 0     </timestamp>
+                </block>
+            </execEngine>
+
+            <contracts>
+                _ => .Bag
+            </contracts>
+        </solidity>
+
+        <network>
+            <activeAccounts> _ => .Set </activeAccounts>
+
+            <accounts>
+                _ => .Bag
+            </accounts>
+
+            <txOrder>   _ => .List </txOrder>
+            <txPending> _ => .List </txPending>
+
+            <messages>
+                _ => .Bag
+            </messages>
+        </network>
+    </ethereum>
 
 rule <k> V:Value ~> #check Json:JSON => #check Json ...  </k>
      <result> _ =>  V </result>
@@ -193,7 +271,7 @@ syntax Int ::= #parseHexWord ( String ) [function]
 
 rule <k> #check TESTID : {"post" : POST} => #check "post" : POST ~> #failure TESTID ... </k>
 
-rule <k> #failure _ => . ... </k>
+rule <k> #failure _ => #clear ... </k>
      <mode> _ => "SUCCESS" </mode>
 
 rule <k> #check "post" : {.JSONList} => . ... </k>
