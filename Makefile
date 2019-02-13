@@ -75,4 +75,11 @@ $(ocaml_kompiled): $(ocaml_defn)
 # Tests
 # -----
 
-test: build-java
+TEST=./ksol test
+
+test_files:=$(wildcard tests/*.sol)
+
+test: $(test_files:=.test)
+
+%.test:
+	$(TEST) $*
