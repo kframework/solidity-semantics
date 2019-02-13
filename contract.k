@@ -6,7 +6,7 @@ module CONTRACT
 
 imports SOLIDITY-SYNTAX
 imports CONFIGURATION
-imports KAST
+imports COLLECTIONS
 
 rule  Ps:PragmaDirectives Cs:ContractDefinitions => Cs
 rule [ContractDefinitions]:
