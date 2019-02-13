@@ -2,14 +2,17 @@
 # --------
 
 BUILD_DIR:=$(CURDIR)/.build
-
 K_SUBMODULE:=$(BUILD_DIR)/k
 
-.PHONY: all clean deps k-deps build test
+.PHONY: clean \
+        deps k-deps \
+        build build-java \
+        defn defn-java \
+        test
 
 clean:
 	rm -rf $(BUILD_DIR)
-	git submodule update --init
+	git submodule update --init --recursive
 
 # Dependencies
 # ------------
@@ -19,9 +22,8 @@ k-deps: $(K_SUBMODULE)/make.timestamp
 
 $(K_SUBMODULE)/make.timestamp:
 	@echo "== submodule: $@"
-	git submodule update --init -- $(K_SUBMODULE)
-	cd $(K_SUBMODULE) \
-		&& mvn package -q -DskipTests -U -Dllvm.backend.skip -Dhaskell.backend.skip
+	git submodule update --init --recursive
+	cd $(K_SUBMODULE) && mvn package -q -DskipTests -U -Dllvm.backend.skip -Dhaskell.backend.skip
 	touch $(K_SUBMODULE)/make.timestamp
 
 K_BIN=$(K_SUBMODULE)/k-distribution/target/release/k/bin
@@ -29,27 +31,29 @@ K_BIN=$(K_SUBMODULE)/k-distribution/target/release/k/bin
 # Building
 # --------
 
-build: build-java
-build-java: .build/java/driver-kompiled/timestamp
+k_files:=driver.k configuration.k contract.k expression.k function.k solidity.k solidity-syntax.k statement.k
+
+java_dir=$(BUILD_DIR)/defn/java
+java_defn:=$(patsubst %,$(java_dir)%,$(k_files))
+java_kompiled:=$(java_dir)/driver-kompiled/timestamp
 
 # Tangle definition from *.md files
 
-k_files:=driver.k configuration.k contract.k expression.k function.k solidity.k solidity-syntax.k statement.k
-java_files:=$(patsubst %,.build/java/%,$(k_files))
-defn_files:=$(java_files)
+defn: defn-java
+defn-java: $(java_defn)
 
-defn: $(defn_files)
-
-.build/java/%.k: %.k
-	mkdir -p $(dir $@)
+$(java_dir)/%.k: %.k
 	cp $< $@
 
-# Java Backend
+# Build
 
-.build/java/driver-kompiled/timestamp: $(java_files)
+build: build-java
+build-java: $(java_kompiled)
+
+$(java_kompiled): $(java_defn)
 	@echo "== kompile: $@"
-	$(K_BIN)/kompile --debug --main-module DRIVER --backend java \
-					--syntax-module DRIVER $< --directory .build/java -I .build/java
+	$(K_BIN)/kompile --backend java --directory $(java_dir) \
+	                 --syntax-module DRIVER --main-module DRIVER $<
 
 # Tests
 # -----
