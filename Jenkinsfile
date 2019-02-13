@@ -18,7 +18,7 @@ pipeline {
         ansiColor('xterm') {
           sh '''
             make deps -B
-            make build
+            make build-java
           '''
         }
       }
