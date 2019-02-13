@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-set -e      # Exit immediately if any command fails
-set -u      # Using undefined variables is an error. Exit immediately
+set -euo pipefail
 
-# https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 ksol_script="$0"
 while [[ -h "$ksol_script" ]]; do
     ksol_dir="$(cd -P "$(dirname "$ksol_script")" && pwd)"
@@ -11,75 +9,128 @@ while [[ -h "$ksol_script" ]]; do
     [[ "$ksol_script" != /* ]] && ksol_script="$ksol_dir/$ksol_script"
 done
 ksol_dir="$(cd -P "$(dirname "$ksol_script")" && pwd)"
-build_dir="$ksol_dir/.build"
 
-# For now, hardcode the backend
-backend="java"
+build_dir="$ksol_dir/.build"
+release_dir="$build_dir/k/k-distribution/target/release/k"
+defn_dir="$build_dir/defn"
 
 test_logs="$build_dir/logs"
+test_log="$test_logs/tests.log"
 mkdir -p "$test_logs"
-now_passing="$test_logs/passing.lastrun"
-now_failing="$test_logs/failing.lastrun"
-run_times="$test_logs/runtime"
 
 # Utilities
 # ---------
 
-progress() { echo "== $@" ; }
-warning()  { echo -e "WARNING:" "$@" >&2 ; }
+progress() { echo "== $@" >&2 ; }
 die()      { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
 
 pretty_diff() {
     git --no-pager diff --no-index "$@"
 }
 
-# Environment Setup
-# -----------------
+# Environment/Backend Setup
+# -------------------------
 
-run_env() {
-    local run_file=$1
-    local release_dir="${K_BIN:-$build_dir/k/k-distribution/target/release/k}"
-    export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
-}
+backend="java"
+if [[ $# -gt 0 ]] && [[ $1 == '--backend' ]]; then
+    backend="$2"
+    shift 2
+fi
+
+export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+
+case "$backend" in
+    java)  true                            ;;
+    ocaml) eval $(opam config env)         ;;
+    *)     die "Bad <K backend>: $backend" ;;
+esac
+backend_dir="$defn_dir/$backend"
 
 # Runners
 # -------
 
-# User Commands
-
 run_krun() {
-    local run_file=$1 ; shift
-    run_env "$run_file"
+    local run_file
+
+    run_file="$1" ; shift
+
     export K_OPTS=-Xss500m
-    krun --directory "$build_dir/$backend/" "$run_file" "$@"
+    krun --directory "$backend_dir" "$run_file" "$@"
+}
+
+run_test() {
+    local test_file expected_file output_file
+
+    test_file="$1" ; shift
+
+    test_log_name="$test_logs/$test_file"
+    mkdir -p "$(dirname "$test_log_name")"
+
+    output_file="$test_log_name.out"
+
+    if [[ -f "$test_file.out" ]]; then
+        expected_file="$test_file.out"
+    else
+        expected_file="tests/success-$backend.out"
+    fi
+
+    [[ -f "$expected_file" ]] \
+        || die "Expected output file '$expected_file' does not exist..."
+
+    run_krun "$test_file" > "$output_file" || true
+    pretty_diff "$expected_file" "$output_file"
+}
+
+run_test_profile() {
+    local test_file exit_status
+    local output_log_dir stdout_log stderr_log
+
+    test_file="$1" ; shift
+
+    output_log_dir="$test_logs/$(dirname -- "$test_file")"
+    stdout_log="$test_logs/$test_file.stdout"
+    stderr_log="$test_logs/$test_file.stderr"
+    [[ -d "$output_log_dir" ]] || mkdir -p "$output_log_dir"
+
+    exit_status='0'
+    `which time` --quiet --format '%x %es %Us %Ss %MKB %C' --output "$test_log" --append \
+        bash -c "$0 --backend "$backend" test $test_file $@" \
+        1> "$stdout_log" 2> "$stderr_log" \
+        || exit_status="$?"
+
+    if [[ "$exit_status" == '0' ]]; then
+        progress "passed test: $test_file"
+    else
+        die "failed test: $test_file"
+    fi
+
+    exit "$exit_status"
 }
 
 # Main
 # ----
 
+cd "$(dirname $0)"
+
+# main functionality
 run_command="$1" ; shift
 
 case "$run_command" in
 
-    run)  run_krun "$@" ;;
+    # Running
+    run)          run_krun         "$@" ;;
+    test)         run_test         "$@" ;;
+    test-profile) run_test_profile "$@" ;;
 
     *) echo "
-    normal usage
-    ============
+    usage: $0 [--backend <K backend>] [run|test|test-profile] <pgm> <K args>*
 
-        $0 run <pgm> <K args>*
+       $0 run          <pgm>    Run a single Solidity program
+       $0 test         <pgm>    Run a single Solidity program like it's a test
+       $0 test-profile <pgm>    Same as test, but recording timing and memory usage to '$test_log'.
 
-    -   run: Run a single EVM program
-
-    Note: <pgm> is a path to a Solidity source file.
-
-    <K args> are any options you want to pass directly to K.
-    Useful <K args> are:
-
-    -   --debug: output more debugging information when running/proving.
-
-    Examples:
-
-        $ $0 run tests/t1.sol
+       Note: <pgm> is a path to a file containing a Solidity program.
+             <K backend> can be one of (ocaml|java), defaults to java.
+             <K args> are any arguments you want to pass to K when executing.
 " ; exit ;;
 esac
