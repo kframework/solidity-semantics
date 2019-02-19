@@ -116,6 +116,9 @@ rule
                     <static>    _ => false:Bool </static>
                     <callDepth> _ => 0          </callDepth>
 
+                    <abnormalMode>   _ =>  false:Bool      </abnormalMode>
+                    <abnormalCode>   _ =>  .K              </abnormalCode>
+
                     <returnFlag>             false:Bool </returnFlag>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
