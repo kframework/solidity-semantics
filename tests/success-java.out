@@ -72,6 +72,12 @@
           <callDepth>
             0
           </callDepth>
+          <abnormalMode>
+            false
+          </abnormalMode>
+          <abnormalCode>
+            .
+          </abnormalCode>
           <returnFlag>
             false
           </returnFlag>
