@@ -12,7 +12,8 @@ imports CONFIGURATION
 rule [Allocate-State-Variables]:
     <k> #allocate(N, CN, #varInfo(X:Id,E:Value,T:TypeName, #storage)) => . ...</k>
     <account>
-        <acctID> #account(N, CN) </acctID>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
         <acctEnv> CONTEXT:Map => CONTEXT[X <- #storedVar(!N:Int, T, #storage)] </acctEnv>
         <acctStorage> STORAGE:Map => STORAGE[!N <- E] </acctStorage>
         ...
@@ -40,7 +41,8 @@ rule [Read-State-Variables]:
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #storage) ...</env>
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
-        <acctID> #account(C, CN) </acctID>
+        <acctID> C </acctID>
+        <contractName> CN </contractName>
         <acctStorage> ... N |-> I:Value ...</acctStorage>
         ...
     </account>
@@ -55,7 +57,8 @@ rule [Write-State-Variables]:
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #storage) ...</env>
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
-        <acctID> #account(C, CN) </acctID>
+        <acctID> C </acctID>
+        <contractName> CN </contractName>
         <acctStorage> ... ((N |-> _:Value) => (N |-> I)) ...</acctStorage>
         ...
     </account>

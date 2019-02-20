@@ -68,8 +68,13 @@ configuration
                     <static>    false:Bool </static>
                     <callDepth> 0          </callDepth>
 
-                    <returnFlag>             false:Bool </returnFlag>
-                    //<returnValue>            0:Value    </returnValue>
+                    // <abnormalMode> and <abnormalCode> are used to handle abnormal terminations
+                    // E.g., the "break" and "continue" statements
+                    // The abnormalCode could be: #continue#, #break#, #return#, etc. (defined in solidity-syntax.k)
+                    <abnormalMode>     false:Bool      </abnormalMode>
+                    <abnormalCode>     .K              </abnormalCode>
+
+                    <returnFlag>        false:Bool      </returnFlag>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
 
@@ -156,7 +161,8 @@ configuration
 
                     // Same as in KEVM / IELE
 
-                    <acctID>  .K </acctID>
+                    <acctID> 0 </acctID>
+                    <contractName> #Testing-Engine# </contractName>
                     <balance>  0 </balance>
 
                     // The <acctEnv> cell refers to the environment, mapping variable names to logical

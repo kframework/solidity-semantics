@@ -8,11 +8,14 @@ imports SOLIDITY-SYNTAX
 imports CONFIGURATION
 imports COLLECTIONS
 
-rule  Ps:PragmaDirectives Cs:ContractDefinitions => Cs
-rule [ContractDefinitions]:
-     C:ContractDefinition Cs:ContractDefinitions => C ~> Cs
+rule
+    <k> Ps:PragmaDirectives Cs:ContractDefinitions => Cs ... </k>
 
-rule .ContractDefinitions => .
+rule [ContractDefinitions]:
+    <k> C:ContractDefinition Cs:ContractDefinitions => C ~> Cs ... </k>
+
+rule
+    <k> .ContractDefinitions => . ... </k>
 
 rule [ContractDefinition]:
      <k> contract C:Id { Cs:ContractParts } => #pcsContractParts(C,Cs) ...  </k>
@@ -77,7 +80,8 @@ rule [New-Contract-Instance]:
     ...
     (.Bag =>
         <account>
-            <acctID> #account(size(AA),C) </acctID>
+            <acctID> size(AA) </acctID>
+            <contractName> C </contractName>
             <balance> 0 </balance>
             <acctEnv> .Map </acctEnv>
             <code>
@@ -91,9 +95,11 @@ rule [New-Contract-Instance]:
     )
     </accounts>
 
-rule #createStateVars(N:Int, CN:Id, ListItem(VInfo) L:List) => #allocate(N, CN, VInfo) ~> #createStateVars(N, CN, L)
+rule
+    <k> #createStateVars(N:Int, CN:Id, ListItem(VInfo) L:List) => #allocate(N, CN, VInfo) ~> #createStateVars(N, CN, L) ... </k>
 
-rule #createStateVars(N:Int, CN:Id, .List) => .
+rule
+    <k> #createStateVars(N:Int, CN:Id, .List) => . ... </k>
 
 rule
      <k> #exeConstructor(C:Id,N:Int,Es:Values) => functionCall(N;String2Id("constructor"); Es); ... </k>

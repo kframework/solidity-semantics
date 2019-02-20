@@ -133,8 +133,16 @@ syntax Statement ::= IfStatement
                    | WhileStatement
                    | Block
                    | SimpleStatement ";" [strict,klabel(#simpleStmt)]
+                   | Break
+                   | Continue
+                   | "#loop_mark"
 
-syntax SimpleStatement ::= FunctionCall | Assignment | Value | VariableDefinition | Return | NewExpression
+syntax SimpleStatement ::= FunctionCall
+                         | Assignment
+                         | Value
+                         | VariableDefinition
+                         | Return
+                         | NewExpression
 
 syntax FunctionCall ::= Id "(" FunctionCallArguments ")" [strict(2),klabel(#localFunctionCall)]
                       | MemberAccess "(" FunctionCallArguments ")" [strict(2),klabel(#externalFunctionCall)]
@@ -169,13 +177,16 @@ syntax ExpressionList ::= Values
 syntax Return ::= "return" Expression [strict]
                 | "return"
 
+syntax Break ::= "break" ";"
+
+syntax Continue ::= "continue" ";"
 
 syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 
 syntax Expression ::= Id | Value
-                    | NewExpression
-                    | FunctionCall
-                    > left:
+                | NewExpression
+                | FunctionCall
+                > left:
                   Expression "*" Expression            [klabel(#multexp),strict,left]
                 | Expression "/" Expression            [klabel(#divtexp),strict,left]
                 > left:
@@ -213,7 +224,7 @@ syntax VarInfo
 syntax MemOperation
         ::= #read(Id)
           | #write(Id, Expression) [strict(2)]
-             | #allocate(Int, AccountId, VarInfo)
+          | #allocate(Int, AccountId, VarInfo)
 
 syntax MemFlag
        ::= "#mem"
@@ -222,7 +233,8 @@ syntax MemFlag
 syntax Exec
        ::= "#execute"
 
-syntax SolidityItem
-       ::= #exeStmt(Statement)
+syntax SolidityItem ::= #exeStmt(Statement) | AbnormalTerminationCode
+
+syntax AbnormalTerminationCode ::= "#continue#" | "#break#" | "#return#"
 
 endmodule

@@ -176,7 +176,8 @@ rule [Update-CallStack-Before-ExternalCall]:
         <isExternalFunctionCall> EXFUNCALL => true </isExternalFunctionCall>
      </callState>
      <account>
-         <acctID> #account(C,N) </acctID>
+         <acctID> C </acctID>
+         <contractName> N </contractName>
          <acctEnv> CRho:Map </acctEnv>
          ...
      </account>
@@ -256,8 +257,9 @@ rule
         <returnFlag> false </returnFlag>
      </callState>
 
+
 rule
-     <k> #exeStmt(S:SimpleStatement;) => . ...</k>
+     <k> #exeStmt(S:Statement) => . ...</k>
      <callState>
         ...
         <returnFlag> true </returnFlag>
