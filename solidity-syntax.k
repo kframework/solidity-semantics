@@ -129,9 +129,7 @@ syntax StorageLocation ::= "memory" | "storage"
 syntax Block ::= "{" Statements "}"   [klabel(#block)]
 syntax Statements ::= List{Statement, ""}   [klabel(#statements)]
 
-syntax Statement ::= IfStatement
-                   | WhileStatement
-                   | Block
+syntax Statement ::= BlockStatement
                    | SimpleStatement ";" [strict,klabel(#simpleStmt)]
                    | Break
                    | Continue
@@ -143,6 +141,10 @@ syntax SimpleStatement ::= FunctionCall
                          | VariableDefinition
                          | Return
                          | NewExpression
+
+syntax BlockStatement ::= IfStatement
+                        | WhileStatement
+                        | Block
 
 syntax FunctionCall ::= Id "(" FunctionCallArguments ")" [strict(2),klabel(#localFunctionCall)]
                       | MemberAccess "(" FunctionCallArguments ")" [strict(2),klabel(#externalFunctionCall)]

@@ -172,7 +172,8 @@ rule [Update-CallStack-Before-ExternalCall]:
         <caller> _ => #account(C1,N1) </caller>
         <env> Rho:Map => CRho </env>
         <callDepth> Dep => Dep +Int 1 </callDepth>
-        <returnFlag> RETURNFLAG => false </returnFlag>
+        <abnormalMode> _ => false </abnormalMode>
+        <abnormalCode> _ => .K </abnormalCode>
         <isExternalFunctionCall> EXFUNCALL => true </isExternalFunctionCall>
      </callState>
      <account>
@@ -199,7 +200,8 @@ rule [Update-CallStack-Before-InternalCall]:
         ...
         <caller> CALLER => #account(C,N) </caller>
         <callDepth> Dep => Dep +Int 1 </callDepth>
-        <returnFlag> RETURNFLAG => false </returnFlag>
+        <abnormalMode> _ => false </abnormalMode>
+        <abnormalCode> _ => .K </abnormalCode>
         <isExternalFunctionCall> EXFUNCALL => false </isExternalFunctionCall>
      </callState>
 
@@ -254,15 +256,15 @@ rule
      <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
      <callState>
         ...
-        <returnFlag> false </returnFlag>
+        <abnormalMode> false </abnormalMode>
      </callState>
 
 
 rule
-     <k> #exeStmt(S:Statement) => . ...</k>
+     <k> #exeStmt(S:SimpleStatement;) => . ...</k>
      <callState>
         ...
-        <returnFlag> true </returnFlag>
+        <abnormalMode> true </abnormalMode>
      </callState>
 
 rule [Local-Call-Return]:
@@ -279,14 +281,16 @@ rule [ReturnValue]:
      <result> _ => V </result>
      <callState>
         ...
-        <returnFlag> _:Bool => true </returnFlag>
+        <abnormalMode> _ => true </abnormalMode>
+        <abnormalCode> _ => #return# </abnormalCode>
      </callState>
 
 rule [Return]:
      <k> return  => #end_Exp ... </k>
      <callState>
         ...
-        <returnFlag> _:Bool => true </returnFlag>
+        <abnormalMode> _ => true </abnormalMode>
+        <abnormalCode> _ => #return# </abnormalCode>
      </callState>
 
 

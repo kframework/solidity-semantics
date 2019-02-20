@@ -28,14 +28,14 @@ rule
     <k> if (false) S:Statement else S1:Statement => #exeStmt(S1) ... </k>
 
 rule
-    <k> #exeStmt({ Ss:Statements }) =>  Ss ... </k>
+    <k> { Ss:Statements } =>  Ss ... </k>
 
 rule
-    <k> #exeStmt(S:IfStatement) => S ... </k>
-
-rule
-    <k> #exeStmt(S:WhileStatement) => S ... </k>
-
+    <k> #exeStmt(S:BlockStatement) => S ... </k>
+    <callState>
+        ...
+        <abnormalMode> false </abnormalMode>
+    </callState>
 
 rule
     <k> _:Value ; => . ... </k>
@@ -58,7 +58,7 @@ rule [Normal-Loop-Mark]:
     </callState>
 
 rule [Exception-Skip]:
-    <k> S:Statement => . ... </k>
+    <k> #exeStmt(S:BlockStatement) => . ... </k>
     <callState>
         ...
         <abnormalMode> true </abnormalMode>
@@ -70,6 +70,14 @@ rule [Exception-Continue-Loop-Mark]:
         ...
         <abnormalMode> true => false </abnormalMode>
         <abnormalCode> #continue# => .K </abnormalCode>
+    </callState>
+
+rule [Exception-Return-Loop-Mark]:
+    <k> (#exeStmt(#loop_mark) ~> S:WhileStatement .Statements) => . ... </k>
+    <callState>
+        ...
+        <abnormalMode> true </abnormalMode>
+        <abnormalCode> #return# </abnormalCode>
     </callState>
 
 rule [Continue]:
