@@ -80,7 +80,8 @@ rule [New-Contract-Instance]:
     ...
     (.Bag =>
         <account>
-            <acctID> #account(size(AA),C) </acctID>
+            <acctID> size(AA) </acctID>
+            <contractName> C </contractName>
             <balance> 0 </balance>
             <acctEnv> .Map </acctEnv>
             <code>

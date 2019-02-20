@@ -161,7 +161,8 @@ configuration
 
                     // Same as in KEVM / IELE
 
-                    <acctID>  .K </acctID>
+                    <acctID> 0 </acctID>
+                    <contractName> #Testing-Engine# </contractName>
                     <balance>  0 </balance>
 
                     // The <acctEnv> cell refers to the environment, mapping variable names to logical
