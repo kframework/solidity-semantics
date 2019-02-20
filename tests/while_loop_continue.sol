@@ -55,6 +55,6 @@ contract Test {
     "post" : {
         "mem" :  #exists("sum", 210)
     }
-},
+}
 
 }

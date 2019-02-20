@@ -8,7 +8,7 @@ import SOLIDITY
 syntax START
        ::= ContractDefinitions JSON
 
-rule Cs:ContractDefinitions J:JSON => Cs ~> J
+rule Cs:ContractDefinitions J:JSON => Cs ~> J ~> #clearContracts
 
 syntax JSONKey
        ::= String | Int
@@ -39,6 +39,7 @@ syntax SolidityCommand
        ::= "#success"
          | "#failure" String
          | "#clear"
+         | "#clearContracts"
 
 syntax SolidityCommand
        ::= "#load" JSON
@@ -142,9 +143,7 @@ rule
                 </block>
             </execEngine>
 
-            <contracts>
-                _ => .Bag
-            </contracts>
+            ...
         </solidity>
 
         <network>
@@ -162,6 +161,11 @@ rule
             </messages>
         </network>
     </ethereum>
+
+rule <k> #clearContracts => . ... </k>
+     <contracts>
+       _ => .Bag
+     </contracts>
 
 rule <k> V:Value ~> #check Json:JSON => #check Json ...  </k>
      <result> _ =>  V </result>
