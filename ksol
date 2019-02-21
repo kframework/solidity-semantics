@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+shopt -s extglob
 
 ksol_script="$0"
 while [[ -h "$ksol_script" ]]; do
@@ -13,6 +14,8 @@ ksol_dir="$(cd -P "$(dirname "$ksol_script")" && pwd)"
 build_dir="$ksol_dir/.build"
 release_dir="$build_dir/k/k-distribution/target/release/k"
 defn_dir="$build_dir/defn"
+
+export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
 
 test_logs="$build_dir/logs"
 test_log="$test_logs/tests.log"
@@ -27,24 +30,6 @@ die()      { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
 pretty_diff() {
     git --no-pager diff --no-index "$@"
 }
-
-# Environment/Backend Setup
-# -------------------------
-
-backend="java"
-if [[ $# -gt 0 ]] && [[ $1 == '--backend' ]]; then
-    backend="$2"
-    shift 2
-fi
-
-export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
-
-case "$backend" in
-    java)  true                            ;;
-    ocaml) eval $(opam config env)         ;;
-    *)     die "Bad <K backend>: $backend" ;;
-esac
-backend_dir="$defn_dir/$backend"
 
 # Runners
 # -------
@@ -77,7 +62,7 @@ run_test() {
     [[ -f "$expected_file" ]] \
         || die "Expected output file '$expected_file' does not exist..."
 
-    run_krun "$test_file" > "$output_file" || true
+    run_krun "$test_file" > "$output_file"
     pretty_diff "$expected_file" "$output_file"
 }
 
@@ -115,22 +100,30 @@ cd "$(dirname $0)"
 # main functionality
 run_command="$1" ; shift
 
-case "$run_command" in
+backend="java"
+if [[ $# -gt 0 ]] && [[ $1 == '--backend' ]]; then
+    backend="$2"
+    shift 2
+fi
+backend_dir="$defn_dir/$backend"
+[[ ! "$backend" == "ocaml" ]] || eval $(opam config env)
+
+case "$run_command-$backend" in
 
     # Running
-    run)          run_krun         "$@" ;;
-    test)         run_test         "$@" ;;
-    test-profile) run_test_profile "$@" ;;
+    run-@(ocaml|java) ) run_krun "$@" ;;
+
+    test-@(ocaml|java)         ) run_test         "$@" ;;
+    test-profile-@(ocaml|java) ) run_test_profile "$@" ;;
 
     *) echo "
-    usage: $0 [--backend <K backend>] [run|test|test-profile] <pgm> <K args>*
+    usage: $0 (run|test|test-profile) [--backend (ocaml|java)] <pgm> <K args>*
 
-       $0 run          <pgm>    Run a single Solidity program
-       $0 test         <pgm>    Run a single Solidity program like it's a test
-       $0 test-profile <pgm>    Same as test, but recording timing and memory usage to '$test_log'.
+       $0 run          : Run a single WASM program
+       $0 test         : Run a single WASM program like it's a test
+       $0 test-profile : Additionally record timing and memory usage to '${test_log#$(pwd)/}'
 
-       Note: <pgm> is a path to a file containing a Solidity program.
-             <K backend> can be one of (ocaml|java), defaults to java.
-             <K args> are any arguments you want to pass to K when executing.
+       Note: <pgm> is a path to a file containing a WASM program.
+             <K args> are any arguments you want to pass to K when executing/proving.
 " ; exit ;;
 esac
