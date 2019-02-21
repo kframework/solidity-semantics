@@ -99,7 +99,7 @@ test: test-execution test-proof
 
 test-execution: test-simple
 
-simple_tests:=$(wildcard tests/*.sol)
+simple_tests:=$(wildcard tests/simple/*.sol)
 
 test-simple: $(simple_tests:=.test)
 
