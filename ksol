@@ -62,7 +62,7 @@ run_test() {
     [[ -f "$expected_file" ]] \
         || die "Expected output file '$expected_file' does not exist..."
 
-    run_krun "$test_file" > "$output_file"
+    run_krun "$test_file" > "$output_file" || true
     pretty_diff "$expected_file" "$output_file"
 }
 
