@@ -78,9 +78,6 @@
           <abnormalCode>
             .
           </abnormalCode>
-          <returnFlag>
-            false
-          </returnFlag>
           <isExternalFunctionCall>
             false
           </isExternalFunctionCall>
