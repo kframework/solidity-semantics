@@ -184,37 +184,16 @@ rule <k> #run {TESTID : { TEST:JSONList }, TESTS}
       ~> #run {TESTS} ...
      </k>
 
-syntax Set ::= "#execKeys"        [function]
-
-rule #execKeys => (SetItem("exec"))
-
-rule <k> #run TESTID : {KEY:(VAL:JSON), NEXT , REST:JSONList} => #run TESTID : { NEXT, KEY:VAL , REST } ... </k>
-     requires KEY in #execKeys
-
-rule <k> #run TESTID : {KEY:(VAL:JSON), .JSONList} => #run TESTID : { KEY:VAL } ... </k>
-     requires KEY in #execKeys
-
-syntax Set ::= "#postKeys"        [function]
-
-rule #run TESTID : {KEY : VAL:JSON, REST} => #run TESTID : {REST} ~> #check TESTID : {KEY:VAL}
-     requires KEY in #postKeys
-
-rule #postKeys => (SetItem("post"))
-
-rule <k> #load DATA : { .JSONList } => .  ... </k>
-    rule <k> #load DATA : { KEY : VALUE , REST } => #load DATA : { KEY : VALUE } ~> #load DATA : { REST } ... </k>
-      requires REST =/=K .JSONList andBool DATA =/=String "transaction"
-
-
-rule <k> #run TESTID : { "exec" : EXEC:JSON} =>
-             #load "exec" : EXEC ~> #execute ... </k>
+rule <k> #run TESTID : { "exec" : EXEC , "post" : POST , .JSONList }
+      => #load  "exec" : EXEC
+      ~> #execute
+      ~> #check "post" : POST
+      ~> #failure TESTID
+     ...
+     </k>
 
 rule <k> #load "exec" : {"code" : #solidity(EXEC:Statements), .JSONList} => . ... </k>
      <program> _ => EXEC </program>
-
-
-
-
 
 /******************************
     For parse
@@ -274,8 +253,6 @@ syntax Int ::= #parseHexWord ( String ) [function]
 
 
 // -----  Rules for check --------
-
-rule <k> #check TESTID : {"post" : POST} => #check "post" : POST ~> #failure TESTID ... </k>
 
 rule <k> #failure _ => #clear ... </k>
      <mode> _ => "SUCCESS" </mode>
