@@ -120,7 +120,6 @@ rule
                     <abnormalMode>   _ =>  false:Bool      </abnormalMode>
                     <abnormalCode>   _ =>  .K              </abnormalCode>
 
-                    <returnFlag>             false:Bool </returnFlag>
                     <isExternalFunctionCall> false:Bool </isExternalFunctionCall>
                 </callState>
 
