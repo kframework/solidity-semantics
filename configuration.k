@@ -213,7 +213,7 @@ configuration
             // May need further tweaks, but that's the idea.
 
             <messages>
-                <message multiplicity="*">
+                <message multiplicity="*" type="Map">
                 <msgID>       0 </msgID>      // Unique ID of transaction
                 <txNonce>     0 </txNonce>    // Nonce of transaction (not checked)
                 <txGasPrice>  0 </txGasPrice> // Gas price of transaction

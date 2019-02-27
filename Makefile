@@ -1,85 +1,110 @@
 # Settings
 # --------
 
-BUILD_DIR:=$(CURDIR)/.build
-K_SUBMODULE:=$(BUILD_DIR)/k
+build_dir:=.build
+defn_dir:=$(build_dir)/defn
+k_submodule:=$(build_dir)/k
+k_bin:=$(k_submodule)/k-distribution/target/release/k/bin
 
-.PHONY: clean \
-        deps k-deps \
-        build build-java build-ocaml \
-        defn defn-java defn-ocaml \
-        test
+.PHONY: deps ocaml-deps \
+        defn defn-ocaml \
+        build build-ocaml \
+        test test-execution test-simple test-proof
+
+all: build
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(build_dir)
 	git submodule update --init --recursive
 
-# Dependencies
-# ------------
+# Build Dependencies (K Submodule)
+# --------------------------------
 
-deps: k-deps
-k-deps: $(K_SUBMODULE)/make.timestamp
+deps: $(k_submodule)/make.timestamp ocaml-deps
 
-$(K_SUBMODULE)/make.timestamp:
-	@echo "== submodule: $@"
+$(k_submodule)/make.timestamp:
 	git submodule update --init --recursive
-	cd $(K_SUBMODULE) && mvn package -q -DskipTests -U -Dllvm.backend.skip -Dhaskell.backend.skip
-	touch $(K_SUBMODULE)/make.timestamp
+	cd $(k_submodule) && mvn package -DskipTests -Dllvm.backend.skip -Dhaskell.backend.skip
+	touch $(k_submodule)/make.timestamp
 
-K_BIN=$(K_SUBMODULE)/k-distribution/target/release/k/bin
+ocaml-deps:
+	eval $$(opam config env) \
+	    opam install --yes mlgmp zarith uuidm
 
-# Building
-# --------
+# Building Definition
+# -------------------
 
-k_files:=driver.k configuration.k contract.k expression.k function.k solidity.k solidity-syntax.k statement.k
+sol_files:=driver.k configuration.k function.k solidity-syntax.k contract.k expression.k solidity.k statement.k
 
-java_dir=$(BUILD_DIR)/defn/java
-java_defn:=$(patsubst %,$(java_dir)/%,$(k_files))
-java_kompiled:=$(java_dir)/driver-kompiled/timestamp
+ocaml_dir:=$(defn_dir)/ocaml
+ocaml_defn:=$(patsubst %, $(ocaml_dir)/%, $(sol_files))
+ocaml_kompiled:=$(ocaml_dir)/test-kompiled/interpreter
 
-ocaml_dir=$(BUILD_DIR)/defn/ocaml
-ocaml_defn:=$(patsubst %,$(ocaml_dir)/%,$(k_files))
-ocaml_kompiled:=$(ocaml_dir)/driver-kompiled/interpreter
+java_dir:=$(defn_dir)/java
+java_defn:=$(patsubst %, $(java_dir)/%, $(sol_files))
+java_kompiled:=$(java_dir)/test-kompiled/compiled.txt
 
 # Tangle definition from *.md files
 
-defn: defn-java defn-ocaml
-defn-java: $(java_defn)
+defn: defn-ocaml defn-java
 defn-ocaml: $(ocaml_defn)
-
-$(java_dir)/%.k: %.k
-	mkdir -p $(dir $@)
-	cp $< $@
+defn-java: $(java_defn)
 
 $(ocaml_dir)/%.k: %.k
+	@echo "==  copy: $@"
 	mkdir -p $(dir $@)
 	cp $< $@
 
-# Build
+$(java_dir)/%.k: %.k
+	@echo "==  copy: $@"
+	mkdir -p $(dir $@)
+	cp $< $@
 
-build: build-java build-ocaml
-build-java: $(java_kompiled)
+# Build definitions
+
+build: build-ocaml build-java
 build-ocaml: $(ocaml_kompiled)
-
-$(java_kompiled): $(java_defn)
-	@echo "== kompile: $@"
-	$(K_BIN)/kompile --backend java --directory $(java_dir) \
-	                 --syntax-module DRIVER --main-module DRIVER $<
+build-java: $(java_kompiled)
 
 $(ocaml_kompiled): $(ocaml_defn)
 	@echo "== kompile: $@"
-	eval $$(opam config env) \
-	    $(K_BIN)/kompile -O3 --non-strict --backend ocaml --directory $(ocaml_dir) \
-	                     --syntax-module DRIVER --main-module DRIVER $<
+	eval $$(opam config env)                                 \
+	    $(k_bin)/kompile -O3 --non-strict --backend ocaml    \
+	    --directory $(ocaml_dir) -I $(ocaml_dir)             \
+	    --main-module DRIVER --syntax-module DRIVER $<
 
-# Tests
-# -----
+$(java_kompiled): $(java_defn)
+	@echo "== kompile: $@"
+	eval $$(opam config env)                                 \
+	    $(k_bin)/kompile --backend java                      \
+	    --directory $(java_dir) -I $(java_dir)               \
+	    --main-module DRIVER --syntax-module DRIVER $<
 
-TEST=./ksol test
+# Testing
+# -------
 
-test_files:=$(wildcard tests/*.sol)
+TEST_CONCRETE_BACKEND=java
+TEST_SYMBOLIC_BACKEND=java
+TEST=./ksol
 
-test: $(test_files:=.test)
+tests/%.test: tests/%
+	 $(TEST) test --backend $(TEST_CONCRETE_BACKEND) $<
 
-%.test:
-	$(TEST) $*
+tests/%.prove: tests/%
+	$(TEST) prove --backend $(TEST_SYMBOLIC_BACKEND) $<
+
+test: test-execution test-proof
+
+### Execution Tests
+
+test-execution: test-simple
+
+simple_tests:=$(wildcard tests/simple/*.sol)
+
+test-simple: $(simple_tests:=.test)
+
+### Proof Tests
+
+proof_tests:=$(wildcard tests/proofs/*-spec.k)
+
+test-proof: $(proof_tests:=.prove)
