@@ -25,19 +25,13 @@ rule [Allocate-Local-Variables]:
     <currentAccount> #account(C, CN) </currentAccount>
     <localMem> MEM:Map => MEM[!N <- E] </localMem>
 
-rule
-    <k> X:Id => #read(X) ...</k>
-
-rule
-    <k> X:Id = I:Value => #write(X,I) ...</k>
-
 rule [Read-Local-Variables]:
-    <k> #read(X:Id) => I ...</k>
+    <k> X:Id => I ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #mem) ...</env>
     <localMem> ... N |-> I:Value ...</localMem>
 
 rule [Read-State-Variables]:
-    <k> #read(X:Id) => I ...</k>
+    <k> X:Id => I ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #storage) ...</env>
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
@@ -48,12 +42,12 @@ rule [Read-State-Variables]:
     </account>
 
 rule [Write-Local-Variables]:
-    <k> #write(X:Id,I:Value) => #end_Exp ...</k>
+    <k> X:Id = I:Value => #end_Exp ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #mem) ...</env>
     <localMem> ... ((N |-> _:Value) => (N |-> I)) ...</localMem>
 
 rule [Write-State-Variables]:
-    <k> #write(X:Id,I:Value) => #end_Exp ...</k>
+    <k> X:Id = I:Value => #end_Exp ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #storage) ...</env>
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
@@ -63,14 +57,14 @@ rule [Write-State-Variables]:
         ...
     </account>
 
-rule I1:Int + I2:Int => I1 +Int I2
-rule I1:Int * I2:Int => I1 *Int I2
-rule I1:Int / I2:Int => I1 /Int I2
-rule I1:Int - I2:Int => I1 -Int I2
-rule I1:Int < I2:Int => I1 <Int I2
-rule I1:Int <= I2:Int => I1 <=Int I2
-rule I1:Int > I2:Int => I1 >Int I2
-rule I1:Int >= I2:Int => I1 >=Int I2
+rule <k> I1:Int +  I2:Int => I1  +Int I2 ... </k>
+rule <k> I1:Int *  I2:Int => I1  *Int I2 ... </k>
+rule <k> I1:Int /  I2:Int => I1  /Int I2 ... </k>
+rule <k> I1:Int -  I2:Int => I1  -Int I2 ... </k>
+rule <k> I1:Int <  I2:Int => I1  <Int I2 ... </k>
+rule <k> I1:Int <= I2:Int => I1 <=Int I2 ... </k>
+rule <k> I1:Int >  I2:Int => I1  >Int I2 ... </k>
+rule <k> I1:Int >= I2:Int => I1 >=Int I2 ... </k>
 
 
 endmodule

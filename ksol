@@ -21,6 +21,8 @@ test_logs="$build_dir/logs"
 test_log="$test_logs/tests.log"
 mkdir -p "$test_logs"
 
+klab_dir="$build_dir/klab"
+
 # Utilities
 # ---------
 
@@ -41,6 +43,36 @@ run_krun() {
 
     export K_OPTS=-Xss500m
     krun --directory "$backend_dir" "$run_file" "$@"
+}
+
+run_proof() {
+    local proof_file
+
+    proof_file="$1" ; shift
+    [[ -f "$proof_file" ]] || die "$proof_file does not exist"
+
+    export K_OPTS=-Xmx8G
+    kprove --directory "$backend_dir" --def-module SOLIDITY "$proof_file" "$@"
+}
+
+run_klab() {
+    local run_mode run_file
+
+    run_mode="$1" ; shift
+    run_file="$1" ; shift
+
+    $0 "$run_mode" --backend java "$run_file" \
+        --state-log --state-log-path "$klab_dir/data" --state-log-id klab-statelog \
+        --state-log-events OPEN,EXECINIT,SEARCHINIT,REACHINIT,REACHTARGET,REACHPROVED,NODE,RULE,SRULE,RULEATTEMPT,IMPLICATION,Z3QUERY,Z3RESULT,CLOSE \
+        --output-flatten "_Map_ #And" \
+        --output-tokenize "#statements #exeStmt" \
+        --no-alpha-renaming --restore-original-names --no-sort-collections \
+        --output json \
+        "$@" \
+        >/dev/null || true
+
+    export KLAB_OUT="$klab_dir"
+    klab debug klab-statelog
 }
 
 run_test() {
@@ -85,16 +117,23 @@ backend_dir="$defn_dir/$backend"
 case "$run_command-$backend" in
 
     # Running
-    run-@(ocaml|java)  ) run_krun "$@" ;;
-    test-@(ocaml|java) ) run_test "$@" ;;
+    run-@(ocaml|java)      ) run_krun                        "$@" ;;
+    prove-java             ) run_proof                       "$@" ;;
+    test-@(ocaml|java)     ) run_test                        "$@" ;;
+    klab-@(run|prove)-java ) run_klab "${run_command#klab-}" "$@" ;;
 
     *) echo "
-    usage: $0 (run|test) [--backend (ocaml|java)] <pgm> <K args>*
+    usage: $0 (run|test) [--backend (ocaml|java|haskell)] <pgm>      <K args>*
+           $0 prove      [--backend (java|haskell)]       <spec>     <K args>*
+           $0 klab-(run|prove)                            <spec/pgm> <K args>*
 
-       $0 run  : Run a single WASM program
-       $0 test : Run a single WASM program like it's a test
+       $0 run              : Run a single Solidity program
+       $0 prove            : Prove a single Solidity specification
+       $0 test             : Run a single Solidity program like it's a test
+       $0 klab-(run|prove) : Run a program and launch KLab on the execution graph
 
-       Note: <pgm> is a path to a file containing a WASM program.
-             <K args> are any arguments you want to pass to K when executing/proving.
+       Note: <pgm> is a path to a file containing a Solidity program.
+             <K args> are any arguments you want to pass to K when executing.
+             klab-run requires that the 'klab/bin' is on your PATH.
 " ; exit ;;
 esac

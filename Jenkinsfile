@@ -23,16 +23,27 @@ pipeline {
         }
       }
     }
-    stage('Test') {
+    stage('Test Execution') {
       steps {
         ansiColor('xterm') {
           sh '''
             export PATH=$HOME/.local/bin:$PATH
             nprocs=6
-            make test -j"$nprocs"
+            make test-execution -j"$nprocs"
           '''
         }
       }
     }
+    //stage('Test Proof') {
+    //  steps {
+    //    ansiColor('xterm') {
+    //      sh '''
+    //        export PATH=$HOME/.local/bin:$PATH
+    //        nprocs=6
+    //        make test-proof -j"$nprocs"
+    //      '''
+    //    }
+    //  }
+    //}
   }
 }
