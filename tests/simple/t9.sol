@@ -1,5 +1,6 @@
 
 {
+
 "Test1" : {
 	"exec" : {
 	    "code" : #solidity(
@@ -7,7 +8,10 @@
 		   )
 	},
 	"post" : {
-	    "mem" :  {#exists("s",false), #exists("a",3), #exists("b", 4)}
-	}
-   }
+	    "mem" :  #exists("s",false),
+        "mem" :  #exists("a",3),
+        "mem" :  #exists("b", 4)
+    }
+}
+
 }

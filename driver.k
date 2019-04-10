@@ -12,21 +12,26 @@ rule Cs:ContractDefinitions J:JSON => Cs ~> J ~> #clearContracts
 
 syntax JSONKey
        ::= String | Int
+       	 | #Account(Id)
 
 syntax JSON
        ::= String
-         | JSONKey  ":" JSON
+     | JSONKey  ":" JSON
+     | JSONKey  ":" Value
      | "{" JSONList "}"
      | "[" JSONList "]"
      | #solidity(Statements)
      | #solidity(Expression)
-     | MemStatusList
+     | "#" "(" Value "," Value ")"
+     | MemStatus
+
 
 syntax MemStatusList
        ::= List{MemStatus, ""}
 
 syntax MemStatus
        ::= #exists(String,Value)
+         | #balance(Int)
 
 syntax JSONList
        ::= List{JSON, ","}
@@ -58,24 +63,24 @@ syntax JSONList
 
 rule #sortJSONList(JS) => #sortJSONList(JS, .JSONList)
 rule #sortJSONList(.JSONList, LS)            => LS
-rule #sortJSONList(((KEY : VAL) , REST), LS)
+rule #sortJSONList(((KEY : VAL:JSON) , REST), LS)
      => #insertJSONKey((KEY : VAL), #sortJSONList(REST, LS))
 
 syntax JSONList ::= #insertJSONKey ( JSON , JSONList )        [function]
 rule #insertJSONKey( JS , .JSONList ) => JS , .JSONList
-rule #insertJSONKey( (KEY : VAL) , ((KEY' : VAL') , REST) )
+rule #insertJSONKey( (KEY : VAL:JSON) , ((KEY' : VAL':JSON) , REST) )
      => (KEY : VAL)   , (KEY' : VAL'), REST
      requires KEY <String KEY'
 
-rule #insertJSONKey( (KEY : VAL) , ((KEY' : VAL') , REST) )
+rule #insertJSONKey( (KEY : VAL:JSON) , ((KEY' : VAL':JSON) , REST) )
      => (KEY' : VAL') , #insertJSONKey((KEY : VAL) , REST)
      requires KEY >=String KEY'
 
 syntax Bool ::= #isSorted ( JSONList ) [function]
  // -------------------------------------------------
 rule #isSorted( .JSONList ) => true
-rule #isSorted( KEY : _ )   => true
-rule #isSorted( (KEY : _) , (KEY' : VAL) , REST ) =>
+rule #isSorted( KEY : _:JSON )   => true
+rule #isSorted( (KEY : _:JSON) , (KEY' : VAL:JSON) , REST ) =>
      KEY <=String KEY' andThenBool #isSorted((KEY' : VAL) , REST)
 
 endmodule
@@ -209,7 +214,17 @@ rule [Initialize-Test-Engine]:
     )
     </accounts>
 
-rule <k> #run TESTID : { "exec" : EXEC , "post" : POST , .JSONList }
+rule <k> #run TESTID : { "exec" : EXEC:JSON , "post" : POST:JSON , "pre" : PRE:JSON , .JSONList }
+      => #initializeTestEngine
+      ~> #load  "pre"  : PRE
+      ~> #load  "exec" : EXEC
+      ~> #execute
+      ~> #check "post" : POST
+      ~> #failure TESTID
+     ...
+     </k>
+
+rule <k> #run TESTID : { "exec" : EXEC:JSON , "post" : POST:JSON , .JSONList }
       => #initializeTestEngine
       ~> #load  "exec" : EXEC
       ~> #execute
@@ -218,8 +233,22 @@ rule <k> #run TESTID : { "exec" : EXEC , "post" : POST , .JSONList }
      ...
      </k>
 
+
 rule <k> #load "exec" : {"code" : #solidity(EXEC:Statements), .JSONList} => . ... </k>
      <program> _ => EXEC </program>
+
+rule <k> #load "pre" : {"block.number": N:Int, JS:JSONList} => #load "pre" : {JS} ... </k>
+     <number> _ => N </number>
+
+rule <k> #load "pre" : {"block.timestamp": N:Int, JS:JSONList} => #load "pre" : {JS} ... </k>
+     <timestamp> _ => N </timestamp>
+
+
+rule <k> #load "pre" : {"msg.sender": #(A,N), JS:JSONList} => #load "pre" : {JS} ... </k>
+
+rule <k> #load "pre" : {.JSONList} => . ... </k>
+
+
 
 /******************************
     For parse
@@ -284,15 +313,48 @@ rule <k> #failure _ => #clear ... </k>
      <mode> _ => "SUCCESS" </mode>
 
 rule <k> #check "post" : {.JSONList} => . ... </k>
-rule <k> #check "post" : { K1 : V1 , REST } => #check "post" : { K1 : V1 } ~> #check "post" : { REST } ... </k>
+
+rule <k> #check "post" : { K1 : V1:JSON , REST }
+     	 	=> #check "post" : { (K1 : V1) } ~> #check "post" : { REST } ... </k>
+
 
 rule <k> #check "post" : {"result" : #solidity(V:Value) } => . ... </k>
      <result> V </result>
 
-rule <k> #check "post" : { "mem" : .MemStatusList } => . ... </k>
-rule <k> #check "post" : { "mem" : MS MSL } => #check "post" : { "mem" : MS } ~> #check "post" : { "mem" : MSL } ... </k>
-rule <k> #check "post" : { "mem" : #exists(S:String, V:Value) } => . ... </k>
+rule <k> #check "post" : { "mem" : { .JSONList} } => . ... </k>
+
+
+
+rule <k> #check "post" : { "mem" : { MS, MSL } }
+     	 => #check "post" : { "mem" : MS } ~> #check "post" : { "mem" : { MSL } } ... </k>
+
+
+
+rule <k> #check "post" : { ("mem" : #exists(S:String, V:Value)) } => . ... </k>
      <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _)... </env>
      <localMem> ... I |-> V ... </localMem>
+
+rule #check "post" : { (#Account(ADD:Id) : {M, Ms}) } =>
+     	    #check "post" : {(#Account(ADD) : M)} ~> #check "post" : {#Account(ADD) : { Ms }}
+
+
+rule <k> #check "post" : { (#Account(_) : { .JSONList}) } => . ... </k>
+
+rule <k> #check "post" : { (#Account(ADD:Id) : #exists(S:String, V:Value)) } => . ... </k>
+     <env> ... ADD |-> #storedVar(I:Int, _ , _) ... </env>
+     <localMem> ... I |-> Addr ... </localMem>
+     <acctID> Addr </acctID>
+     <acctEnv> ... String2Id(S) |-> #storedVar(Loc:Int,_,_) ... </acctEnv>
+     <acctStorage> ... Loc |-> V ... </acctStorage>
+
+
+rule <k> #check "post" : { (#Account(ADD:Id) : #balance(V:Int) )} => . ... </k>
+     <env> ... ADD |-> #storedVar(I:Int, _ , _) ... </env>
+     <localMem> ... I |-> Addr ... </localMem>
+     <acctID> Addr </acctID>
+     <balance> V </balance>
+
+rule #check "post" : { .JSONList } => .
+
 
 endmodule
