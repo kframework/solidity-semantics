@@ -23,7 +23,11 @@ contract C {
 
 "Test1" : {
     "exec" : {
-        "code" : #solidity( int sum; sum = functionCall(new C();f;2, 1); )
+        "code" :
+            #solidity(
+                C c1 = new C();
+                int sum = c1.f(2,1);
+            )
     },
     "post" : {
         "mem" :  #exists("sum",3)

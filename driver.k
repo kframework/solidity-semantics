@@ -40,6 +40,7 @@ syntax SolidityCommand
          | "#failure" String
          | "#clear"
          | "#clearContracts"
+         | "#initializeTestEngine"
 
 syntax SolidityCommand
        ::= "#load" JSON
@@ -95,8 +96,8 @@ rule
                 <callStack>       _ => .List                          </callStack>
                 <interimStates>   _ => .List                          </interimStates>
                 <touchedAccounts> _ => .K                             </touchedAccounts>
-                <currentAccount>  _ => #account(-1, #Testing-Engine#) </currentAccount>
-                <result>          _ => .K                             </result>
+                <currentAccount>  _ => #account(0, #Testing-Engine#)  </currentAccount>
+                <result>          _ => #undef_Value                   </result>
                 <mode>            _ => .K                             </mode>
 
                 <callState>
@@ -184,8 +185,33 @@ rule <k> #run {TESTID : { TEST:JSONList }, TESTS}
       ~> #run {TESTS} ...
      </k>
 
+// This rule is used to deploy the #Testing-Engine# constract (with initial balance 10000)
+// Because we may need to transfer money to contracts to be tested
+rule [Initialize-Test-Engine]:
+    <k> #initializeTestEngine => . ... </k>
+    <activeAccounts> AA:Set (.Set => SetItem(#account(size(AA), #Testing-Engine#))) </activeAccounts>
+    <accounts>
+    ...
+    (.Bag =>
+        <account>
+            <acctID> size(AA) </acctID>
+            <contractName> #Testing-Engine# </contractName>
+            <balance> 10000 </balance>
+            <acctEnv> .Map </acctEnv>
+            <code>
+                <associatedContract> .K </associatedContract>
+                <availableContracts> .K </availableContracts>
+            </code>
+            <acctStorage> .Map </acctStorage>
+            <nonce> 0 </nonce>
+            ...
+        </account>
+    )
+    </accounts>
+
 rule <k> #run TESTID : { "exec" : EXEC , "post" : POST , .JSONList }
-      => #load  "exec" : EXEC
+      => #initializeTestEngine
+      ~> #load  "exec" : EXEC
       ~> #execute
       ~> #check "post" : POST
       ~> #failure TESTID

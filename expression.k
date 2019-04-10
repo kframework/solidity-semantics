@@ -25,13 +25,25 @@ rule [Allocate-Local-Variables]:
     <currentAccount> #account(C, CN) </currentAccount>
     <localMem> MEM:Map => MEM[!N <- E] </localMem>
 
+rule
+    <k> X:Id => #read(X) ...</k>
+    requires notBool (Id2String(X) ==String "this")
+
+rule [Keyword-This]:
+    <k> THIS:Id => C ... </k>
+    <currentAccount> #account(C, CN) </currentAccount>
+    requires Id2String(THIS) ==String "this"
+
+rule
+    <k> X:Id = I:Value => #write(X,I) ...</k>
+
 rule [Read-Local-Variables]:
-    <k> X:Id => I ...</k>
+    <k> #read(X:Id) => I ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #mem) ...</env>
     <localMem> ... N |-> I:Value ...</localMem>
 
 rule [Read-State-Variables]:
-    <k> X:Id => I ...</k>
+    <k> #read(X:Id) => I ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #storage) ...</env>
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
@@ -42,12 +54,12 @@ rule [Read-State-Variables]:
     </account>
 
 rule [Write-Local-Variables]:
-    <k> X:Id = I:Value => #end_Exp ...</k>
+    <k> #write(X:Id,I:Value) => #end_Exp ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #mem) ...</env>
     <localMem> ... ((N |-> _:Value) => (N |-> I)) ...</localMem>
 
 rule [Write-State-Variables]:
-    <k> X:Id = I:Value => #end_Exp ...</k>
+    <k> #write(X:Id,I:Value) => #end_Exp ...</k>
     <env> ... X |-> #storedVar(N:Int, _:TypeName, #storage) ...</env>
     <currentAccount> #account(C, CN) </currentAccount>
     <account>
@@ -56,6 +68,16 @@ rule [Write-State-Variables]:
         <acctStorage> ... ((N |-> _:Value) => (N |-> I)) ...</acctStorage>
         ...
     </account>
+
+rule [Address-Balance]:
+    <k> #memberAccess(Base:Int, N:Id) => B ... </k>
+    <account>
+        <acctID> Base </acctID>
+        <balance> B </balance>
+        ...
+    </account>
+    requires Id2String(N) ==String "balance"
+
 
 rule <k> I1:Int +  I2:Int => I1  +Int I2 ... </k>
 rule <k> I1:Int *  I2:Int => I1  *Int I2 ... </k>

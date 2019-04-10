@@ -44,8 +44,109 @@ rule
     <k> #exeStmt(S:SimpleStatement;) => S; ...</k>
     <callStack> .List </callStack>
 
-rule
-    <k> #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS) ... </k>     [structural]
+syntax ContractCellMap
+syntax Map ::= ContractCellMap
+
+syntax Bool ::= Id "in_contracts" "(" ContractCellMap ")" [function, hook(MAP.in_keys)]
+
+//**************************************************************************//
+// I was planing to have the following rule for address conversion.
+// However, the behavior of the in_keys() funciton is not what I expected.
+// Thus, I have another work-around, which works, but may not be perfect.
+// Maybe someone can help me to check on this?
+
+/*
+rule [Address-Conversion]:
+    <k> #localFunctionCall(FN:Id, (V:Value, .Values)) => V ... </k>
+    <contracts> CTS </contracts>
+    requires (FN in_contracts(CTS))
+*/
+
+rule [Address-Conversion]:
+    <k> #localFunctionCall(FN:Id, (V:Value, .Values)) => V ... </k>
+    <Contract>
+        <cname> FN </cname>
+        ...
+    </Contract>
+
+//******************************************************************/
+
+
+//**************************************************************************//
+// I was planing to have the following rule for Syntactic-Sugar-Internal-Call.
+// However, the behavior of the in_keys() funciton is not what I expected.
+// Thus, I have another work-around, which works, but may not be perfect.
+// Maybe someone can help me to check on this?
+
+/*
+rule [Syntactic-Sugar-Internal-Call]:
+    <k> #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS) ... </k>
+    <contracts> CTS </contracts>
+    requires notBool (FN in keys(CTS))
+*/
+
+rule [Syntactic-Sugar-Internal-Call]:
+    <k> #localFunctionCall(FN:Id, ARGS:Values) => functionCall(FN; ARGS) ... </k>
+    <currentAccount> #account(C:Int,N:AccountId) </currentAccount>
+     <Contract>
+         <cname> N </cname>
+         <Function>
+             <fname> FN </fname>
+             ...
+         </Function>
+         ...
+     </Contract>
+//******************************************************************/
+
+
+rule [Syntactic-Sugar-External-Call-Decompose]:
+    <k> #externalFunctionCall(MemAcs:MemberAccess, ARGS:Values) => MemAcs ~> ARGS ... </k>
+
+
+rule [Syntactic-Sugar-External-Call-Compose]:
+    <k> #memberAccess(Base:Expression, FN:Id) ~> ARGS:Values => functionCall(Base; FN; ARGS) ... </k>
+    requires notBool (Id2String(FN) ==String "transfer")
+
+rule [Fund-Transfer-Successful]:
+    <k> #memberAccess(Base:Int, FN:Id) ~> V:Int, .Values => #end_Exp ... </k>
+    <currentAccount> #account(CID,CNAME) </currentAccount>
+    <accounts>
+        <account>
+            <acctID> CID </acctID>
+            <balance> B => B -Int V </balance>
+            ...
+        </account>
+        <account>
+            <acctID> Base </acctID>
+            <balance> B2 => B2 +Int V </balance>
+            ...
+        </account>
+        ...
+    </accounts>
+    requires (Id2String(FN) ==String "transfer") andBool (B >=Int V)
+
+
+// Do we need the following rule for insufficient balance transfer?
+
+syntax SolidityItem ::= "#InsufficientBalance"
+
+rule [Fund-Transfer-Failed]:
+    <k> #memberAccess(Base:Int, FN:Id) ~> V:Int, .Values => "#InsufficientBalance" ... </k>
+    <currentAccount> #account(CID,CNAME) </currentAccount>
+    <accounts>
+        <account>
+            <acctID> CID </acctID>
+            <balance> B => B -Int V </balance>
+            ...
+        </account>
+        <account>
+            <acctID> Base </acctID>
+            <balance> B2 => B2 +Int V </balance>
+            ...
+        </account>
+        ...
+    </accounts>
+    requires (Id2String(FN) ==String "transfer") andBool (B <Int V)
 
 rule [While]:
     <k> while (E:Expression) S:Statement => if (E) { S #loop_mark while (E) S } ... </k>        [structural]

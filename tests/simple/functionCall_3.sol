@@ -3,30 +3,37 @@ contract C {
     uint b = 5;
     bool c =false;
 
-	function f (int x, int m) public returns (int y)  {
-		int sum;
+    function f (int x, int m) public returns (int y)  {
+        int sum;
 
-		if (x < 0 ) {
-			sum = 0;
-		}
-		else {
-			sum = x + f(x - 1, m);
+        if (x < 0 ) {
+            sum = 0;
+        }
+        else {
+            sum = x + f(x - 1, m);
             b = b + 1;
-		}
+        }
 
-		return sum;
+        return sum;
 
-	}
+    }
 }
 
 {
 
+
 "Test1" : {
-	"exec" : {
-	    "code" : #solidity( int sum = functionCall(new C();f;3, 1); )
-	},
-	"post" : {
-	    "mem" :  #exists("sum",6)
-	}
-   }
+    "exec" : {
+        "code" :
+            #solidity(
+                C c1 = new C();
+                int sum = c1.f(3,1);
+            )
+    },
+    "post" : {
+        "mem" :  #exists("sum",6)
+    }
+}
+
+
 }

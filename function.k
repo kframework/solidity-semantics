@@ -275,7 +275,6 @@ rule [External-Call-Return]:
      <k> #returnContract => V ... </k>
      <result> V </result>
 
-
 rule [ReturnValue]:
      <k> return V:Value  => #end_Exp ... </k>
      <result> _ => V </result>

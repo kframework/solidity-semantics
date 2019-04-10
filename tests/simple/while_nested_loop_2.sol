@@ -35,7 +35,11 @@ contract Test {
 
 "Test1" : {
     "exec" : {
-        "code" : #solidity( int sum = functionCall(new Test(); whileTest; 4, 2, 2);)
+        "code" :
+            #solidity(
+                Test t1 = new Test();
+                int sum = t1.whileTest(4,2,2);
+            )
     },
     "post" : {
         "mem" :  #exists("sum", 42792)
@@ -44,7 +48,11 @@ contract Test {
 
 "Test2" : {
     "exec" : {
-        "code" : #solidity( int sum = functionCall(new Test(); whileTest; 4, -2, 2);)
+        "code" :
+            #solidity(
+                Test t1 = new Test();
+                int sum = t1.whileTest(4,-2,2);
+            )
     },
     "post" : {
         "mem" :  #exists("sum", 10)
@@ -53,7 +61,11 @@ contract Test {
 
 "Test3" : {
     "exec" : {
-        "code" : #solidity( int sum = functionCall(new Test(); whileTest; 4, 2, 0);)
+        "code" :
+            #solidity(
+                Test t1 = new Test();
+                int sum = t1.whileTest(4,2,0);
+            )
     },
     "post" : {
         "mem" :  #exists("sum", 25)

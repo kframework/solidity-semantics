@@ -24,10 +24,10 @@
           .
         </touchedAccounts>
         <currentAccount>
-          #account ( -1 , #Testing-Engine# )
+          #account ( 0 , #Testing-Engine# )
         </currentAccount>
         <result>
-          .
+          #undef_Value
         </result>
         <mode>
           .

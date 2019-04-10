@@ -28,8 +28,8 @@ configuration
                 <callStack>       .List                          </callStack>
                 <interimStates>   .List                          </interimStates>
                 <touchedAccounts> .K                             </touchedAccounts>
-                <currentAccount>  #account(-1, #Testing-Engine#) </currentAccount>
-                <result>          .K                             </result>
+                <currentAccount>  #account(0, #Testing-Engine#)  </currentAccount>
+                <result>          #undef_Value                   </result>
                 <mode>            .K                             </mode>
 
                 <callState>

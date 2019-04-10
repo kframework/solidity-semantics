@@ -23,6 +23,9 @@ syntax ContractPart ::= StateVariableDeclaration
 
 
 syntax TypeName ::= ElementaryTypeName
+                  | UserDefinedTypeName
+
+syntax UserDefinedTypeName ::= Id
 
 syntax ElementaryTypeName ::= "address" | "string" | "var" | "bool" | SolidityInt | SolidityUint
 
@@ -188,6 +191,7 @@ syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 syntax Expression ::= Id | Value
                 | NewExpression
                 | FunctionCall
+                | MemberAccess
                 > left:
                   Expression "*" Expression            [klabel(#multexp),strict,left]
                 | Expression "/" Expression            [klabel(#divtexp),strict,left]
@@ -207,7 +211,7 @@ syntax WhileStatement ::= "while" "(" Expression ")" Statement
 
 syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
 
-syntax MemberAccess ::= Expression "." Id        [klabel(#memberAccess)]
+syntax MemberAccess ::= Expression "." Id        [klabel(#memberAccess), strict(1)]
 
 syntax AccountId
        ::=  Id | "#Testing-Engine#"
