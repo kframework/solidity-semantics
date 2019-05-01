@@ -16,7 +16,7 @@ contract Test {
         return result;
     }
 
-    function argTest(address a, int x){
+    function argTest(address payable a, int x){
         a.transfer(x);
     }
 }
@@ -33,10 +33,10 @@ contract Test {
     "exec" : {
         "code" :
         #solidity(
-            address addr1 = new Test();     // deploy the first instance of Test
+            address payable addr1 = new Test();     // deploy the first instance of Test
             addr1.transfer(4000);            // initialize the balance of the first instance
 
-            address addr2 = new Test();     // deploy the second instance of Test
+            address payable addr2 = new Test();     // deploy the second instance of Test
             addr2. transfer(4000);           // initialize the balance of the second instance
 
             Test t1 = Test(addr1);

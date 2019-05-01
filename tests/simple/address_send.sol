@@ -25,25 +25,22 @@ contract C {
 	"exec" : {
 	    "code" : #solidity(
             address payable addr = new C();
-            addr.transfer(100);
-            int balance1 = addr.balance;
-
-            C t1 = C(addr);
-            int sum = t1.f(2,1);
+            bool result1 = addr.send(100);
 
             address payable addr2 = new C();
-            addr2.transfer(200);
+            bool result2 = addr2.send(200);
 
-            C t2 = C(addr2);
-            int sum2 = t2.f(2,1);
+            address payable addr3 = new C();
+            bool result3 = addr3.send(1000000);
         )
 	},
 	"post" : {
-	    "mem" :  #exists("sum",3),
-        "mem" :  #exists("sum2",3),
-        "mem" :  #exists("balance1",100),
+	    "mem" :  #exists("result1", true),
+        "mem" :  #exists("result2", true),
+        "mem" :  #exists("result3", false),
         #Account(addr) : { #balance(100) },
-        #Account(addr2) : { #balance(200) }
+        #Account(addr2) : { #balance(200) },
+        #Account(addr3) : { #balance(0) }
 	}
    }
 }

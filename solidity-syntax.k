@@ -27,7 +27,12 @@ syntax TypeName ::= ElementaryTypeName
 
 syntax UserDefinedTypeName ::= Id
 
-syntax ElementaryTypeName ::= "address" | "string" | "var" | "bool" | SolidityInt | SolidityUint
+syntax ElementaryTypeName ::= AddressType | AddressPayableType | "string" | "var" | "bool" | SolidityInt | SolidityUint
+
+syntax AddressPayableType ::= "address payable" [klabel(#address-payable)]
+
+syntax AddressType ::= "address" [klabel(#address)]
+
 
 syntax SolidityInt ::= "int"
                      | "int8"
@@ -241,6 +246,6 @@ syntax Exec
 
 syntax SolidityItem ::= #exeStmt(Statement) | AbnormalTerminationCode
 
-syntax AbnormalTerminationCode ::= "#continue#" | "#break#" | "#return#"
+syntax AbnormalTerminationCode ::= "#continue#" | "#break#" | "#return#" | "#transfer-failed#"
 
 endmodule

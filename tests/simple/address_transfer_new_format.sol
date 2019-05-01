@@ -19,9 +19,9 @@ contract Test {
 }
 
 contract Move {
-    address target;
+    address payable target;
 
-    constructor(address addr) public {
+    constructor(address payable addr) public {
         target = addr;
     }
 
@@ -43,11 +43,11 @@ contract Move {
 "Test1" : {
 	"exec" : {
 	    "code" : #solidity(
-            address addr = new Test();
+            address payable addr = new Test();
             addr.transfer(100);
             int balance1 = addr.balance;
 
-            address addr2 = new Move(addr);
+            address payable addr2 = new Move(addr);
             addr2.transfer(200);
 
             Move t2 = Move(addr2);
@@ -68,11 +68,11 @@ contract Move {
 "Test2" : {
 	"exec" : {
 	    "code" : #solidity(
-            address addr = new Test();
+            address payable addr = new Test();
             addr.transfer(100);
             int balance1 = addr.balance;
 
-            address addr2 = new Move(addr);
+            address payable addr2 = new Move(addr);
             addr2.transfer(200);
 
             Move t2 = Move(addr2);

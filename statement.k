@@ -99,16 +99,25 @@ rule [Syntactic-Sugar-Internal-Call]:
 //******************************************************************/
 
 
-rule [Syntactic-Sugar-External-Call-Decompose]:
-    <k> #externalFunctionCall(MemAcs:MemberAccess, ARGS:Values) => MemAcs ~> ARGS ... </k>
+rule [Send-Fund]:
+    <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => Base ~> "#FundSend#" ~> ARGS ... </k>
+    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag) ...</env>
+    requires (Id2String(FN) ==String "send")
 
+rule [Transfer-Fund]:
+    <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => Base ~> "#TransferFund#" ~> ARGS ... </k>
+    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag) ...</env>
+    requires (Id2String(FN) ==String "transfer")
+
+rule [Syntactic-Sugar-External-Call-Decompose]:
+    <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => #memberAccess(Base, FN) ~> ARGS ... </k>
+    requires (notBool (Id2String(FN) ==String "send")) andBool (notBool (Id2String(FN) ==String "transfer"))
 
 rule [Syntactic-Sugar-External-Call-Compose]:
-    <k> #memberAccess(Base:Expression, FN:Id) ~> ARGS:Values => functionCall(Base; FN; ARGS) ... </k>
-    requires notBool (Id2String(FN) ==String "transfer")
+    <k> #memberAccess(Base:Int, FN:Id) ~> ARGS:Values => functionCall(Base; FN; ARGS) ... </k>
 
-rule [Fund-Transfer-Successful]:
-    <k> #memberAccess(Base:Int, FN:Id) ~> V:Int, .Values => #end_Exp ... </k>
+rule [Transfer-Fund-Successful]:
+    <k> Base:Int ~> "#TransferFund#" ~> V:Int, .Values => #end_Exp ... </k>
     <currentAccount> #account(CID,CNAME) </currentAccount>
     <accounts>
         <account>
@@ -123,15 +132,34 @@ rule [Fund-Transfer-Successful]:
         </account>
         ...
     </accounts>
-    requires (Id2String(FN) ==String "transfer") andBool (B >=Int V)
+    requires B >=Int V
+
+rule [Transfer-Fund-Failed]:
+    <k> Base:Int ~>  "#TransferFund#" ~> V:Int, .Values => #end_Exp ... </k>
+    <currentAccount> #account(CID,CNAME) </currentAccount>
+    <callState>
+        ...
+        <abnormalMode> _:Bool => true </abnormalMode>
+        <abnormalCode> _ => #transfer-failed# </abnormalCode>
+    </callState>
+    <accounts>
+        <account>
+            <acctID> CID </acctID>
+            <balance> B </balance>
+            ...
+        </account>
+        <account>
+            <acctID> Base </acctID>
+            <balance> B2 </balance>
+            ...
+        </account>
+        ...
+    </accounts>
+    requires B <Int V
 
 
-// Do we need the following rule for insufficient balance transfer?
-
-syntax SolidityItem ::= "#InsufficientBalance"
-
-rule [Fund-Transfer-Failed]:
-    <k> #memberAccess(Base:Int, FN:Id) ~> V:Int, .Values => "#InsufficientBalance" ... </k>
+rule [Transfer-Send-Successful]:
+    <k> Base:Int ~> "#FundSend#" ~> V:Int, .Values => true ... </k>
     <currentAccount> #account(CID,CNAME) </currentAccount>
     <accounts>
         <account>
@@ -146,7 +174,25 @@ rule [Fund-Transfer-Failed]:
         </account>
         ...
     </accounts>
-    requires (Id2String(FN) ==String "transfer") andBool (B <Int V)
+    requires B >=Int V
+
+rule [Transfer-Send-Failed]:
+    <k> Base:Int ~>  "#FundSend#" ~> V:Int, .Values => false ... </k>
+    <currentAccount> #account(CID,CNAME) </currentAccount>
+    <accounts>
+        <account>
+            <acctID> CID </acctID>
+            <balance> B </balance>
+            ...
+        </account>
+        <account>
+            <acctID> Base </acctID>
+            <balance> B2 </balance>
+            ...
+        </account>
+        ...
+    </accounts>
+    requires B <Int V
 
 rule [While]:
     <k> while (E:Expression) S:Statement => if (E) { S #loop_mark while (E) S } ... </k>        [structural]

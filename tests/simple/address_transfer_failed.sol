@@ -20,19 +20,19 @@ contract Test {
 
 contract Move {
     address payable target;
+    uint transferedMondy;
+    bool executed;
 
     constructor(address addr) public {
         target = addr;
+        transferedMondy = 0;
+        executed = false;
     }
 
-    function transferTest(int amount) public returns (bool result) {
-        if(this.balance > amount){
-            target.transfer(amount);
-            return true;
-        }
-        else{
-            return false;
-        }
+    function transferTest(int amount) public {
+        target.transfer(amount);
+        transferedMondy = transferedMondy + amount;
+        executed = true;
     }
 }
 
@@ -45,22 +45,17 @@ contract Move {
 	    "code" : #solidity(
             address payable addr = new Test();
             addr.transfer(100);
-            int balance1 = addr.balance;
 
             address payable addr2 = new Move(addr);
             addr2.transfer(200);
 
             Move t2 = Move(addr2);
-            bool result = t2.transferTest(10);
-            int balance2 = addr.balance;
-            int balance3 = addr2.balance;
+            t2.transferTest(10);
         )
 	},
     "post" : {
-        "mem" :  #exists("balance1", 100),
-        "mem" :  #exists("balance2", 110),
-        "mem" :  #exists("balance3", 190),
-        "mem" :  #exists("result", true)
+        #Account(addr) : {  #balance(110) },
+        #Account(addr2) : { #exists("transferedMondy", 10),  #balance(190), #exists("executed", true) }
     }
 },
 
@@ -70,22 +65,17 @@ contract Move {
 	    "code" : #solidity(
             address payable addr = new Test();
             addr.transfer(100);
-            int balance1 = addr.balance;
 
             address payable addr2 = new Move(addr);
             addr2.transfer(200);
 
             Move t2 = Move(addr2);
-            bool result = t2.transferTest(300);
-            int balance2 = addr.balance;
-            int balance3 = addr2.balance;
+            t2.transferTest(300);
         )
 	},
     "post" : {
-        "mem" :  #exists("balance1", 100),
-        "mem" :  #exists("balance2", 100),
-        "mem" :  #exists("balance3", 200),
-        "mem" :  #exists("result", false)
+        #Account(addr) : {  #balance(100) },
+        #Account(addr2) : { #exists("transferedMondy", 0),  #balance(200) , #exists("executed", false) }
     }
 }
 
