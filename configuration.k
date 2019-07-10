@@ -28,6 +28,7 @@ configuration
                 <callStack>       .List                          </callStack>
                 <interimStates>   .List                          </interimStates>
                 <touchedAccounts> .K                             </touchedAccounts>
+
                 <currentAccount>  #account(0, #Testing-Engine#)  </currentAccount>
                 <result>          #undef_Value                   </result>
                 <mode>            .K                             </mode>
@@ -57,6 +58,7 @@ configuration
                     // memory: same as evm!!
                     // exact allocation strategy may vary(unlike storage), but anyway semantics should be indentical
                     <localMem> .Map </localMem>
+                    <memorySlots> 0 </memorySlots>
 
                     // Gas: not sure how, but I think we need it.
                     <gas>         0:Int </gas>
@@ -187,6 +189,7 @@ configuration
                     // the same effect on the storage.
 
                     <acctStorage> .Map </acctStorage>
+                    <acctSlots> 0 </acctSlots>
 
                     // Q. Why include allocation rules in solidity semantics?
                     // A.

@@ -101,6 +101,7 @@ rule
                 <callStack>       _ => .List                          </callStack>
                 <interimStates>   _ => .List                          </interimStates>
                 <touchedAccounts> _ => .K                             </touchedAccounts>
+
                 <currentAccount>  _ => #account(0, #Testing-Engine#)  </currentAccount>
                 <result>          _ => #undef_Value                   </result>
                 <mode>            _ => .K                             </mode>
@@ -115,6 +116,7 @@ rule
                     <env>  _ => .Map </env>
                     <tenv> _ => .Map </tenv>
                     <localMem> _ => .Map </localMem>
+                    <memorySlots> _ => 0 </memorySlots>
 
                     <gas>         _ => 0:Int </gas>
                     <memoryUsed>  _ => 0:Int </memoryUsed>
@@ -172,7 +174,7 @@ rule <k> #clearContracts => . ... </k>
        _ => .Bag
      </contracts>
 
-rule <k> V:Value ~> #check Json:JSON => #check Json ...  </k>
+rule <k> V:ValueResult ~> #check Json:JSON => #check Json ...  </k>
      <result> _ =>  V </result>
 
 rule <k> .SoliditySimulation  => . </k>
@@ -318,8 +320,9 @@ rule <k> #check "post" : { K1 : V1:JSON , REST }
      	 	=> #check "post" : { (K1 : V1) } ~> #check "post" : { REST } ... </k>
 
 
-rule <k> #check "post" : {"result" : #solidity(V:Value) } => . ... </k>
+rule <k> #check "post" : {"result" : #solidity(V:ValueResult) } => . ... </k>
      <result> V </result>
+
 
 rule <k> #check "post" : { "mem" : { .JSONList} } => . ... </k>
 
@@ -331,8 +334,14 @@ rule <k> #check "post" : { "mem" : { MS, MSL } }
 
 
 rule <k> #check "post" : { ("mem" : #exists(S:String, V:Value)) } => . ... </k>
-     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _)... </env>
+     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _, _)... </env>
      <localMem> ... I |-> V ... </localMem>
+
+//rule <k> #check "post" : { "mem" : .MemStatusList } => . ... </k>
+//rule <k> #check "post" : { "mem" : MS MSL } => #check "post" : { "mem" : MS } ~> #check "post" : { "mem" : MSL } ... </k>
+//rule <k> #check "post" : { "mem" : #exists(S:String, V:Value) } => . ... </k>
+//     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _, _)... </env>
+//     <localMem> ... I |-> V ... </localMem>
 
 rule #check "post" : { (#Account(ADD:Id) : {M, Ms}) } =>
      	    #check "post" : {(#Account(ADD) : M)} ~> #check "post" : {#Account(ADD) : { Ms }}
@@ -341,15 +350,15 @@ rule #check "post" : { (#Account(ADD:Id) : {M, Ms}) } =>
 rule <k> #check "post" : { (#Account(_) : { .JSONList}) } => . ... </k>
 
 rule <k> #check "post" : { (#Account(ADD:Id) : #exists(S:String, V:Value)) } => . ... </k>
-     <env> ... ADD |-> #storedVar(I:Int, _ , _) ... </env>
+     <env> ... ADD |-> #storedVar(I:Int, _ , _, _) ... </env>
      <localMem> ... I |-> Addr ... </localMem>
      <acctID> Addr </acctID>
-     <acctEnv> ... String2Id(S) |-> #storedVar(Loc:Int,_,_) ... </acctEnv>
+     <acctEnv> ... String2Id(S) |-> #storedVar(Loc:Int,_,_, _) ... </acctEnv>
      <acctStorage> ... Loc |-> V ... </acctStorage>
 
 
 rule <k> #check "post" : { (#Account(ADD:Id) : #balance(V:Int) )} => . ... </k>
-     <env> ... ADD |-> #storedVar(I:Int, _ , _) ... </env>
+     <env> ... ADD |-> #storedVar(I:Int, _ , _, _) ... </env>
      <localMem> ... I |-> Addr ... </localMem>
      <acctID> Addr </acctID>
      <balance> V </balance>

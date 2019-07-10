@@ -42,7 +42,7 @@ rule [StateVariableDeclaration]:
               . ...</k>
      <Contract>
          <cname> C </cname>
-         <stateVar> ... .List => ListItem(#varInfo(V, #undef_Value, T, #storage)) </stateVar>
+         <stateVar> ... .List => ListItem(#varInfo(V, #undef_Value, T, #storage, 1)) </stateVar>
          ...
      </Contract>
 
@@ -51,16 +51,16 @@ rule
               . ...</k>
      <Contract>
          <cname> C </cname>
-         <stateVar> ... .List => ListItem(#varInfo(V, E, T, #storage)) </stateVar>
+         <stateVar> ... .List => ListItem(#varInfo(V, E, T, #storage, 1)) </stateVar>
          ...
      </Contract>
 
 rule [VariableDeclaration]:
-    <k> T:TypeName S:StorageLocations X:Id => #allocate(C, CN, #varInfo(X:Id, #undef_Value,T:TypeName, #mem)) ~> #end_Exp ...</k>
+    <k> T:TypeName S:StorageLocations X:Id => #allocate(C, CN, #varInfo(X:Id, #undef_Value,T:TypeName, #mem, 1)) ~> #end_Exp ...</k>
     <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
 
 rule
-    <k> T:TypeName S:StorageLocations X:Id = E:Value => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem)) ~> #end_Exp ...</k>
+    <k> T:TypeName S:StorageLocations X:Id = E:Value => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem, 1)) ~> #end_Exp ...</k>
     <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
 
 syntax SolidityItem

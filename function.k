@@ -240,7 +240,7 @@ rule
      <k> #InitParams(.FParameters, .Values) => . ...</k>
 
 rule
-     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem)) ...</k>
+     <k> #InitParam(T:TypeName S:StorageLocations X:Id, V) => #allocate(C, CN, #varInfo(X:Id, V:Value, T:TypeName, #mem, 1)) ...</k>
      <currentAccount> #account(C:Int,CN:AccountId) </currentAccount>
 
 rule
@@ -268,7 +268,7 @@ rule
      </callState>
 
 rule [Local-Call-Return]:
-     <k> #return  => V  ... </k>
+     <k> #return => V  ... </k>
      <result> V </result>
 
 rule [External-Call-Return]:
@@ -276,7 +276,7 @@ rule [External-Call-Return]:
      <result> V </result>
 
 rule [ReturnValue]:
-     <k> return V:Value  => #end_Exp ... </k>
+     <k> return V:ValueResult => #end_Exp ... </k>
      <result> _ => V </result>
      <callState>
         ...
@@ -285,13 +285,12 @@ rule [ReturnValue]:
      </callState>
 
 rule [Return]:
-     <k> return  => #end_Exp ... </k>
+     <k> return => #end_Exp ... </k>
      <callState>
         ...
         <abnormalMode> _ => true </abnormalMode>
         <abnormalCode> _ => #return# </abnormalCode>
      </callState>
-
 
 endmodule
 

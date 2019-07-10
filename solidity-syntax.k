@@ -22,16 +22,22 @@ syntax ContractPart ::= StateVariableDeclaration
                       | FunctionDefinition
 
 
-syntax TypeName ::= ElementaryTypeName
-                  | UserDefinedTypeName
+syntax TypeName ::= NonArrayType
+                  | ArrayTypeName
+
+syntax NonArrayType ::= ElementaryTypeName | UserDefinedTypeName
 
 syntax UserDefinedTypeName ::= Id
+
 
 syntax ElementaryTypeName ::= AddressType | AddressPayableType | "string" | "var" | "bool" | SolidityInt | SolidityUint
 
 syntax AddressPayableType ::= "address payable" [klabel(#address-payable)]
 
 syntax AddressType ::= "address" [klabel(#address)]
+
+syntax ArrayTypeName ::= TypeName "[" Expression "]" [strict(2)]
+                       | TypeName "[" "]"
 
 
 syntax SolidityInt ::= "int"
@@ -149,6 +155,7 @@ syntax SimpleStatement ::= FunctionCall
                          | VariableDefinition
                          | Return
                          | NewExpression
+                         | MemOperation
 
 syntax BlockStatement ::= IfStatement
                         | WhileStatement
@@ -177,12 +184,14 @@ syntax VariableDefinition ::= "var" Id
 syntax KResult ::= Value | Values
 
 syntax Value
-       ::= Bool | Int | String
+       ::= ValueResult | #tupleExp(ExpressionList) | #arrayExp(Expression) 
 
 syntax Values
        ::= List{Value, ","}
 
 syntax ExpressionList ::= Values
+
+syntax ValueResult ::= Bool | Int | String
 
 syntax Return ::= "return" Expression [strict]
                 | "return"
@@ -193,10 +202,15 @@ syntax Continue ::= "continue" ";"
 
 syntax NewExpression ::= "new" Id "(" ExpressionList ")"
 
+syntax TupleExpression ::= "[" ExpressionList "]"       [klabel(#bracketTuple),strict(1)]
+//                         | "(" ExpressionList ")"       [klabel(#parTuple),strict(1)]
+
 syntax Expression ::= Id | Value
                 | NewExpression
+                | IndexAccess
                 | FunctionCall
                 | MemberAccess
+                | TupleExpression
                 > left:
                   Expression "*" Expression            [klabel(#multexp),strict,left]
                 | Expression "/" Expression            [klabel(#divtexp),strict,left]
@@ -208,6 +222,9 @@ syntax Expression ::= Id | Value
                 | Expression "<=" Expression            [klabel(#leq),seqstrict,left]
                 | Expression ">" Expression            [klabel(#great),seqstrict,left]
                 | Expression ">=" Expression            [klabel(#geq),seqstrict,left]
+                > left:
+                  Expression "&&" Expression            [klabel(#and),seqstrict,left]
+                | Expression "||" Expression            [klabel(#or),seqstrict,left]
 
 syntax IfStatement ::= "if" "(" Expression ")" Statement "else" Statement [strict(1)]
                      | "if" "(" Expression ")" Statement [strict(1)]
@@ -218,34 +235,62 @@ syntax Identifiers ::= List{Id, ","}        [klabel(#identifiers)]
 
 syntax MemberAccess ::= Expression "." Id        [klabel(#memberAccess), strict(1)]
 
+syntax IndexAccess ::= Expression "[" Expression "]"        [strict(2), klabel(#indexAccess)]
+                     | Expression "[" "]"
+
 syntax AccountId
        ::=  Id | "#Testing-Engine#"
 
 syntax ContractInstanceSig
        ::= #account(Int,AccountId)
 
-syntax Value
+syntax ValueResult
        ::= "#undef_Value"
          | "#end_Exp"
 
 syntax VarInfo
-       ::= #varInfo(Id, Expression, TypeName, MemFlag) [strict(2)]
-         | #storedVar(Int, TypeName, MemFlag)
+       ::= #varInfo(Id, Expression, TypeName, MemFlag, Int) 	[strict(2)]
+         | #storedVar(Int, TypeName, MemFlag, Int)
 
 syntax MemOperation
-        ::= #read(Id)
-          | #write(Id, Expression) [strict(2)]
+        ::= #read(Expression)
+          | #readAddress(Expression, MemFlag) 							[strict(1)]
+          | #write(Expression, Expression) 									[strict(2)]
+          | #writeAddress(Expression, Expression, MemFlag) 	[strict(1,2)]
           | #allocate(Int, AccountId, VarInfo)
 
 syntax MemFlag
        ::= "#mem"
          | "#storage"
 
+syntax OperandFlag
+       ::= "#left"
+         | "#right"
+
 syntax Exec
        ::= "#execute"
 
-syntax SolidityItem ::= #exeStmt(Statement) | AbnormalTerminationCode
+syntax SolidityItem ::= #exeStmt(Statement)
+                      | AbnormalTerminationCode
+                      | #allocateArray(MemOperation, Int, Int)
+                      | #readArray(Expression, IndexAccess)
+                      | #writeArray(Expression, IndexAccess, Expression)
+                      | #assignArray(Id, ExpressionList, Expression, Expression, TypeName) 		[strict(3,4)]
+                      | #copyArray(Int, MemFlag, Int, MemFlag, Int, Int)
+                      | #processArrayExp(Expression, Value, List)
+                      | #processArray(Expression, Expression, List, List)
+                      | #processArrayIndex(Expression, Expression, OperandFlag, Expression, List, List)              [strict(4)]
+                      | #assignArrayPartial(Id, ExpressionList, TypeName, Int, List, Int)
+                      | #copyArrayArrayPartial(Id, Id, TypeName, TypeName, Int, List, Int, List, Int, Int)
 
 syntax AbnormalTerminationCode ::= "#continue#" | "#break#" | "#return#" | "#transfer-failed#"
+
+syntax Expression ::= #getAddress(Int, Expression, Expression, Int, List, Expression)							[strict(3)]
+                    | #recordIndexLength(Int, Expression, Int, TypeName, Int, List)
+                    | #getIndexAddress(Int, Expression, Int, TypeName, Int)
+                    | #getRelativeAddr(Int, Expression, Int) 													[strict(2)]
+                    | #tupleExp(ExpressionList) 																			[strict]
+                    | MemOperation
+
 
 endmodule

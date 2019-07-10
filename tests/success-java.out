@@ -57,6 +57,9 @@
           <localMem>
             .Map
           </localMem>
+          <memorySlots>
+            0
+          </memorySlots>
           <gas>
             0
           </gas>
