@@ -8,7 +8,7 @@ contract Test {
 
     function arrayPop(uint index) public returns (uint) {
         uint len = array[index].length;
-        uint result = array[index][len-1];
+        uint result = array[index][len - 1];
         array[index].pop();
 
         return result;
@@ -64,9 +64,9 @@ contract Test {
         "mem" :  #exists("len3", 3),
         "mem" :  #exists("len4", 0),
         "mem" :  #exists("len5", 0),
-        "mem" :  #exists("value1", 100),
+        "mem" :  #exists("value1", 300),
         "mem" :  #exists("value2", 200),
-        "mem" :  #exists("value3", 300)
+        "mem" :  #exists("value3", 100)
     }
 }
 

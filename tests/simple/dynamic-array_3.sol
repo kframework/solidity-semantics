@@ -9,8 +9,8 @@ contract Test {
        array.push(400);
     }
 
-    function increaseSize(uint size) public {
-        array.length = array.length + size;
+    function increaseSize(uint Size) public {
+        array.length = array.length + Size;
     }
 
     function getElement(uint index) public returns (uint) {
@@ -35,7 +35,7 @@ contract Test {
         "mem" :  #exists("value1", 100),
         "mem" :  #exists("value2", 200),
         "mem" :  #exists("value3", 300),
-        "mem" :  #exists("value3", 400)
+        "mem" :  #exists("value4", 400)
     }
 },
 

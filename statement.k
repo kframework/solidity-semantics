@@ -101,12 +101,12 @@ rule [Syntactic-Sugar-Internal-Call]:
 
 rule [Send-Fund]:
     <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => Base ~> "#FundSend#" ~> ARGS ... </k>
-    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, 1) ...</env>
+    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, 1, _, _) ...</env>
     requires (Id2String(FN) ==String "send")
 
 rule [Transfer-Fund]:
     <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => Base ~> "#TransferFund#" ~> ARGS ... </k>
-    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, 1) ...</env>
+    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, 1, _, _) ...</env>
     requires (Id2String(FN) ==String "transfer")
 
 rule [Syntactic-Sugar-External-Call-Decompose]:

@@ -36,7 +36,7 @@ contract Test {
         "mem" :  #exists("value1", 10),
         "mem" :  #exists("value2", 20),
         "mem" :  #exists("value3", 30),
-        "mem" :  #exists("value3", 40)
+        "mem" :  #exists("value4", 40)
     }
 }
 

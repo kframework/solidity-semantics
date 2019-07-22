@@ -22,7 +22,7 @@ rule [Allocate-Global-NonArrayType]:
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> CONTEXT:Map => CONTEXT[X <- #storedVar(Slot +Int 1, T, #storage, 1)] </acctEnv>
+        <acctEnv> CONTEXT:Map => CONTEXT[X <- #storedVar(Slot +Int 1, T, #storage, 1, 1, #fixed-size)] </acctEnv>
         <acctStorage> STORAGE:Map => STORAGE[Slot +Int 1 <- E] </acctStorage>
         <acctSlots> Slot => Slot +Int 1 </acctSlots>
         ...
@@ -40,7 +40,7 @@ This rule allocates a non-array type variable named "X" in memory
 --------------------------------------------------------------------------------- */
 rule [Allocate-Local-NonArrayType]:
     <k> #allocate(C, CN, #varInfo(X:Id, E:Value, T:NonArrayType, #mem, L)) => . ...</k>
-    <env> ENV:Map => ENV[X <- #storedVar(Slot +Int 1, T, #mem, 1)] </env>
+    <env> ENV:Map => ENV[X <- #storedVar(Slot +Int 1, T, #mem, 1, 1, #fixed-size)] </env>
     <currentAccount> #account(C, CN) </currentAccount>
     <localMem> MEM:Map => MEM[Slot +Int 1 <- E] </localMem>
     <memorySlots> Slot => Slot +Int 1 </memorySlots>
@@ -57,10 +57,17 @@ This rule triggers the allocation of an array
     L   : the number of slots required for each element in the array (in the top level, L will be 1)
 
 ---------------------------------------------------------------------------------------------------*/
-rule [Allocate-Array]:
-    <k> #allocate(N, CN, #varInfo(X:Id, E:Value, T:TypeName[Len:Int], M, L)) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int Len)), Len, 0)  ...</k>
+rule [Allocate-Fixed-size-Array]:
+    <k> #allocate(N, CN, #varInfo(X:Id, E:Value, T:TypeName[Len:Int], M, L)) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int Len)), Len, 0, #fixed-size)  ...</k>
 //===================================================================================================
+rule [Allocate-Dynamic-Array]:
+    <k> #allocate(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L)) => #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), #getDynamicSize()) ...</k>
 
+rule
+    <k> #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), S) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int S)), S, 0, #dynamic) ...</k>
+ 
+rule
+    <k> #getDynamicSize() => 10 ...</k>
 
 /* ==================================================================================
 This rule recursively allocates each element in an array
@@ -69,7 +76,7 @@ This rule recursively allocates each element in an array
     N   : recursive index (starting from 0 and approaching "Len")
 -----------------------------------------------------------------------------------*/
 rule
-    <k> #allocateArray(A, Len, N) => A ~> #allocateArray(A, Len, N +Int 1) ...</k>
+    <k> #allocateArray(A, Len, N, T) => A ~> #allocateArray(A, Len, N +Int 1, T) ...</k>
     requires N <Int Len
 //===================================================================================
 
@@ -79,8 +86,8 @@ This rule terminates the recursive allocation (in memory) of an array, whose ele
 In addition, it corrects the information of the array.
 --------------------------------------------------------------------------------------------------------*/
 rule
-    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #mem, L)), Len, Len) => . ...</k>
-    <env> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #mem, _ => L) ...</env>
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #mem, L)), Len, Len, #fixed-size) => . ...</k>
+    <env> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #mem, _ => L, _ => L, _) ...</env>
 //========================================================================================================
 
 
@@ -89,11 +96,29 @@ This rule terminates the recursive allocation (in storage) of an array, whose el
 In addition, it corrects the information of the array.
 ---------------------------------------------------------------------------------------------------------*/
 rule
-    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len) => . ...</k>
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len, #fixed-size) => . ...</k>
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => L) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => L, _ => L, #fixed-size) ... </acctEnv>
+        ...
+    </account>
+
+rule
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len, #fixed-size) => . ...</k>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => 0, _ => L, #dynamic) ... </acctEnv>
+        ...
+    </account>
+    
+rule
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len, #dynamic) => . ...</k>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[], #storage, _ => 0, _ => L, _ => #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -104,21 +129,168 @@ This rule terminates the recursive allocation (in memory) of an array, whose ele
 In addition, it corrects the information of the array.
 ---------------------------------------------------------------------------------------------------------*/
 rule
-    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #mem, L)), Len, Len) => . ...</k>
-    <env> ... X |-> #storedVar(_, T => T[Len], #mem, _) ...</env>
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #mem, L)), Len, Len, #fixed-size) => . ...</k>
+    <env> ... X |-> #storedVar(_, T => T[Len], #mem, _, _, _) ...</env>
 //=========================================================================================================
 /* ==================================================================================================
 This rule terminates the recursive allocation (in storage) of an array, whose element is array type.
 In addition, it corrects the information of the array.
 ---------------------------------------------------------------------------------------------------*/
 rule
-    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #storage, L)), Len, Len) => . ...</k>
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #storage, L)), Len, Len, #fixed-size) => . ...</k>
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, _) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, _, _, #fixed-size) ... </acctEnv>
         ...
     </account>
+
+rule
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #storage, L)), Len, Len, #fixed-size) => . ...</k>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, _ => 0, _, #dynamic) ... </acctEnv>
+        ...
+    </account>
+
+rule
+    <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #storage, L)), Len, Len, #dynamic) => . ...</k>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, T => T[], #storage, _ => 0, _, _ => #dynamic) ... </acctEnv>
+        ...
+    </account>
+
+rule [Array-Length]:
+    <k> X.Y => #singleArrayExp(#arrayExp(X), .List, #getLength) ...</k>
+    requires Id2String(Y) ==String "length"
+
+rule
+    <k> #singleArrayExp(#arrayExp(X[Index]), L:List, F) => #singleArrayIndex(X, L, Index, F) ...</k>
+
+rule
+    <k> #singleArrayIndex(X, L, Index:Int, F) => #singleArrayExp(#arrayExp(X), ListItem(Index)L:List, F) ...</k>
+
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getLength) => #computeArrayLength(L, Length, T) ...</k>
+    <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, Length, _, _) ...</env>
+
+rule
+    <k> #computeArrayLength(ListItem(Index)L:List, Length, T[IdxLength]) => #computeArrayLength(L, Length /Int IdxLength, T) ...</k>
+
+rule
+    <k> #computeArrayLength(.List, Length, T) => Length ...</k>
+    
+rule [Array-Push]:
+    <k> #externalFunctionCall(#memberAccess(X, Y), (V:Value,.Values)) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr), V, #storage); ~> #singleArrayExp(#arrayExp(X), .List, #push) ...</k>
+    requires Id2String(Y) ==String "push"
+
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getAddr) => #computeIndexAddr(Addr, L, Length, Size, T) ...</k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(Addr:Int, T:ArrayTypeName, _, Length, Size, #dynamic) ... </acctEnv>
+        ...
+    </account>
+
+rule
+    <k> #computeIndexAddr(Addr, ListItem(Index)L:List, Length, Size, T[IdxLength]) => #computeIndexAddr(Addr +Int (Index *Int (Size /Int IdxLength)), L, Length /Int IdxLength, Size /Int IdxLength, T) ...</k>
+
+rule
+    <k> #computeIndexAddr(Addr, .List, Length, Size, T) => Addr + Length ...</k>
+
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, F:PushOrPop) => #updateArrayLength(X, L, T, 1, F) ...</k>
+    <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, _, _, #dynamic) ... </env>
+
+rule
+    <k> #updateArrayLength(X, ListItem(Index)L:List, T[IdxLength], Length, F) => #updateArrayLength(X, L, T, Length *Int IdxLength, F) ...</k>
+
+rule
+    <k> #updateArrayLength(X, .List, T, Length, #push) => L + Length ...</k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _:ArrayTypeName, _, L => L +Int Length, _, #dynamic) ... </acctEnv>
+        ...
+    </account>
+
+rule
+    <k> #updateArrayLength(X, .List, T, Length, #pop) => L - Length ...</k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _:ArrayTypeName, _, L => L -Int Length, _, #dynamic) ... </acctEnv>
+        ...
+    </account>
+
+rule [Array-Pop]:
+    <k> #externalFunctionCall(#memberAccess(X, Y), .Values) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr) - 1, #getInitValue(#singleArrayExp(#arrayExp(X), .List, #getAddr) - 1), #storage); ~> #singleArrayExp(#arrayExp(X), .List, #pop) ...</k>
+    requires Id2String(Y) ==String "pop"
+
+rule
+    <k> #getInitValue(Addr:Int) => 0 ... </k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctStorage> ... Addr |-> V:Int ...</acctStorage>
+        ...
+    </account>
+
+rule
+    <k> #getInitValue(Addr:Int) => false ... </k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctStorage> ... Addr |-> V:Bool ...</acctStorage>
+        ...
+    </account>
+
+rule [Resize-Array]:
+    <k> X.Y = L => #resizeArray(X, L, Length) ~> #end_Exp ...</k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, T:ArrayTypeName, _, Length, _, #dynamic) ...</acctEnv>
+        ...
+    </account>
+    requires Id2String(Y) ==String "length"
+
+rule
+    <k> #resizeArray(X, L, Length) => . ...</k>
+    requires L ==Int Length
+
+rule
+    <k> #resizeArray(X, L, Length) => #increaseArraySize(X, Length, L) ...</k>
+    requires L >Int Length
+
+rule
+    <k> #resizeArray(X, L, Length) => #reduceArraySize(X, Length, L) ...</k>
+    requires L <Int Length
+
+rule
+    <k> #increaseArraySize(X, Length, L) => #externalFunctionCall(#memberAccess(X, String2Id("push")), (0,.Values)); ~> #increaseArraySize(X, Length +Int 1, L) ...</k>
+    requires L >Int Length
+    
+rule
+    <k> #increaseArraySize(X, L, L) => . ...</k>
+
+rule
+    <k> #reduceArraySize(X, Length, L) => #externalFunctionCall(#memberAccess(X, String2Id("pop")), (.Values)); ~> #reduceArraySize(X, Length -Int 1, L) ...</k>
+    requires L <Int Length
+
+rule
+    <k> #reduceArraySize(X, L, L) => . ...</k>
+     
 //===================================================================================================
 
 rule
@@ -126,7 +298,7 @@ rule
 
 rule
     <k> #read(X:Id) => #arrayExp(X) ...</k>
-    <env> ... X |-> #storedVar(_, _:ArrayTypeName, _, _) ...</env>
+    <env> ... X |-> #storedVar(_, _:ArrayTypeName, _, _, _, _) ...</env>
 
 rule
     <k> X:Id => #read(X) ...</k>
@@ -139,7 +311,7 @@ rule [Keyword-This]:
 
 rule [Assign-NonArrayType]:
     <k> X:Id = I:Value => #write(X,I) ...</k>
-    <env> ... X |-> #storedVar(_, _:NonArrayType, _, _) ...</env>
+    <env> ... X |-> #storedVar(_, _:NonArrayType, _, _, _, _) ...</env>
 /* =========================================================================================
 This rule recursively assigns constant values (tuples) to each dimention of array "X"
     Addr: the starting (logical) address to write values in
@@ -162,7 +334,7 @@ This rule assigns constant tuples (values) to 1D (sub) array "X"
 --------------------------------------------------------------------------------------------------*/
 rule
     <k> #assignArray(X, V:Value,E:Values, Addr, 1, T) => #writeAddress(Addr, V, M); ~> #assignArray(X, E, Addr +Int 1, 1, T)...</k>
-    <env> ... X |-> #storedVar(_, _, M, _) ...</env>
+    <env> ... X |-> #storedVar(_, _, M, _, _, _) ...</env>
 /* ========================================================================
 This rule terminates the assignment of constant values to an array.
 -------------------------------------------------------------------------*/
@@ -215,7 +387,7 @@ rule
 
 rule
     <k> #processArray(X:Id, Y:Id, IdxList1, IdxList2) => #copyArrayArrayPartial(X, Y, T1, T2, 0, IdxList1, 0, IdxList2, L1, L2) ...</k>
-    <env> ... (X |-> #storedVar(_, T1, _, L1)) (Y |-> #storedVar(_, T2, _, L2))...</env>
+    <env> ... (X |-> #storedVar(_, T1, _, L1, _, _)) (Y |-> #storedVar(_, T2, _, L2, _, _))...</env>
 
 rule
     <k> #copyArrayArrayPartial(X, Y, T1[I1:Int], T2, D1, ListItem(Index1)IdxList1, D2, IdxList2, L1, L2) => #copyArrayArrayPartial(X, Y, T1, T2, D1 +Int (Index1 *Int (L1 /Int I1)), IdxList1, D2, IdxList2, L1 /Int I1, L2) ...</k>
@@ -225,8 +397,13 @@ rule
 
 rule
     <k> #copyArrayArrayPartial(X, Y, T1, T2, D1, .List, D2, .List, L1, L2) => #copyArray(AddrX +Int D1, MX, AddrY +Int D2, MY, L1, 0) ~> #end_Exp ...</k>
-    <env> ... (X |-> #storedVar(AddrX:Int, _:ArrayTypeName, MX, _)) (Y |-> #storedVar(AddrY:Int, _:ArrayTypeName, MY, _)) ...</env>
-    requires L1 ==Int L2
+    <env> ... (X |-> #storedVar(AddrX:Int, _:ArrayTypeName, MX, _, _, _)) (Y |-> #storedVar(AddrY:Int, _:ArrayTypeName, MY, _, _, _)) ...</env>
+    requires L1 ==Int L2 andBool L1 >Int 0
+
+rule
+    <k> #copyArrayArrayPartial(X, Y, T1, T2, D1, .List, D2, .List, L1, L2) => #copyArray(AddrX +Int D1, MX, AddrY +Int D2, MY, L2, 0) ~> #end_Exp ...</k>
+    <env> ... (X |-> #storedVar(AddrX:Int, _:ArrayTypeName, MX, _, _, _)) (Y |-> #storedVar(AddrY:Int, _:ArrayTypeName, MY, _, _, _)) ...</env>
+    requires L1 ==Int 0
 
 /* ===============================================================================================================
 This rule triggers #processArrayExp to handle the case of constant assignment to sub-array, e.g., A[1] = [2,3,4]
@@ -242,7 +419,7 @@ rule
 
 rule
     <k> #processArrayExp(X:Id, #tupleExp(E), IdxList) => #assignArrayPartial(X, E, T, 0, IdxList, L) ...</k>
-    <env> ... X |-> #storedVar(_, T, _, L) ...</env>
+    <env> ... X |-> #storedVar(_, T, _, L, _, _) ...</env>
 //===================================================================================================================
 /* ==================================================================================================================
 These two rules recursively calculate the offset (from the starting address of the array) to be assigned in
@@ -259,13 +436,13 @@ rule
 
 rule
     <k> #assignArrayPartial(X, E, T[I:Int], D, .List, L) => #assignArray(X, E, Addr +Int D, L /Int I, T) ~> #end_Exp ...</k>
-    <env> ... X |-> #storedVar(Addr:Int, _, _, _) ...</env>
+    <env> ... X |-> #storedVar(Addr:Int, _, _, _, _, _) ...</env>
 //=====================================================================================================================
 
 
 rule [Read-NonArrayType]:
     <k> #read(X:Id) => #readAddress(N, M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, 1) ...</env>
+    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, 1, _, _) ...</env>
 
 rule [Read-ArrayType-Index]:
     <k> #read(X:Expression[Index]) => #readArray(X, X[Index]) ...</k>
@@ -275,7 +452,7 @@ rule
 
 rule
     <k> #readArray(X:Id, Y:IndexAccess) => #readAddress(#getIndexAddress(N, Y, 0, T, Len), M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, Len) ...</env>
+    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, Len, _, _) ...</env>
 
 /* ==============================================================================================
 This rule helps to get the actual logical address for <IndexAccess> of an array
@@ -308,6 +485,12 @@ Once the list is obtained, the #getAddress rule is invoked to get the actual log
 
 rule
     <k> #recordIndexLength(N, X, D, T[IdxLen], Len, L:List) => #recordIndexLength(N, X, D, T, Len, ListItem(IdxLen)L) ...</k>
+
+rule
+    <k> #recordIndexLength(N, X, D, T[], Len, L:List) => #addDynamicLength(N, X, D, T, Len, L:List, #getDynamicSize()) ...</k>
+
+rule
+    <k> #addDynamicLength(N, X, D, T, Len, L:List, S:Int) => #recordIndexLength(N, X, D, T, Len, ListItem(S)L) ...</k>
 
 rule
     <k> #recordIndexLength(N, X, D, T:ElementaryTypeName, Len, L:List) => #getAddress(N, X, D, 1, L, X) ...</k>
@@ -370,7 +553,7 @@ rule [Read-State-Variables]:
 
 rule [Write-NonArrayType]:
     <k> #write(X:Id,I:Value) => #writeAddress(N, I, M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, 1) ...</env>
+    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, 1, _, _) ...</env>
 
 rule [Write-ArrayType-Index]:
     <k> #write(X:Expression[Index],I:ValueResult) => #writeArray(X, X[Index], I) ...</k>
@@ -380,7 +563,7 @@ rule
 
 rule
     <k> #writeArray(X:Id, Y:IndexAccess,I:ValueResult) => #writeAddress(#getIndexAddress(N, Y, 0, T, Len), I, M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, Len) ...</env>
+    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, Len, _, _) ...</env>
 
 rule [Write-Local-Variables]:
     <k> #writeAddress(N, I:ValueResult, #mem) => #end_Exp ...</k>

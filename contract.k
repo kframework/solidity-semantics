@@ -56,12 +56,36 @@ rule
      </Contract>
 
 rule [VariableDeclaration]:
-    <k> T:TypeName S:StorageLocations X:Id => #allocate(C, CN, #varInfo(X:Id, #undef_Value,T:TypeName, #mem, 1)) ~> #end_Exp ...</k>
+    <k> T:TypeName M:Memories X:Id => #allocate(C, CN, #varInfo(X:Id, #undef_Value,T:TypeName, #mem, 1)) ~> #end_Exp ...</k>
     <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
 
 rule
-    <k> T:TypeName S:StorageLocations X:Id = E:Value => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem, 1)) ~> #end_Exp ...</k>
+    <k> T:TypeName M:Memories X:Id = E:ValueResult => #allocate(C, CN, #varInfo(X:Id, E,T:TypeName, #mem, 1)) ~> #end_Exp ...</k>
     <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
+
+rule
+    <k> T:TypeName[] M:Memories X:Id = #newArray(T[], N:Int) => T[N] M X ...</k>
+
+rule
+    <k> T:TypeName storage X:Id = #arrayExp(Y:Id) => #pointToStorage(X, VInfo) ~> #end_Exp ...</k>
+    <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
+    <account>
+        <acctID> C </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... Y |-> VInfo ...</acctEnv>
+        ...
+    </account>
+
+rule
+    <k> #pointToStorage(X, VInfo) => . ...</k>
+    <env> (.Map => X |-> VInfo) ...</env>
+    <currentAccount> #account(C:Int, CN:AccountId) </currentAccount>
+    <account>
+        <acctID> C </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> (.Map => X |-> VInfo) ...</acctEnv>
+        ...
+    </account>
 
 syntax SolidityItem
        ::= #createStateVars(Int, Id, List)
@@ -116,6 +140,9 @@ rule
          <Constructor> false </Constructor>
          ...
      </Contract>
+
+rule
+    <k> new T:TypeName(N:Int) => #newArray(T, N) ...</k>
 
 
 endmodule

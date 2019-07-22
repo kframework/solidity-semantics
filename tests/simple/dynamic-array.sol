@@ -7,7 +7,7 @@ contract Test {
     }
 
     function arrayPop() public returns (uint) {
-        uint result = array[array.length-1];
+        uint result = array[array.length - 1];
         array.pop();
 
         return result;
@@ -61,9 +61,9 @@ contract Test {
         "mem" :  #exists("len2", 2),
         "mem" :  #exists("len3", 3),
         "mem" :  #exists("len4", 0),
-        "mem" :  #exists("value1", 100),
+        "mem" :  #exists("value1", 300),
         "mem" :  #exists("value2", 200),
-        "mem" :  #exists("value3", 300)
+        "mem" :  #exists("value3", 100)
     }
 }
 

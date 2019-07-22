@@ -334,13 +334,13 @@ rule <k> #check "post" : { "mem" : { MS, MSL } }
 
 
 rule <k> #check "post" : { ("mem" : #exists(S:String, V:Value)) } => . ... </k>
-     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _, _)... </env>
+     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _, _, _, _)... </env>
      <localMem> ... I |-> V ... </localMem>
 
 //rule <k> #check "post" : { "mem" : .MemStatusList } => . ... </k>
 //rule <k> #check "post" : { "mem" : MS MSL } => #check "post" : { "mem" : MS } ~> #check "post" : { "mem" : MSL } ... </k>
 //rule <k> #check "post" : { "mem" : #exists(S:String, V:Value) } => . ... </k>
-//     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _, _)... </env>
+//     <env> ... String2Id(S) |-> #storedVar( I:Int , _ , _, _, _, _)... </env>
 //     <localMem> ... I |-> V ... </localMem>
 
 rule #check "post" : { (#Account(ADD:Id) : {M, Ms}) } =>
@@ -350,15 +350,15 @@ rule #check "post" : { (#Account(ADD:Id) : {M, Ms}) } =>
 rule <k> #check "post" : { (#Account(_) : { .JSONList}) } => . ... </k>
 
 rule <k> #check "post" : { (#Account(ADD:Id) : #exists(S:String, V:Value)) } => . ... </k>
-     <env> ... ADD |-> #storedVar(I:Int, _ , _, _) ... </env>
+     <env> ... ADD |-> #storedVar(I:Int, _ , _, _, _, _) ... </env>
      <localMem> ... I |-> Addr ... </localMem>
      <acctID> Addr </acctID>
-     <acctEnv> ... String2Id(S) |-> #storedVar(Loc:Int,_,_, _) ... </acctEnv>
+     <acctEnv> ... String2Id(S) |-> #storedVar(Loc:Int,_,_, _, _, _) ... </acctEnv>
      <acctStorage> ... Loc |-> V ... </acctStorage>
 
 
 rule <k> #check "post" : { (#Account(ADD:Id) : #balance(V:Int) )} => . ... </k>
-     <env> ... ADD |-> #storedVar(I:Int, _ , _, _) ... </env>
+     <env> ... ADD |-> #storedVar(I:Int, _ , _, _, _, _) ... </env>
      <localMem> ... I |-> Addr ... </localMem>
      <acctID> Addr </acctID>
      <balance> V </balance>
