@@ -6,8 +6,8 @@ module SIMPLE-ARITHMETIC-SPEC
     rule <k> X:Id * Y:Id => XI *Int YI ... </k>
          <env>
            ...
-           X |-> #storedVar(XL:Int, _:ElementaryTypeName, #mem, 1)
-           Y |-> #storedVar(YL:Int, _:ElementaryTypeName, #mem, 1)
+           X |-> #storedVar(XL:Int, _:ElementaryTypeName, #mem, 1, 1, #fixed-size)
+           Y |-> #storedVar(YL:Int, _:ElementaryTypeName, #mem, 1, 1, #fixed-size)
            ...
          </env>
          <localMem>
@@ -22,8 +22,8 @@ module SIMPLE-ARITHMETIC-SPEC
     rule <k> X:Id + Y:Id => XI +Int YI ... </k>
          <env>
            ...
-           X |-> #storedVar(XL:Int, _:ElementaryTypeName, #mem, 1)
-           Y |-> #storedVar(YL:Int, _:ElementaryTypeName, #mem, 1)
+           X |-> #storedVar(XL:Int, _:ElementaryTypeName, #mem, 1, 1, #fixed-size)
+           Y |-> #storedVar(YL:Int, _:ElementaryTypeName, #mem, 1, 1, #fixed-size)
            ...
          </env>
          <localMem>
@@ -38,8 +38,8 @@ module SIMPLE-ARITHMETIC-SPEC
     rule <k> X:Id / Y:Id => XI /Int YI ... </k>
          <env>
            ...
-           X |-> #storedVar(XL:Int, _:ElementaryTypeName, #mem, 1)
-           Y |-> #storedVar(YL:Int, _:ElementaryTypeName, #mem, 1)
+           X |-> #storedVar(XL:Int, _:ElementaryTypeName, #mem, 1, 1, #fixed-size)
+           Y |-> #storedVar(YL:Int, _:ElementaryTypeName, #mem, 1, 1, #fixed-size)
            ...
          </env>
          <localMem>

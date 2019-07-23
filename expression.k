@@ -65,7 +65,7 @@ rule [Allocate-Dynamic-Array]:
 
 rule
     <k> #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), S) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int S)), S, 0, #dynamic) ...</k>
- 
+
 rule
     <k> #getDynamicSize() => 10 ...</k>
 
@@ -112,7 +112,7 @@ rule
         <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => 0, _ => L, #dynamic) ... </acctEnv>
         ...
     </account>
-    
+
 rule
     <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len, #dynamic) => . ...</k>
     <account>
@@ -182,7 +182,7 @@ rule
 
 rule
     <k> #computeArrayLength(.List, Length, T) => Length ...</k>
-    
+
 rule [Array-Push]:
     <k> #externalFunctionCall(#memberAccess(X, Y), (V:Value,.Values)) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr), V, #storage); ~> #singleArrayExp(#arrayExp(X), .List, #push) ...</k>
     requires Id2String(Y) ==String "push"
@@ -280,7 +280,7 @@ rule
 rule
     <k> #increaseArraySize(X, Length, L) => #externalFunctionCall(#memberAccess(X, String2Id("push")), (0,.Values)); ~> #increaseArraySize(X, Length +Int 1, L) ...</k>
     requires L >Int Length
-    
+
 rule
     <k> #increaseArraySize(X, L, L) => . ...</k>
 
@@ -290,7 +290,7 @@ rule
 
 rule
     <k> #reduceArraySize(X, L, L) => . ...</k>
-     
+
 //===================================================================================================
 
 rule

@@ -140,7 +140,7 @@ syntax FParameters ::= List{FParameter, ","}   [klabel(#fParameters)]
 syntax VariableDeclaration ::= TypeName StorageLocations Id   [klabel(#varDeclaration)]
 
 syntax StorageLocations ::= List{StorageLocation, " "}
-syntax StorageLocation ::= Memory | "storage" 
+syntax StorageLocation ::= Memory | "storage"
 syntax Memory ::= "memory"
 syntax Memories ::= List{Memory, " "}
 syntax StorageLocations ::= Memories
@@ -263,7 +263,7 @@ syntax MemOperation
           | #readAddress(Expression, MemFlag) 							[strict(1)]
           | #write(Expression, Expression) 									[strict(2)]
           | #writeAddress(Expression, Expression, MemFlag) 	[strict(1,2)]
-          | #allocate(Int, AccountId, VarInfo)      
+          | #allocate(Int, AccountId, VarInfo)
 
 syntax MemFlag
        ::= "#mem"
@@ -282,7 +282,7 @@ syntax ArrayOpFlag
          | "#getAddr"
          | PushOrPop
 
-syntax PushOrPop 
+syntax PushOrPop
        ::= "#push"
          | "#pop"
 
@@ -291,7 +291,7 @@ syntax Exec
 
 syntax SolidityItem ::= #exeStmt(Statement)
                       | AbnormalTerminationCode
-                      | #allocateArray(MemOperation, Expression, Int, VarTypeFlag)                              
+                      | #allocateArray(MemOperation, Expression, Int, VarTypeFlag)
                       | #readArray(Expression, IndexAccess)
                       | #writeArray(Expression, IndexAccess, Expression)
                       | #assignArray(Id, ExpressionList, Expression, Expression, TypeName) 		[strict(3,4)]
