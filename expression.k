@@ -60,14 +60,28 @@ This rule triggers the allocation of an array
 rule [Allocate-Fixed-size-Array]:
     <k> #allocate(N, CN, #varInfo(X:Id, E:Value, T:TypeName[Len:Int], M, L)) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int Len)), Len, 0, #fixed-size)  ...</k>
 //===================================================================================================
+
+
+/* ================================================================================================
+This rule triggers the allocation of a dynamic array
+    CN  : contract name
+    N   : the logical address of the "CN" contract instance
+    X   : the name of the array
+    M   : memory location (either #storage or #mem)
+    L   : the number of slots required for each element in the array (in the top level, L will be 1)
+---------------------------------------------------------------------------------------------------*/
 rule [Allocate-Dynamic-Array]:
     <k> #allocate(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L)) => #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), #getDynamicSize()) ...</k>
-
+//===================================================================================================
+// This rule translates an allocation of a dynamic array into an allocation of a fix-sized array
 rule
     <k> #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), S) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int S)), S, 0, #dynamic) ...</k>
-
+//===================================================================================================
+// This rule parameterizes the pre-allocated size of a dynamic array
 rule
     <k> #getDynamicSize() => 10 ...</k>
+//===================================================================================================
+
 
 /* ==================================================================================
 This rule recursively allocates each element in an array
@@ -103,7 +117,7 @@ rule
         <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => L, _ => L, #fixed-size) ... </acctEnv>
         ...
     </account>
-
+//=========================================================================================================
 rule
     <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len, #fixed-size) => . ...</k>
     <account>
@@ -112,7 +126,7 @@ rule
         <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => 0, _ => L, #dynamic) ... </acctEnv>
         ...
     </account>
-
+//=========================================================================================================
 rule
     <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #storage, L)), Len, Len, #dynamic) => . ...</k>
     <account>
@@ -144,7 +158,7 @@ rule
         <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, _, _, #fixed-size) ... </acctEnv>
         ...
     </account>
-
+//=========================================================================================================
 rule
     <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #storage, L)), Len, Len, #fixed-size) => . ...</k>
     <account>
@@ -153,7 +167,7 @@ rule
         <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, _ => 0, _, #dynamic) ... </acctEnv>
         ...
     </account>
-
+//=========================================================================================================
 rule
     <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ArrayTypeName, #storage, L)), Len, Len, #dynamic) => . ...</k>
     <account>
@@ -162,31 +176,59 @@ rule
         <acctEnv> ... X |-> #storedVar(_, T => T[], #storage, _ => 0, _, _ => #dynamic) ... </acctEnv>
         ...
     </account>
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule triggers a sequence of rules to obtain the length of a dynamic array.
+---------------------------------------------------------------------------------------------------------*/
 rule [Array-Length]:
     <k> X.Y => #singleArrayExp(#arrayExp(X), .List, #getLength) ...</k>
     requires Id2String(Y) ==String "length"
+//=========================================================================================================
 
+/* ========================================================================================================
+This rule recursively handles the case when the arrayExp is an IndexAccess, e.g., a[1][2]
+// L is a list containing all the indexes of IndexAccess, e.g., [2,1]
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #singleArrayExp(#arrayExp(X[Index]), L:List, F) => #singleArrayIndex(X, L, Index, F) ...</k>
-
+//=========================================================================================================
+// This rule puts the Index into the L
+//??? Maybe we can combine this rule and the above as the following rule:
+//    <k> #singleArrayExp(#arrayExp(X[Index]), L:List, F) => #singleArrayExp(#arrayExp(X), ListItem(Index)L:List, F) ...</k>
 rule
     <k> #singleArrayIndex(X, L, Index:Int, F) => #singleArrayExp(#arrayExp(X), ListItem(Index)L:List, F) ...</k>
+//=========================================================================================================
 
+/* ========================================================================================================
+This rules is the base case of getting the length of a dynamic array.
+It also triggers a sequence of #computerArrayLength rules.
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getLength) => #computeArrayLength(L, Length, T) ...</k>
     <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, Length, _, _) ...</env>
-
+//=========================================================================================================
 rule
     <k> #computeArrayLength(ListItem(Index)L:List, Length, T[IdxLength]) => #computeArrayLength(L, Length /Int IdxLength, T) ...</k>
-
+//=========================================================================================================
 rule
     <k> #computeArrayLength(.List, Length, T) => Length ...</k>
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule handles the case of pushing an element into a dynamic array.
+---------------------------------------------------------------------------------------------------------*/
 rule [Array-Push]:
     <k> #externalFunctionCall(#memberAccess(X, Y), (V:Value,.Values)) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr), V, #storage); ~> #singleArrayExp(#arrayExp(X), .List, #push) ...</k>
     requires Id2String(Y) ==String "push"
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule triggers a sequence of #computeIndexAddrr rules to return the logical address of an array.
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getAddr) => #computeIndexAddr(Addr, L, Length, Size, T) ...</k>
     <currentAccount> #account(N, CN) </currentAccount>
@@ -196,20 +238,27 @@ rule
         <acctEnv> ... X |-> #storedVar(Addr:Int, T:ArrayTypeName, _, Length, Size, #dynamic) ... </acctEnv>
         ...
     </account>
-
+//=========================================================================================================
 rule
     <k> #computeIndexAddr(Addr, ListItem(Index)L:List, Length, Size, T[IdxLength]) => #computeIndexAddr(Addr +Int (Index *Int (Size /Int IdxLength)), L, Length /Int IdxLength, Size /Int IdxLength, T) ...</k>
-
+//=========================================================================================================
 rule
     <k> #computeIndexAddr(Addr, .List, Length, Size, T) => Addr + Length ...</k>
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule triggers a sequence of #updateArrayLength rules to update the length of a dynamic array.
+//??? Seems missing a case where X is also an IndexAccess
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #singleArrayExp(#arrayExp(X:Id), L:List, F:PushOrPop) => #updateArrayLength(X, L, T, 1, F) ...</k>
     <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, _, _, #dynamic) ... </env>
-
+//=========================================================================================================
 rule
     <k> #updateArrayLength(X, ListItem(Index)L:List, T[IdxLength], Length, F) => #updateArrayLength(X, L, T, Length *Int IdxLength, F) ...</k>
-
+//=========================================================================================================
+// This rule update the length of a dynamic in the case of "push".
 rule
     <k> #updateArrayLength(X, .List, T, Length, #push) => L + Length ...</k>
     <currentAccount> #account(N, CN) </currentAccount>
@@ -219,7 +268,8 @@ rule
         <acctEnv> ... X |-> #storedVar(_, _:ArrayTypeName, _, L => L +Int Length, _, #dynamic) ... </acctEnv>
         ...
     </account>
-
+//=========================================================================================================
+// This rule update the length of a dynamic in the case of "pop".
 rule
     <k> #updateArrayLength(X, .List, T, Length, #pop) => L - Length ...</k>
     <currentAccount> #account(N, CN) </currentAccount>
@@ -229,11 +279,21 @@ rule
         <acctEnv> ... X |-> #storedVar(_, _:ArrayTypeName, _, L => L -Int Length, _, #dynamic) ... </acctEnv>
         ...
     </account>
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule handles the case of poping an element from a dynamic array.
+---------------------------------------------------------------------------------------------------------*/
 rule [Array-Pop]:
     <k> #externalFunctionCall(#memberAccess(X, Y), .Values) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr) - 1, #getInitValue(#singleArrayExp(#arrayExp(X), .List, #getAddr) - 1), #storage); ~> #singleArrayExp(#arrayExp(X), .List, #pop) ...</k>
     requires Id2String(Y) ==String "pop"
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule returns the initial value, 0 , for an integer variable.
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #getInitValue(Addr:Int) => 0 ... </k>
     <currentAccount> #account(N, CN) </currentAccount>
@@ -243,7 +303,11 @@ rule
         <acctStorage> ... Addr |-> V:Int ...</acctStorage>
         ...
     </account>
+//=========================================================================================================
 
+/* ========================================================================================================
+This rule returns the initial value, false , for boolean variable.
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #getInitValue(Addr:Int) => false ... </k>
     <currentAccount> #account(N, CN) </currentAccount>
@@ -253,7 +317,13 @@ rule
         <acctStorage> ... Addr |-> V:Bool ...</acctStorage>
         ...
     </account>
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule resizes the length of a dynamic array, e.g., a.length = 3.
+//?? Seems missing the case when X is also an IndexAccess
+---------------------------------------------------------------------------------------------------------*/
 rule [Resize-Array]:
     <k> X.Y = L => #resizeArray(X, L, Length) ~> #end_Exp ...</k>
     <currentAccount> #account(N, CN) </currentAccount>
@@ -264,34 +334,43 @@ rule [Resize-Array]:
         ...
     </account>
     requires Id2String(Y) ==String "length"
-
+//=========================================================================================================
 rule
     <k> #resizeArray(X, L, Length) => . ...</k>
     requires L ==Int Length
-
+//=========================================================================================================
 rule
     <k> #resizeArray(X, L, Length) => #increaseArraySize(X, Length, L) ...</k>
     requires L >Int Length
-
+//=========================================================================================================
 rule
     <k> #resizeArray(X, L, Length) => #reduceArraySize(X, Length, L) ...</k>
     requires L <Int Length
+//=========================================================================================================
 
+
+/* ========================================================================================================
+This rule increases the length of a dynamic array.
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #increaseArraySize(X, Length, L) => #externalFunctionCall(#memberAccess(X, String2Id("push")), (0,.Values)); ~> #increaseArraySize(X, Length +Int 1, L) ...</k>
     requires L >Int Length
-
+//=========================================================================================================
 rule
     <k> #increaseArraySize(X, L, L) => . ...</k>
+//=========================================================================================================
 
+/* ========================================================================================================
+This rule reduces the length of a dynamic array.
+---------------------------------------------------------------------------------------------------------*/
 rule
     <k> #reduceArraySize(X, Length, L) => #externalFunctionCall(#memberAccess(X, String2Id("pop")), (.Values)); ~> #reduceArraySize(X, Length -Int 1, L) ...</k>
     requires L <Int Length
-
+//=========================================================================================================
 rule
     <k> #reduceArraySize(X, L, L) => . ...</k>
-
 //===================================================================================================
+
 
 rule
     <k> [E:ExpressionList] => #tupleExp(E) ...</k>
