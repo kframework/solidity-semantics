@@ -78,8 +78,10 @@ rule
     <k> #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), S) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int S)), S, 0, #dynamic) ...</k>
 //===================================================================================================
 // This rule parameterizes the pre-allocated size of a dynamic array
+
+syntax Int ::= #getDynamicSize()
 rule
-    <k> #getDynamicSize() => 10 ...</k>
+     #getDynamicSize() => 10 [macro]
 //===================================================================================================
 
 
@@ -181,6 +183,9 @@ rule
 
 /* ========================================================================================================
 This rule triggers a sequence of rules to obtain the length of a dynamic array.
+
+??? I think the length of a dynamic array should not be stored in #storedVar(_,_,_,Length,_,_)
+??? This will fail for the case of: uint[][2] array
 ---------------------------------------------------------------------------------------------------------*/
 rule [Array-Length]:
     <k> X.Y => #singleArrayExp(#arrayExp(X), .List, #getLength) ...</k>

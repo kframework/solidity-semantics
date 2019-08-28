@@ -320,7 +320,6 @@ syntax Expression ::= #getAddress(Int, Expression, Expression, Int, List, Expres
                     | #getRelativeAddr(Int, Expression, Int) 												[strict(2)]
                     | #tupleExp(ExpressionList) 																			[strict]
                     | MemOperation
-                    | #getDynamicSize()
                     | #singleArrayExp(Expression, List, ArrayOpFlag)
                     | #getInitValue(Expression)                                     [strict]
 
