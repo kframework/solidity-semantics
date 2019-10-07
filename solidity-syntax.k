@@ -256,7 +256,7 @@ syntax ValueResult
 
 syntax VarInfo
        ::= #varInfo(Id, Expression, TypeName, MemFlag, Expression) 	[strict(2,5)]
-         | #storedVar(Int, TypeName, MemFlag, Int, Int, VarTypeFlag)
+         | #storedVar(Int, TypeName, MemFlag, Length, Int, VarTypeFlag)
 
 syntax MemOperation
         ::= #read(Expression)
@@ -280,11 +280,17 @@ syntax VarTypeFlag
 syntax ArrayOpFlag
        ::= "#getLength"
          | "#getAddr"
+         | "#getAddrTuple"
          | PushOrPop
+         | "#updateLength"
 
 syntax PushOrPop
        ::= "#push"
          | "#pop"
+         | "#pushTuple"
+       
+syntax Length
+       ::= #length(Int, Map)
 
 syntax Exec
        ::= "#execute"
@@ -304,24 +310,30 @@ syntax SolidityItem ::= #exeStmt(Statement)
                       | #copyArrayArrayPartial(Id, Id, TypeName, TypeName, Int, List, Int, List, Int, Int)
                       | #addDynamicLength(Int, Expression, Int, TypeName, Int, List, Expression)        [strict(7)]
                       | #singleArrayIndex(Expression, List, Expression, ArrayOpFlag) [strict(3)]
-                      | #computeArrayLength(List, Int, TypeName)
-                      | #computeIndexAddr(Int, List, Expression, Expression, TypeName)  [strict(3,4)]
-                      | #updateArrayLength(Id, List, TypeName, Int, PushOrPop)
-                      | #resizeArray(Expression, Int, Int)
+                      | #computeArrayLength(Id, List, Int, TypeName)
+                      | #computeIndexAddr(Id, Int, List, Expression, Expression, TypeName)  [strict(4,5)]
+                      | #updateArrayLength(Id, List, TypeName, Int, PushOrPop, Int)
+                      | #resizeArray(Expression, Int, Expression)        [strict(3)]
                       | #increaseArraySize(Expression, Int, Int)
                       | #reduceArraySize(Expression, Int, Int)
                       | #pointToStorage(Id, VarInfo)
-
+                      | #updateDynamicLength(Id, Expression, Int, PushOrPop)          [strict(2)]
+                      | #updateDynamicLengthInMap(Id, Int, Int, PushOrPop)
+                      | #saveDynamicLengthInMap(Id)
+                      | #getLengthInTempMap(Int, Int)
+                      | #getIndexLength(Id, List, Int, Int, TypeName, Int)
+                     
 syntax AbnormalTerminationCode ::= "#continue#" | "#break#" | "#return#" | "#transfer-failed#"
 
 syntax Expression ::= #getAddress(Int, Expression, Expression, Int, List, Expression)							[strict(3)]
                     | #recordIndexLength(Int, Expression, Int, TypeName, Int, List)
-                    | #getIndexAddress(Int, Expression, Int, TypeName, Int)
+                    | #getIndexAddress(Int, Expression, Int, TypeName, Expression)      [strict(5)]
                     | #getRelativeAddr(Int, Expression, Int) 												[strict(2)]
                     | #tupleExp(ExpressionList) 																			[strict]
                     | MemOperation
                     | #singleArrayExp(Expression, List, ArrayOpFlag)
                     | #getInitValue(Expression)                                     [strict]
+                    | #getDynamicLength(Id, Int, List, Int, TypeName, List)
 
 
 endmodule

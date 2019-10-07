@@ -101,17 +101,17 @@ rule [Syntactic-Sugar-Internal-Call]:
 
 rule [Send-Fund]:
     <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => Base ~> "#FundSend#" ~> ARGS ... </k>
-    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, 1, _, _) ...</env>
+    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, #length(1, .Map), _, _) ...</env>
     requires (Id2String(FN) ==String "send")
 
 rule [Transfer-Fund]:
     <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => Base ~> "#TransferFund#" ~> ARGS ... </k>
-    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, 1, _, _) ...</env>
+    <env> ... Base |-> #storedVar(_:Int, _:AddressPayableType, _:MemFlag, #length(1, .Map), _, _) ...</env>
     requires (Id2String(FN) ==String "transfer")
 
 rule [Syntactic-Sugar-External-Call-Decompose]:
     <k> #externalFunctionCall(#memberAccess(Base:Id, FN:Id), ARGS:Values) => #memberAccess(Base, FN) ~> ARGS ... </k>
-    requires (notBool (Id2String(FN) ==String "send")) andBool (notBool (Id2String(FN) ==String "transfer"))
+    requires (notBool (Id2String(FN) ==String "send")) andBool (notBool (Id2String(FN) ==String "transfer")) andBool Id2String(FN) =/=String "push"
 
 rule [Syntactic-Sugar-External-Call-Compose]:
     <k> #memberAccess(Base:Int, FN:Id) ~> ARGS:Values => functionCall(Base; FN; ARGS) ... </k>

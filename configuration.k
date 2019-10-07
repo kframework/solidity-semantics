@@ -59,6 +59,7 @@ configuration
                     // exact allocation strategy may vary(unlike storage), but anyway semantics should be indentical
                     <localMem> .Map </localMem>
                     <memorySlots> 0 </memorySlots>
+                    <tempMap> .Map </tempMap>
 
                     // Gas: not sure how, but I think we need it.
                     <gas>         0:Int </gas>

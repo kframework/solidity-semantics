@@ -22,7 +22,7 @@ rule [Allocate-Global-NonArrayType]:
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> CONTEXT:Map => CONTEXT[X <- #storedVar(Slot +Int 1, T, #storage, 1, 1, #fixed-size)] </acctEnv>
+        <acctEnv> CONTEXT:Map => CONTEXT[X <- #storedVar(Slot +Int 1, T, #storage, #length(1, .Map), 1, #fixed-size)] </acctEnv>
         <acctStorage> STORAGE:Map => STORAGE[Slot +Int 1 <- E] </acctStorage>
         <acctSlots> Slot => Slot +Int 1 </acctSlots>
         ...
@@ -40,7 +40,7 @@ This rule allocates a non-array type variable named "X" in memory
 --------------------------------------------------------------------------------- */
 rule [Allocate-Local-NonArrayType]:
     <k> #allocate(C, CN, #varInfo(X:Id, E:Value, T:NonArrayType, #mem, L)) => . ...</k>
-    <env> ENV:Map => ENV[X <- #storedVar(Slot +Int 1, T, #mem, 1, 1, #fixed-size)] </env>
+    <env> ENV:Map => ENV[X <- #storedVar(Slot +Int 1, T, #mem, #length(1, .Map), 1, #fixed-size)] </env>
     <currentAccount> #account(C, CN) </currentAccount>
     <localMem> MEM:Map => MEM[Slot +Int 1 <- E] </localMem>
     <memorySlots> Slot => Slot +Int 1 </memorySlots>
@@ -76,6 +76,7 @@ rule [Allocate-Dynamic-Array]:
 // This rule translates an allocation of a dynamic array into an allocation of a fix-sized array
 rule
     <k> #allocateDynamicArray(N, CN, #varInfo(X:Id, E:Value, T:TypeName[], M, L), S) => #allocateArray(#allocate(N, CN, #varInfo(X, E, T, M, L *Int S)), S, 0, #dynamic) ...</k>
+
 //===================================================================================================
 // This rule parameterizes the pre-allocated size of a dynamic array
 
@@ -103,7 +104,7 @@ In addition, it corrects the information of the array.
 --------------------------------------------------------------------------------------------------------*/
 rule
     <k> #allocateArray(#allocate(N, CN, #varInfo(X, E, T:ElementaryTypeName, #mem, L)), Len, Len, #fixed-size) => . ...</k>
-    <env> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #mem, _ => L, _ => L, _) ...</env>
+    <env> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #mem, #length(_, M) => #length(L, M), _ => L, _) ...</env>
 //========================================================================================================
 
 
@@ -116,7 +117,7 @@ rule
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => L, _ => L, #fixed-size) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, #length(_, M) => #length(L, M), _ => L, #fixed-size) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -125,7 +126,7 @@ rule
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, _ => 0, _ => L, #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[Len], #storage, #length(_, M) => #length(0, M), _ => L, #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -134,7 +135,7 @@ rule
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[], #storage, _ => 0, _ => L, _ => #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(A => A -Int L +Int 1, T => T[], #storage, #length(_, M) => #length(0, M), _ => L, _ => #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -166,7 +167,7 @@ rule
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, _ => 0, _, #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(_, T => T[Len], #storage, #length(_, M) => #length(0, M), _, #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -175,7 +176,7 @@ rule
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(_, T => T[], #storage, _ => 0, _, _ => #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(_, T => T[], #storage, #length(_, M) => #length(0, M), _, _ => #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -202,8 +203,13 @@ rule
 // This rule puts the Index into the L
 //??? Maybe we can combine this rule and the above as the following rule:
 //    <k> #singleArrayExp(#arrayExp(X[Index]), L:List, F) => #singleArrayExp(#arrayExp(X), ListItem(Index)L:List, F) ...</k>
+
 rule
     <k> #singleArrayIndex(X, L, Index:Int, F) => #singleArrayExp(#arrayExp(X), ListItem(Index)L:List, F) ...</k>
+
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getLength) => #computeArrayLength(X, L, Length, T) ...</k>
+    <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, #length(Length, _), _, #fixed-size) ...</env>
 //=========================================================================================================
 
 /* ========================================================================================================
@@ -211,22 +217,64 @@ This rules is the base case of getting the length of a dynamic array.
 It also triggers a sequence of #computerArrayLength rules.
 ---------------------------------------------------------------------------------------------------------*/
 rule
-    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getLength) => #computeArrayLength(L, Length, T) ...</k>
-    <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, Length, _, _) ...</env>
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getLength) => #computeArrayLength(X, L, 0, T) ...</k>
+    <env> ... X |-> #storedVar(Addr, T:ArrayTypeName, _, _, _, #dynamic) ...</env>
+    requires L =/=K .List
 //=========================================================================================================
 rule
-    <k> #computeArrayLength(ListItem(Index)L:List, Length, T[IdxLength]) => #computeArrayLength(L, Length /Int IdxLength, T) ...</k>
+    <k> #singleArrayExp(#arrayExp(X:Id), .List, #getLength) => Length ...</k>
+    <env> ... X |-> #storedVar(Addr, T:ArrayTypeName[], _, #length(Length, _), Size, #dynamic) ...</env>
 //=========================================================================================================
 rule
-    <k> #computeArrayLength(.List, Length, T) => Length ...</k>
+    <k> #singleArrayExp(#arrayExp(X:Id), .List, #getLength) => Length ...</k>
+    <env> ... X |-> #storedVar(Addr, T:ArrayTypeName[Index:Int], _, #length(Length, _), Size, #dynamic) ...</env>
 //=========================================================================================================
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), .List, #getLength) => #computeArrayLength(X, .List, 0, T[]) ...</k>
+    <env> ... X |-> #storedVar(_, T:ElementaryTypeName[], _, _, _, #dynamic) ...</env>
+//=========================================================================================================
+rule
+    <k> #computeArrayLength(X:Id, ListItem(Index)L:List, Length, T[IdxLength]) => #computeArrayLength(X, L, Length /Int IdxLength, T) ...</k>
+    <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, _, _, #fixed-size) ...</env>
+
+rule
+    <k> #computeArrayLength(X:Id, ListItem(Index)L:List, Length, T[]) => #getIndexLength(X, L, Addr +Int (Index *Int(Size /Int 10)), Size /Int 10, T, Length) ...</k>
+    <env> ... X |-> #storedVar(Addr, _, _, _, Size, _) ...</env>
+//=========================================================================================================
+rule
+    <k> #computeArrayLength(X:Id, ListItem(Index)L:List, Length, T[IdxLength:Int]) => #getIndexLength(X, L, Addr +Int (Index *Int(Size /Int IdxLength)), Size /Int IdxLength, T, Length) ...</k>
+    <env> ... X |-> #storedVar(Addr, _, _, _, Size, #dynamic) ...</env>
+//=========================================================================================================
+rule
+    <k> #getIndexLength(X, ListItem(Index) L:List, Addr, Size, T[], Length) => #getIndexLength(X, L, Addr +Int (Index *Int(Size /Int 10)), Size /Int 10, T, Length) ...</k>
+//=========================================================================================================
+rule
+    <k> #getIndexLength(X, ListItem(Index) L:List, Addr, Size, T[IdxLength:Int], Length) => #getIndexLength(X, L, Addr +Int (Index *Int(Size /Int IdxLength)), Size /Int IdxLength, T, Length) ...</k>
+//=========================================================================================================
+rule
+    <k> #getIndexLength(X, .List, Addr, S, T, L) => #getLengthInTempMap(Addr, L) ...</k>
+    <env> ... X |-> #storedVar(_, _, _, #length(_, M), _, _) ...</env>
+    <tempMap> _ => M </tempMap>
+//=========================================================================================================
+rule
+    <k> #getLengthInTempMap(Addr, L) => L + Length ... </k>
+    <tempMap> ... Addr |-> Length ... </tempMap>
+//=========================================================================================================
+rule
+    <k> #getLengthInTempMap(Addr, L) => L ...</k>
+    <tempMap> M </tempMap>
+    requires  notBool(Addr in keys(M))
+//=========================================================================================================
+rule
+    <k> #computeArrayLength(X, .List, L, T) => #getIndexLength(X, .List, Addr, Size, T, L) ...</k>
+    <env> ... X |-> #storedVar(Addr, _, _, _, Size, _) ...</env>
 
 
 /* ========================================================================================================
 This rule handles the case of pushing an element into a dynamic array.
 ---------------------------------------------------------------------------------------------------------*/
 rule [Array-Push]:
-    <k> #externalFunctionCall(#memberAccess(X, Y), (V:Value,.Values)) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr), V, #storage); ~> #singleArrayExp(#arrayExp(X), .List, #push) ...</k>
+    <k> #externalFunctionCall(#memberAccess(X, Y), (V:ValueResult,.Values)) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddr), V, #storage); ~> #singleArrayExp(#arrayExp(X), .List, #push) ...</k>
     requires Id2String(Y) ==String "push"
 //=========================================================================================================
 
@@ -235,20 +283,153 @@ rule [Array-Push]:
 This rule triggers a sequence of #computeIndexAddrr rules to return the logical address of an array.
 ---------------------------------------------------------------------------------------------------------*/
 rule
-    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getAddr) => #computeIndexAddr(Addr, L, Length, Size, T) ...</k>
+    <k> #externalFunctionCall(#memberAccess(X, Y), (#tupleExp(V), .Values)) => #writeAddress(#singleArrayExp(#arrayExp(X), .List, #getAddrTuple), V, #storage); ~> #singleArrayExp(#arrayExp(X), .List, #pushTuple) ...</k>
+    requires Id2String(Y) ==String "push"
+//=========================================================================================================
+
+
+/* ========================================================================================================
+This rule triggers a sequence of #computeIndexAddrr rules to return the logical address of an array.
+---------------------------------------------------------------------------------------------------------*/
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getAddr) => #getDynamicLength(X, Addr, L,  Size, T, L) ...</k>
+    <env> ... X |-> #storedVar(Addr:Int, _, _, _, _, _) ...</env>
     <currentAccount> #account(N, CN) </currentAccount>
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(Addr:Int, T:ArrayTypeName, _, Length, Size, #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(_, T:ArrayTypeName, _, #length(Length, M), Size, #dynamic) ... </acctEnv>
         ...
     </account>
+    <tempMap> _ => M </tempMap>
 //=========================================================================================================
 rule
-    <k> #computeIndexAddr(Addr, ListItem(Index)L:List, Length, Size, T[IdxLength]) => #computeIndexAddr(Addr +Int (Index *Int (Size /Int IdxLength)), L, Length /Int IdxLength, Size /Int IdxLength, T) ...</k>
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #getAddrTuple) => #getDynamicLength(X, Addr +Int (Length *Int 10), L,  Size, T, .List) ...</k>
+    <env> ... X |-> #storedVar(Addr:Int, _, _, _, _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, T:ArrayTypeName, _, #length(Length, M), Size, #dynamic) ... </acctEnv>
+        ...
+    </account>
+    <tempMap> _ => M </tempMap>
 //=========================================================================================================
 rule
-    <k> #computeIndexAddr(Addr, .List, Length, Size, T) => Addr + Length ...</k>
+    <k> #getDynamicLength(X, Addr, L, Size, T, ListItem(Index)L1:List) => #getDynamicLength(X, Addr +Int (Index *Int 10), L, Size, T, L1) ...</k>
+
+rule
+    <k> #getDynamicLength(X, Addr, L, Size, T, .List) => #computeIndexAddr(X, Addr, L, Length, Size, T) ...</k>
+    <tempMap> ... Addr |-> Length ... </tempMap>
+//=========================================================================================================
+rule
+    <k> #getDynamicLength(X, Addr, L, Size, T, .List) => #computeIndexAddr(X, Addr, L, 0, Size, T) ...</k>
+    <tempMap> M </tempMap>
+    requires notBool (Addr in keys(M))
+//=========================================================================================================
+
+rule [Array-Push-Tuple]:
+    <k> #externalFunctionCall(#memberAccess(X, Y), (#tupleExp(E:Value, Es:Values), .Values)) => #externalFunctionCall(#memberAccess(X:Expression[0], Y), (#tupleExp(E), .Values)); ~>#externalFunctionCall(#memberAccess(X, Y), (#tupleExp(Es:Values), .Values)); ~> #end_Exp ...</k>
+    <env> ... X |-> #storedVar(Addr:Int, _, _, _, _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, T:ArrayTypeName, _, #length(Length, M), Size, #dynamic) ... </acctEnv>
+        ...
+    </account>
+    requires Id2String(Y) ==String "push"
+
+rule 
+    <k> #externalFunctionCall(#memberAccess(X, Y), (#tupleExp(.Values), .Values)) => #singleArrayExp(#arrayExp(X), .List, #updateLength) ...</k>
+    requires Id2String(Y) ==String "push"
+/*
+rule
+    <k> #singleArrayExp(#arrayExp(X:Expression[Index]), L:List, #pushTuple) => #singleArrayExp(#arrayExp(X), L, #pushTuple) ... </k>
+
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #pushTuple) => #externalFunctionCall(#memberAccess(X:Expression[0], Y), (E, .Values)); ... </k>
+    <env> ... X |-> #storedVar(_, _, _, #length(TL => TL +Int 1, _), _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _, _, #length(TL => TL +Int 1, _), _, _) ... </acctEnv>
+        ...
+    </account>*/
+
+rule
+   <k> #singleArrayExp(#arrayExp(X:Expression[Index]), L:List, #updateLength) => #singleArrayExp(#arrayExp(X), L:List, #updateLength) ...</k>
+
+rule
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, #updateLength) => #end_Exp ...</k>
+    <env> ... X |-> #storedVar(_, _, _, #length(Length, M) => #length(Length +Int 1, M), _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _, _, #length(Length, M) => #length(Length +Int 1, M), _, _) ... </acctEnv>
+        ...
+    </account>
+
+rule
+    <k> #updateDynamicLength(X, Addr, Length, #push) => Length ...</k>
+    <env> ... X |-> #storedVar(_, _, _, #length(_, (M => (Addr |-> Length) M)), _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _, _, #length(_, (M => (Addr |-> Length) M)), _, _) ... </acctEnv>
+        ...
+    </account>
+    requires notBool (Addr in keys(M))
+
+rule
+    <k> #updateDynamicLength(X, Addr, Length, F:PushOrPop) => #updateDynamicLengthInMap(X, Addr, Length, F) ...</k>
+    <env> ... X |-> #storedVar(_, _, _, #length(_, M), _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _, _, #length(_, M), _, _) ... </acctEnv>
+        ...
+    </account>
+    <tempMap> _ => M </tempMap>
+    requires Addr in keys(M)
+
+rule
+    <k> #updateDynamicLengthInMap(X, Addr, Length, #push) => #saveDynamicLengthInMap(X) ~> L + Length ...</k>
+    <tempMap> ... Addr |-> (L => L +Int Length) ... </tempMap>
+
+rule
+    <k> #updateDynamicLengthInMap(X, Addr, Length, #pop) => #saveDynamicLengthInMap(X) ~> L - Length ...</k>
+    <tempMap> ... Addr |-> (L => L -Int Length) ... </tempMap>
+
+rule
+    <k> #saveDynamicLengthInMap(X) => . ...</k>
+    <env> ... X |-> #storedVar(_, _, _, #length(_, _ => M), _, _) ...</env>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(_, _, _, #length(_, _ => M), _, _) ... </acctEnv>
+        ...
+    </account>
+    <tempMap> M => .Map </tempMap>
+//=========================================================================================================
+rule
+    <k> #computeIndexAddr(X, Addr, ListItem(Index)L:List, Length, Size, T[IdxLength]) => #computeIndexAddr(X, Addr +Int (Index *Int (Size /Int IdxLength)), L, Length /Int IdxLength, Size /Int IdxLength, T) ...</k>
+    <env> ... X |-> #storedVar(_, _, _, _, _, #fixed-size) ... </env>
+//=========================================================================================================
+rule
+    <k> #computeIndexAddr(X, Addr, ListItem(Index)L:List, Length, Size, T[IdxLength]) => #computeIndexAddr(X, Addr, L, Length, Size /Int IdxLength, T) ...</k>
+    <env> ... X |-> #storedVar(_, _, _, _, _, #dynamic) ... </env>
+//=========================================================================================================
+rule
+    <k> #computeIndexAddr(X, Addr, ListItem(Index)L:List, Length, Size, T[]) => #computeIndexAddr(X, Addr, L, Length, Size /Int 10, T) ...</k>
+//========================================================================================================
+rule
+    <k> #computeIndexAddr(X, Addr, .List, Length, Size, T) => Addr + Length ...</k>
 //=========================================================================================================
 
 
@@ -257,31 +438,42 @@ This rule triggers a sequence of #updateArrayLength rules to update the length o
 //??? Seems missing a case where X is also an IndexAccess
 ---------------------------------------------------------------------------------------------------------*/
 rule
-    <k> #singleArrayExp(#arrayExp(X:Id), L:List, F:PushOrPop) => #updateArrayLength(X, L, T, 1, F) ...</k>
+    <k> #singleArrayExp(#arrayExp(X:Id), L:List, F:PushOrPop) => #updateArrayLength(X, L, T, 1, F, 0) ...</k>
     <env> ... X |-> #storedVar(_, T:ArrayTypeName, _, _, _, #dynamic) ... </env>
 //=========================================================================================================
 rule
-    <k> #updateArrayLength(X, ListItem(Index)L:List, T[IdxLength], Length, F) => #updateArrayLength(X, L, T, Length *Int IdxLength, F) ...</k>
+    <k> #updateArrayLength(X, ListItem(Index)L:List, T[IdxLength], Length, F, D) => #updateArrayLength(X, L, T, Length, F, D +Int (Index *Int 10)) ...</k>
 //=========================================================================================================
-// This rule update the length of a dynamic in the case of "push".
 rule
-    <k> #updateArrayLength(X, .List, T, Length, #push) => L + Length ...</k>
+    <k> #updateArrayLength(X, ListItem(Index)L:List, T[], Length, F, D) => #updateArrayLength(X, L, T, Length, F, D +Int (Index *Int 10)) ...</k>
+//=========================================================================================================
+rule
+    <k> #updateArrayLength(X, .List, T, Length, #pushTuple, D) => #updateDynamicLength(X, Addr +Int (L *Int 10), Length, #push) ...</k>
     <currentAccount> #account(N, CN) </currentAccount>
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(_, _:ArrayTypeName, _, L => L +Int Length, _, #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(Addr, _:ArrayTypeName, _, #length(L, M), _, #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
-// This rule update the length of a dynamic in the case of "pop".
 rule
-    <k> #updateArrayLength(X, .List, T, Length, #pop) => L - Length ...</k>
+    <k> #updateArrayLength(X, .List, T, Length, #push, D) => #updateDynamicLength(X, Addr +Int D, Length, #push) ...</k>
     <currentAccount> #account(N, CN) </currentAccount>
     <account>
         <acctID> N </acctID>
         <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(_, _:ArrayTypeName, _, L => L -Int Length, _, #dynamic) ... </acctEnv>
+        <acctEnv> ... X |-> #storedVar(Addr, _:ArrayTypeName, _, #length(L, M), _, #dynamic) ... </acctEnv>
+        ...
+    </account>
+//=========================================================================================================
+rule
+    <k> #updateArrayLength(X, .List, T, Length, #pop, D) => #updateDynamicLength(X, Addr +Int D, Length, #pop) ...</k>
+    <currentAccount> #account(N, CN) </currentAccount>
+    <account>
+        <acctID> N </acctID>
+        <contractName> CN </contractName>
+        <acctEnv> ... X |-> #storedVar(Addr, _:ArrayTypeName, _, #length(L, M), _, #dynamic) ... </acctEnv>
         ...
     </account>
 //=========================================================================================================
@@ -330,14 +522,7 @@ This rule resizes the length of a dynamic array, e.g., a.length = 3.
 //?? Seems missing the case when X is also an IndexAccess
 ---------------------------------------------------------------------------------------------------------*/
 rule [Resize-Array]:
-    <k> X.Y = L => #resizeArray(X, L, Length) ~> #end_Exp ...</k>
-    <currentAccount> #account(N, CN) </currentAccount>
-    <account>
-        <acctID> N </acctID>
-        <contractName> CN </contractName>
-        <acctEnv> ... X |-> #storedVar(_, T:ArrayTypeName, _, Length, _, #dynamic) ...</acctEnv>
-        ...
-    </account>
+    <k> X.Y = L => #resizeArray(X, L, #singleArrayExp(#arrayExp(X), .List, #getLength)) ~> #end_Exp ...</k>
     requires Id2String(Y) ==String "length"
 //=========================================================================================================
 rule
@@ -374,8 +559,8 @@ rule
 //=========================================================================================================
 rule
     <k> #reduceArraySize(X, L, L) => . ...</k>
-//===================================================================================================
 
+//===================================================================================================
 
 rule
     <k> [E:ExpressionList] => #tupleExp(E) ...</k>
@@ -471,7 +656,7 @@ rule
 
 rule
     <k> #processArray(X:Id, Y:Id, IdxList1, IdxList2) => #copyArrayArrayPartial(X, Y, T1, T2, 0, IdxList1, 0, IdxList2, L1, L2) ...</k>
-    <env> ... (X |-> #storedVar(_, T1, _, L1, _, _)) (Y |-> #storedVar(_, T2, _, L2, _, _))...</env>
+    <env> ... (X |-> #storedVar(_, T1, _, #length(L1, _), _, _)) (Y |-> #storedVar(_, T2, _, #length(L2, _), _, _))...</env>
 
 rule
     <k> #copyArrayArrayPartial(X, Y, T1[I1:Int], T2, D1, ListItem(Index1)IdxList1, D2, IdxList2, L1, L2) => #copyArrayArrayPartial(X, Y, T1, T2, D1 +Int (Index1 *Int (L1 /Int I1)), IdxList1, D2, IdxList2, L1 /Int I1, L2) ...</k>
@@ -503,7 +688,7 @@ rule
 
 rule
     <k> #processArrayExp(X:Id, #tupleExp(E), IdxList) => #assignArrayPartial(X, E, T, 0, IdxList, L) ...</k>
-    <env> ... X |-> #storedVar(_, T, _, L, _, _) ...</env>
+    <env> ... X |-> #storedVar(_, T, _, #length(L, _), _, _) ...</env>
 //===================================================================================================================
 /* ==================================================================================================================
 These two rules recursively calculate the offset (from the starting address of the array) to be assigned in
@@ -526,7 +711,7 @@ rule
 
 rule [Read-NonArrayType]:
     <k> #read(X:Id) => #readAddress(N, M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, 1, _, _) ...</env>
+    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, #length(1, .Map), _, _) ...</env>
 
 rule [Read-ArrayType-Index]:
     <k> #read(X:Expression[Index]) => #readArray(X, X[Index]) ...</k>
@@ -536,7 +721,11 @@ rule
 
 rule
     <k> #readArray(X:Id, Y:IndexAccess) => #readAddress(#getIndexAddress(N, Y, 0, T, Len), M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, Len, _, _) ...</env>
+    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, #length(Len, _), _, #fixed-size) ...</env>
+
+rule
+    <k> #readArray(X:Id, Y:IndexAccess) => #readAddress(#getIndexAddress(N, Y, 0, T, #getDynamicLength(X, N, .List, Size, T, .List)), M) ...</k>
+    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, _, Size, #dynamic) ...</env>
 
 /* ==============================================================================================
 This rule helps to get the actual logical address for <IndexAccess> of an array
@@ -637,7 +826,7 @@ rule [Read-State-Variables]:
 
 rule [Write-NonArrayType]:
     <k> #write(X:Id,I:Value) => #writeAddress(N, I, M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, 1, _, _) ...</env>
+    <env> ... X |-> #storedVar(N:Int, _:NonArrayType, M, #length(1, .Map), _, _) ...</env>
 
 rule [Write-ArrayType-Index]:
     <k> #write(X:Expression[Index],I:ValueResult) => #writeArray(X, X[Index], I) ...</k>
@@ -647,7 +836,7 @@ rule
 
 rule
     <k> #writeArray(X:Id, Y:IndexAccess,I:ValueResult) => #writeAddress(#getIndexAddress(N, Y, 0, T, Len), I, M) ...</k>
-    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, Len, _, _) ...</env>
+    <env> ... X |-> #storedVar(N:Int, T:ArrayTypeName, M, #length(Len, _), _, _) ...</env>
 
 rule [Write-Local-Variables]:
     <k> #writeAddress(N, I:ValueResult, #mem) => #end_Exp ...</k>

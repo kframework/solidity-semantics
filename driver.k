@@ -117,6 +117,7 @@ rule
                     <tenv> _ => .Map </tenv>
                     <localMem> _ => .Map </localMem>
                     <memorySlots> _ => 0 </memorySlots>
+                    <tempMap> _ => .Map </tempMap>
 
                     <gas>         _ => 0:Int </gas>
                     <memoryUsed>  _ => 0:Int </memoryUsed>
