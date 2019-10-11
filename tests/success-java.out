@@ -60,6 +60,9 @@
           <memorySlots>
             0
           </memorySlots>
+          <tempMap> 
+            .Map 
+          </tempMap>
           <gas>
             0
           </gas>
